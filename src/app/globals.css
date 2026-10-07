@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Design tokens — placeholder palette until the real design lands.
+   Change these to re-skin the whole app. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef0f3;
+  --line: #e2e5ea;
+  --fg: #111827;
+  --muted: #6b7280;
+  --brand: #0f766e;
+  --ok: #16a34a;
+  --info: #2563eb;
+  --warn: #d97706;
+  --bad: #dc2626;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+input[type="range"] {
+  accent-color: var(--brand);
+}
+
+/* Leaflet sits under the app chrome. */
+.leaflet-container {
+  z-index: 0;
+  font: inherit;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
