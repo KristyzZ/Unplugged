@@ -1,59 +1,59 @@
 # Unplugged
 
-Viena bendra elektromobilių įkrovimo platforma — natyvi iOS programėlė (Swift, SwiftUI). Visų operatorių stotelės, realaus laiko užimtumas, kelionių planavimas, atsiskaitymas vienoje vietoje ir atsakingo stotelių naudojimo skatinimas: dinaminis „grace period“, progresyvus „idle fee“, taškai ir pranešimai apie piktnaudžiavimą.
+A unified EV charging platform — a native iOS app built with Swift and SwiftUI. Stations across operators, live availability, trip planning, payments in one place, and incentives for responsible use: dynamic grace periods, progressive idle fees, points, and abuse reporting.
 
-Vilnius Hack 2026 · iššūkis Nr. 13.
+Vilnius Hack 2026 · Challenge #13.
 
-> Prototipas. Visi stotelių, kainų ir užimtumo duomenys yra **demonstraciniai** (`ios/Unplugged/Models/DemoData.swift`). Operatorių pavadinimai naudojami tik iliustracijai.
+> Prototype. All station, pricing, and occupancy data is **demo data** (`ios/Unplugged/Models/DemoData.swift`). Operator names are used for illustration only.
 
-## Paleidimas
+## Getting Started
 
-Reikia **Mac** su **Xcode 16** ar naujesniu (nemokamai App Store).
+Requires a **Mac** with **Xcode 16** or later (available free on the App Store).
 
 1. `git clone https://github.com/KristyzZ/Unplugged.git`
-2. Atidarykite `ios/Unplugged.xcodeproj`
-3. Viršuje pasirinkite simuliatorių (pvz., iPhone 16) ir spauskite ▶ (`⌘R`)
+2. Open `ios/Unplugged.xcodeproj`.
+3. Select a simulator at the top (e.g., iPhone 16) and press ▶ (`⌘R`).
 
-**Savo iPhone:** prijunkite telefoną, Xcode → projektas *Unplugged* → *Signing & Capabilities* → *Team* pasirinkite savo Apple ID. Jei rašo, kad Bundle ID užimtas, pakeiskite `lt.vilniushack.unplugged` į bet ką unikalaus. Telefone: *Nustatymai → Bendrieji → VPN ir įrenginių valdymas* → patvirtinkite kūrėją.
+**On your iPhone:** connect your phone, then in Xcode open the *Unplugged* project → *Signing & Capabilities* → *Team* and select your Apple ID. If the Bundle ID is already taken, change `lt.vilniushack.unplugged` to a unique value. On your phone, go to *Settings → General → VPN & Device Management* and trust the developer.
 
-Simuliatoriuje vietą galima nustatyti per *Features → Location → Custom Location* (Vilnius: 54.6872, 25.2797).
+To set a location in the simulator, use *Features → Location → Custom Location* (Vilnius: 54.6872, 25.2797).
 
-## Ekranai
+## Screens
 
-| Skirtukas | Ką daro |
+| Screen | Features |
 |---|---|
-| Žemėlapis | Apple Maps su visų operatorių stotelėmis, filtrai (laisvos, ≥ 50 kW, tinka mano automobiliui, operatorius), sąrašas pagal atstumą. Viršuje dešinėje — analitika operatoriams |
-| Stotelė | Jungčių būsenos (laisva / kraunasi / baigė, bet stovi / užimta nesikraunant / neveikia), kaina, užimtumas pagal valandas (Swift Charts), tikimybė rasti laisvą vietą, virtuali eilė, įkrovimo pradžia ir apmokėjimas, maršrutas Apple Maps |
-| Įkrovimas | Sesija: progresas → pranešimas „baigta“ (tikras iOS pranešimas) → grace period 5–15 min. → progresyvus mokestis → kvitas ir taškai. Laiko pagreitis 1×–300× demonstracijai |
-| Kelionė | Automobilis + baterijos lygis + tikslas → kur, kada ir kiek krautis, su kokiu % atvyksite, kaina, maršrutas žemėlapyje |
-| Taškai | Balansas, lygiai, kaip uždirbti, privalumų keitimas, istorija, demo duomenų atstatymas |
-| Pranešti | Numeris + nuotrauka → patikimumas iš nuotraukos, stotelės duomenų ir kitų vartotojų patvirtinimų → sankcijų laiptai |
+| Map | Apple Maps with stations across operators, filters (available, ≥ 50 kW, compatible with my vehicle, operator), and a list sorted by distance. Operator analytics is accessible from the top-right corner |
+| Station | Connector states (available / charging / charging complete but still occupied / occupied without charging / out of service), pricing, hourly occupancy (Swift Charts), probability of finding an available space, a virtual queue, charging start and payment, and Apple Maps directions |
+| Charging | Session flow: progress → completion notification (a real iOS notification) → 5–15-minute grace period → progressive fee → receipt and points. Time can be accelerated from 1× to 300× for the demo |
+| Trip | Vehicle + battery level + destination → where, when, and how much to charge, battery percentage on arrival, cost, and route on the map |
+| Points | Balance, levels, ways to earn points, reward redemption, history, and demo data reset |
+| Report | License plate + photo → confidence based on the photo, station data, and other users' confirmations → escalating sanctions |
 
-## Struktūra
+## Project Structure
 
-```
+```text
 ios/
   Unplugged.xcodeproj
   Unplugged/
-    App/          programėlės įėjimas, skirtukai, pranešimų juostos
-    Models/       domeno tipai ir demo duomenys
-    Logic/        verslo taisyklės be UI — čia keičiama logika
-      IdleFee.swift        grace period pagal paklausą, mokesčio pakopos, lubos
-      Availability.swift   užimtumas, tikimybė rasti laisvą vietą
-      Charging.swift       įkrovimo kreivė, laikas ir kWh
-      TripPlanner.swift    kelionės planavimas
-      Points.swift         taškai, privalumai, lygiai
-      Reports.swift        pranešimų patikimumas, sankcijos
-      Analytics.swift      operatorių / miesto analitika
-    State/        AppModel (būsena, išsaugoma), pranešimai, vieta
-    UI/Theme.swift  spalvos, formatavimas, bazinės dalys — dizainas keičiamas čia
-    Features/     ekranai
-web/              ankstesnis web prototipas (Next.js)
+    App/          app entry point, tabs, notification banners
+    Models/       domain types and demo data
+    Logic/        business rules without UI — change logic here
+      IdleFee.swift        demand-based grace periods, fee tiers, cap
+      Availability.swift   occupancy, probability of finding an available space
+      Charging.swift       charging curve, duration, and kWh
+      TripPlanner.swift    trip planning
+      Points.swift         points, rewards, levels
+      Reports.swift        report confidence, sanctions
+      Analytics.swift      operator / city analytics
+    State/        AppModel (persisted state), notifications, location
+    UI/Theme.swift  colors, formatting, shared components — change design here
+    Features/     screens
+web/              earlier web prototype (Next.js)
 ```
 
-## Kas toliau
+## Next Steps
 
-- Tikri duomenys: operatorių API (OCPI) arba backend'as
-- Tikras maršrutas (MKDirections) vietoj tiesios linijos × 1,2
-- Mokėjimai (Apple Pay / Stripe) ir paskyros
-- Live Activity įkrovimo progresui užrakinimo ekrane
+- Real data: operator APIs (OCPI) or a backend
+- Actual routing (MKDirections) instead of straight-line distance × 1.2
+- Payments (Apple Pay / Stripe) and accounts
+- Live Activity for charging progress on the lock screen
