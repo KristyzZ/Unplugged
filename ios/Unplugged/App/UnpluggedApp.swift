@@ -14,6 +14,8 @@ struct UnpluggedApp: App {
             RootView()
                 .environment(model)
                 .environment(location)
+                .environment(\.locale, model.lang.locale)
+                .id(model.lang)
                 .tint(Theme.brand)
         }
     }

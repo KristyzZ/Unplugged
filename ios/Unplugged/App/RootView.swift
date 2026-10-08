@@ -6,31 +6,31 @@ enum AppTab: Hashable {
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
-    @State private var tab: AppTab = .map
 
     var body: some View {
-        TabView(selection: $tab) {
+        @Bindable var model = model
+        TabView(selection: $model.tab) {
             MapScreen()
-                .tabItem { Label("Žemėlapis", systemImage: "map") }
+                .tabItem { Label("Map", systemImage: "map") }
                 .tag(AppTab.map)
             PlanScreen()
-                .tabItem { Label("Kelionė", systemImage: "point.topleft.down.to.point.bottomright.curvepath") }
+                .tabItem { Label("Trip", systemImage: "point.topleft.down.to.point.bottomright.curvepath") }
                 .tag(AppTab.plan)
-            SessionScreen(onFindStation: { tab = .map })
-                .tabItem { Label("Įkrovimas", systemImage: "bolt.car") }
+            SessionScreen(onFindStation: { model.tab = .map })
+                .tabItem { Label("Charge", systemImage: "bolt.car") }
                 .tag(AppTab.session)
                 .badge(model.hasActiveSession ? Text("•") : nil)
             RewardsScreen()
-                .tabItem { Label("Taškai", systemImage: "star") }
+                .tabItem { Label("Points", systemImage: "star") }
                 .tag(AppTab.rewards)
             ReportScreen()
-                .tabItem { Label("Pranešti", systemImage: "exclamationmark.triangle") }
+                .tabItem { Label("Report", systemImage: "exclamationmark.triangle") }
                 .tag(AppTab.report)
         }
         .overlay(alignment: .top) { BannerStack() }
         .onChange(of: model.session?.stationId) { _, newValue in
             // Jump to the session tab when charging starts.
-            if newValue != nil { tab = .session }
+            if newValue != nil { model.tab = .session }
         }
     }
 }

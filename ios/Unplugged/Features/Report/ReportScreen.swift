@@ -26,12 +26,12 @@ struct ReportContent: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                Text("Įkrovimo vietą užima nesikraunantis ar ne elektrinis automobilis? Praneškite — patvirtinti pranešimai padeda taikyti įspėjimus ir baudas.")
+                Text("Is a car that isn't charging, or isn't electric, blocking a charging spot? Report it — confirmed reports help enforce warnings and fines.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .padding(.bottom, 12)
                 form
-                SectionHeader(title: "Pranešimai šalia jūsų")
+                SectionHeader(title: "Reports near you")
                 VStack(spacing: 8) {
                     ForEach(model.reports) { r in reportCard(r) }
                 }
@@ -40,7 +40,7 @@ struct ReportContent: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(Theme.background)
-        .navigationTitle("Pranešti")
+        .navigationTitle("Report")
         .onAppear {
             if stationId.isEmpty, let initialStationId { stationId = initialStationId }
         }
@@ -54,15 +54,15 @@ struct ReportContent: View {
 
     private var form: some View {
         CardBox {
-            Text("Stotelė").font(.subheadline.weight(.medium))
-            Picker("Stotelė", selection: $stationId) {
-                Text("Pasirinkite…").tag("")
+            Text("Station").font(.subheadline.weight(.medium))
+            Picker("Station", selection: $stationId) {
+                Text("Select…").tag("")
                 ForEach(model.stations) { s in Text("\(s.name) (\(s.city))").tag(s.id) }
             }
             .pickerStyle(.menu)
             .padding(.bottom, 10)
 
-            Text("Automobilio numeris").font(.subheadline.weight(.medium))
+            Text("License plate").font(.subheadline.weight(.medium))
             TextField("ABC 123", text: $plate)
                 .textInputAutocapitalization(.characters)
                 .autocorrectionDisabled()
@@ -71,8 +71,8 @@ struct ReportContent: View {
                 .background(Theme.fill, in: RoundedRectangle(cornerRadius: 10))
                 .padding(.bottom, 10)
 
-            Text("Kas vyksta?").font(.subheadline.weight(.medium))
-            TextField("Pvz., benzininis automobilis stovi įkrovimo vietoje", text: $details, axis: .vertical)
+            Text("What's happening?").font(.subheadline.weight(.medium))
+            TextField("E.g., a petrol car is parked in the charging spot", text: $details, axis: .vertical)
                 .lineLimit(2...4)
                 .focused($focused)
                 .padding(10)
@@ -80,10 +80,10 @@ struct ReportContent: View {
                 .padding(.bottom, 10)
 
             PhotosPicker(selection: $photoItem, matching: .images) {
-                Label(photo == nil ? "Pridėti nuotrauką" : "Pakeisti nuotrauką", systemImage: "camera")
+                Label(photo == nil ? tr("Add photo") : tr("Change photo"), systemImage: "camera")
             }
             .buttonStyle(SecondaryButtonStyle())
-            Text("Nuotrauka su matomu numeriu labai padidina patikimumą.")
+            Text("A photo with a visible plate greatly increases credibility.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)
@@ -97,7 +97,7 @@ struct ReportContent: View {
                     .padding(.top, 8)
             }
 
-            Button("Pranešti") {
+            Button("Report") {
                 guard let station else { return }
                 model.submitReport(station: station, plate: plate, description: details, hasPhoto: photo != nil)
                 plate = ""
@@ -120,32 +120,32 @@ struct ReportContent: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(r.plate).font(.headline)
-                    Text(stationName + (r.byMe ? " · jūsų pranešimas" : "")).font(.caption).foregroundStyle(.secondary)
+                    Text(stationName + (r.byMe ? tr(" · your report") : "")).font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Pill(text: r.isConfirmed ? "Patvirtinta" : "Laukia patvirtinimo", color: r.isConfirmed ? Theme.ok : Theme.warn)
+                Pill(text: r.isConfirmed ? "Confirmed" : "Awaiting confirmation", color: r.isConfirmed ? Theme.ok : Theme.warn)
             }
             if !r.description.isEmpty {
-                Text(r.description).font(.subheadline).padding(.top, 8)
+                Text(trKey(r.description)).font(.subheadline).padding(.top, 8)
             }
             HStack(spacing: 6) {
-                Pill(text: "\(r.hasPhoto ? "✓" : "–") Nuotrauka", color: r.hasPhoto ? Theme.ok : nil)
-                Pill(text: "\(r.telemetryMatches ? "✓" : "–") Stotelės duomenys", color: r.telemetryMatches ? Theme.ok : nil)
-                Pill(text: "\(r.confirmations) patvirt.", color: r.confirmations > 0 ? Theme.ok : nil)
+                Pill(text: tr("\(r.hasPhoto ? "✓" : "–") Photo"), color: r.hasPhoto ? Theme.ok : nil)
+                Pill(text: tr("\(r.telemetryMatches ? "✓" : "–") Station data"), color: r.telemetryMatches ? Theme.ok : nil)
+                Pill(text: tr("\(r.confirmations) confirmed"), color: r.confirmations > 0 ? Theme.ok : nil)
             }
             .padding(.top, 10)
             HStack(spacing: 8) {
-                Text("Patikimumas").font(.caption).foregroundStyle(.secondary)
+                Text("Confidence").font(.caption).foregroundStyle(.secondary)
                 SocBar(value: r.confidence * 100, target: Reports.confirmThreshold * 100, height: 8)
             }
             .padding(.top, 10)
             if r.isConfirmed {
-                Text("Pažeidimas nr. \(offences) šiam numeriui · taikoma: \(Reports.sanction(forOffence: offences))")
+                Text("Offence no. \(offences) for this plate · applied: \(Reports.sanction(forOffence: offences))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.top, 8)
             } else if !r.byMe {
-                Button("Matau tą patį — patvirtinti") { model.confirmReport(r.id) }
+                Button("I see it too — confirm") { model.confirmReport(r.id) }
                     .buttonStyle(SecondaryButtonStyle())
                     .padding(.top, 10)
             }

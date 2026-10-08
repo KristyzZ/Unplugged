@@ -20,8 +20,8 @@ struct OccupancyChart: View {
         Chart {
             ForEach(Array(values.enumerated()), id: \.offset) { item in
                 BarMark(
-                    x: .value("Valanda", label(item.offset)),
-                    y: .value("Užimtumas", max(0.03, item.element))
+                    x: .value("Hour", label(item.offset)),
+                    y: .value("Occupancy", max(0.03, item.element))
                 )
                 .foregroundStyle(color(item.offset, item.element))
                 .cornerRadius(2)

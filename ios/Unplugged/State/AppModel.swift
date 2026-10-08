@@ -37,6 +37,8 @@ final class AppModel {
     private(set) var reports: [AbuseReport] = AppModel.demoReports
 
     // MARK: Live
+    private(set) var lang: Lang = L10n.current
+    var tab: AppTab = .map
     private(set) var stations: [Station] = []
     private(set) var tick = 0
     /// Demo time multiplier for the charging simulation (1 = real time).
@@ -56,6 +58,17 @@ final class AppModel {
         load()
         stations = DemoData.stations(at: .now, tick: tick)
         startLoops()
+        rescheduleNotifications()
+    }
+
+    // MARK: Language
+
+    func setLang(_ value: Lang) {
+        guard value != lang else { return }
+        L10n.set(value)
+        lang = value
+        stations = DemoData.stations(at: .now, tick: tick)
+        banners.removeAll()
         rescheduleNotifications()
     }
 
@@ -102,11 +115,11 @@ final class AppModel {
             s.doneAt = s.scheduledDoneAt
             session = s
             save()
-            showBanner("Įkrovimas baigtas", "Turite \(s.graceMinutes) min. patraukti automobilį. Po to skaičiuojamas prastovos mokestis.")
+            showBanner(tr("Charging complete"), tr("You have \(s.graceMinutes) min to move your car. After that an idle fee applies."))
         }
         if let done = s.doneAt, graceAnnouncedFor != done, now >= done.addingTimeInterval(Double(s.graceMinutes) * 60) {
             graceAnnouncedFor = done
-            showBanner("Pradėtas skaičiuoti prastovos mokestis", "Kuo ilgiau stovite, tuo didesnis tarifas.")
+            showBanner(tr("Idle fee has started"), tr("The longer you stay, the higher the rate."))
         }
     }
 
@@ -137,7 +150,7 @@ final class AppModel {
         points -= reward.cost
         history.insert(PointsEntry(reason: .redeem, points: -reward.cost, at: .now, note: reward.title), at: 0)
         save()
-        showBanner("Privalumas aktyvuotas", reward.title)
+        showBanner(tr("Reward activated"), reward.title)
         return true
     }
 
@@ -170,7 +183,7 @@ final class AppModel {
         session = s
         rescheduleNotifications()
         save()
-        showBanner("Įkrovimas sustabdytas", "Turite \(s.graceMinutes) min. patraukti automobilį.")
+        showBanner(tr("Charging stopped"), tr("You have \(s.graceMinutes) min to move your car."))
     }
 
     /// The driver has moved the car: settle the idle fee and award points.
@@ -189,7 +202,7 @@ final class AppModel {
         soc = SessionSnapshot(s, now: now).soc.rounded()
         if let reason {
             addPoints(reason, note: s.stationName)
-            showBanner("+\(reason.points) tšk.", reason.label)
+            showBanner(tr("+\(reason.points) pts"), reason.label)
         }
         NotificationManager.shared.cancel([NotificationManager.chargeDoneId, NotificationManager.graceOverId])
         save()
@@ -209,8 +222,8 @@ final class AppModel {
         if s.doneAt == nil, done > now {
             n.schedule(
                 id: NotificationManager.chargeDoneId,
-                title: "Įkrovimas baigtas",
-                body: "\(s.stationName): turite \(s.graceMinutes) min. patraukti automobilį.",
+                title: tr("Charging complete"),
+                body: tr("\(s.stationName): you have \(s.graceMinutes) min to move your car."),
                 after: done.timeIntervalSince(now) / speed
             )
         }
@@ -218,8 +231,8 @@ final class AppModel {
         if graceEnd > now {
             n.schedule(
                 id: NotificationManager.graceOverId,
-                title: "Pradėtas skaičiuoti prastovos mokestis",
-                body: "Patraukite automobilį iš \(s.stationName) — tarifas didėja.",
+                title: tr("Idle fee has started"),
+                body: tr("Move your car from \(s.stationName) — the rate is increasing."),
                 after: graceEnd.timeIntervalSince(now) / speed
             )
         }
@@ -230,7 +243,7 @@ final class AppModel {
     func joinQueue(_ station: Station) {
         queue = QueueEntry(stationId: station.id, joinedAt: .now, position: 2)
         save()
-        showBanner("Prisijungėte prie eilės", "\(station.name): pranešime, kai atsilaisvins vieta.")
+        showBanner(tr("You joined the queue"), tr("\(station.name): we'll notify you when a spot frees up."))
     }
 
     func leaveQueue() {
@@ -257,9 +270,9 @@ final class AppModel {
         save()
         if report.isConfirmed {
             addPoints(.reportConfirmed, note: station.name)
-            showBanner("Pranešimas patvirtintas", "Stotelės duomenys patvirtino pažeidimą. +\(PointsReason.reportConfirmed.points) tšk.")
+            showBanner(tr("Report confirmed"), tr("Station data confirmed the violation. +\(PointsReason.reportConfirmed.points) pts"))
         } else {
-            showBanner("Pranešimas išsiųstas", "Laukiame papildomų patvirtinimų.")
+            showBanner(tr("Report sent"), tr("Waiting for more confirmations."))
         }
     }
 
@@ -268,7 +281,7 @@ final class AppModel {
         reports[i].confirmations += 1
         let name = stations.first { $0.id == reports[i].stationId }?.name
         addPoints(.confirmReport, note: name)
-        showBanner("+\(PointsReason.confirmReport.points) tšk.", "Ačiū, kad padėjote patvirtinti.")
+        showBanner(tr("+\(PointsReason.confirmReport.points) pts"), tr("Thanks for helping to confirm."))
     }
 
     func confirmedOffences(forPlate plate: String) -> Int {
@@ -356,7 +369,7 @@ final class AppModel {
     private static let demoReports: [AbuseReport] = [
         AbuseReport(
             id: "r-demo", stationId: "europa", plate: "KLM 482",
-            description: "Benzininis automobilis stovi įkrovimo vietoje nuo ryto.",
+            description: "A petrol car has been parked in the charging spot since morning.",
             hasPhoto: true, telemetryMatches: false, confirmations: 1,
             createdAt: Date().addingTimeInterval(-3600), byMe: false
         ),

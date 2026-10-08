@@ -44,7 +44,7 @@ struct MapScreen: View {
                 filters
                 ScrollView {
                     LazyVStack(spacing: 8) {
-                        Text("\(items.count) stotelės · visų operatorių")
+                        Text("\(items.count) stations · all operators")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -63,11 +63,14 @@ struct MapScreen: View {
             .navigationTitle("Unplugged")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    LanguageMenu().labelStyle(.iconOnly)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink {
                         OperatorScreen()
                     } label: {
-                        Label("Operatoriams", systemImage: "chart.bar.xaxis")
+                        Label("For operators", systemImage: "chart.bar.xaxis")
                     }
                 }
             }
@@ -85,10 +88,10 @@ struct MapScreen: View {
                     StationPin(station: item.station)
                         .onTapGesture { path.append(item.station.id) }
                 }
+                .annotationTitles(.hidden)
             }
             UserAnnotation()
         }
-        .annotationTitles(.hidden)
         .mapControls {
             MapUserLocationButton()
             MapCompass()
@@ -98,9 +101,9 @@ struct MapScreen: View {
     private var filters: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                Chip(title: "Tik laisvos", active: onlyFree) { onlyFree.toggle() }
-                Chip(title: "Greitos ≥ 50 kW", active: fastOnly) { fastOnly.toggle() }
-                Chip(title: "Tinka mano automobiliui", active: myCarOnly) { myCarOnly.toggle() }
+                Chip(title: "Available only", active: onlyFree) { onlyFree.toggle() }
+                Chip(title: "Fast ≥ 50 kW", active: fastOnly) { fastOnly.toggle() }
+                Chip(title: "Fits my car", active: myCarOnly) { myCarOnly.toggle() }
                 ForEach(DemoData.operators) { op in
                     Chip(title: op.name, active: operatorId == op.id) {
                         operatorId = operatorId == op.id ? nil : op.id

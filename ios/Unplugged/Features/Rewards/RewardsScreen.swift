@@ -8,12 +8,12 @@ struct RewardsScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Atsakingai naudodamiesi stotelėmis renkate taškus ir keičiate juos į nuolaidas.")
+                    Text("Use stations responsibly to earn points and exchange them for discounts.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.bottom, 12)
                     balance
-                    SectionHeader(title: "Kaip uždirbti")
+                    SectionHeader(title: "How to earn")
                     CardBox {
                         ForEach(Array(PointsReason.earning.enumerated()), id: \.element) { item in
                             if item.offset > 0 { Divider().padding(.vertical, 8) }
@@ -24,28 +24,29 @@ struct RewardsScreen: View {
                             }
                         }
                     }
-                    SectionHeader(title: "Iškeisti")
+                    SectionHeader(title: "Redeem")
                     VStack(spacing: 8) {
                         ForEach(Points.rewards) { reward in rewardRow(reward) }
                     }
-                    SectionHeader(title: "Istorija")
+                    SectionHeader(title: "History")
                     history
                 }
                 .padding(16)
             }
             .background(Theme.background)
-            .navigationTitle("Taškai")
+            .navigationTitle("Points")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button("Atstatyti demo duomenis", role: .destructive) { confirmReset = true }
+                        LanguageMenu()
+                        Button("Reset demo data", role: .destructive) { confirmReset = true }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
                 }
             }
-            .confirmationDialog("Atstatyti visus demo duomenis?", isPresented: $confirmReset, titleVisibility: .visible) {
-                Button("Atstatyti", role: .destructive) { model.resetDemo() }
+            .confirmationDialog("Reset all demo data?", isPresented: $confirmReset, titleVisibility: .visible) {
+                Button("Reset", role: .destructive) { model.resetDemo() }
             }
         }
     }
@@ -53,7 +54,7 @@ struct RewardsScreen: View {
     private var balance: some View {
         let tier = Points.tier(for: model.lifetimePoints)
         return CardBox {
-            Text("Jūsų taškai").font(.subheadline).foregroundStyle(.secondary)
+            Text("Your points").font(.subheadline).foregroundStyle(.secondary)
             Text("\(model.points)")
                 .font(.system(size: 52, weight: .bold, design: .rounded))
                 .contentTransition(.numericText())
@@ -61,7 +62,7 @@ struct RewardsScreen: View {
                 Text(tier.current.name).font(.subheadline.weight(.semibold))
                 Spacer()
                 if let next = tier.next {
-                    Text("iki „\(next.name)“ liko \(next.min - model.lifetimePoints)")
+                    Text("Until “\(next.name)”: \(next.min - model.lifetimePoints) to go")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -83,7 +84,7 @@ struct RewardsScreen: View {
                     Text(reward.partner).font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("\(reward.cost) tšk.") { model.redeem(reward) }
+                Button("\(reward.cost) pts") { model.redeem(reward) }
                     .buttonStyle(.borderedProminent)
                     .disabled(!affordable)
             }
@@ -93,7 +94,7 @@ struct RewardsScreen: View {
     private var history: some View {
         CardBox {
             if model.history.isEmpty {
-                Text("Kol kas nieko.").font(.subheadline).foregroundStyle(.secondary)
+                Text("Nothing yet.").font(.subheadline).foregroundStyle(.secondary)
             }
             ForEach(Array(model.history.prefix(20).enumerated()), id: \.element.id) { item in
                 let h = item.element
@@ -101,7 +102,7 @@ struct RewardsScreen: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(h.reason == .redeem ? (h.note ?? h.reason.label) : h.reason.label).font(.subheadline)
-                        Text([h.at.formatted(date: .abbreviated, time: .omitted), h.reason == .redeem ? nil : h.note].compactMap { $0 }.joined(separator: " · "))
+                        Text([h.at.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(L10n.locale)), h.reason == .redeem ? nil : h.note].compactMap { $0 }.joined(separator: " · "))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

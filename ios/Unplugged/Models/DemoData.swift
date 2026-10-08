@@ -66,30 +66,30 @@ enum DemoData {
 
     static let seeds: [Seed] = [
         // Vilnius
-        Seed(id: "akropolis", name: "Akropolis", address: "Ozo g. 25", city: "Vilnius", lat: 54.7106, lng: 25.2627, operatorId: "ignitis", profile: .mall, connectors: [(.ccs2, 150, 2), (.type2, 22, 4)], amenities: ["Parduotuvės", "Kavinė", "WC"]),
-        Seed(id: "ozas", name: "Ozas", address: "Ozo g. 18", city: "Vilnius", lat: 54.7155, lng: 25.279, operatorId: "eleport", profile: .mall, connectors: [(.ccs2, 120, 2), (.type2, 22, 2)], amenities: ["Parduotuvės", "Kavinė"]),
-        Seed(id: "europa", name: "Europa", address: "Konstitucijos pr. 7A", city: "Vilnius", lat: 54.6964, lng: 25.2775, operatorId: "enefit", profile: .office, connectors: [(.ccs2, 60, 2), (.type2, 11, 4)], amenities: ["Parduotuvės", "WC"]),
-        Seed(id: "panorama", name: "Panorama", address: "Saltoniškių g. 9", city: "Vilnius", lat: 54.699, lng: 25.2585, operatorId: "ignitis", profile: .mall, connectors: [(.ccs2, 100, 2), (.type2, 22, 2)], amenities: ["Parduotuvės", "Kavinė"]),
-        Seed(id: "senamiestis", name: "Lukiškių aikštė", address: "Gedimino pr. 40", city: "Vilnius", lat: 54.6895, lng: 25.27, operatorId: "inbalance", profile: .office, connectors: [(.type2, 22, 4)]),
-        Seed(id: "oro-uostas", name: "Oro uostas", address: "Rodūnios kl. 10A", city: "Vilnius", lat: 54.639, lng: 25.286, operatorId: "ignitis", profile: .transport, connectors: [(.ccs2, 150, 2), (.type2, 22, 4)], amenities: ["Kavinė", "WC"]),
-        Seed(id: "stotis", name: "Geležinkelio stotis", address: "Geležinkelio g. 16", city: "Vilnius", lat: 54.67, lng: 25.284, operatorId: "eleport", profile: .transport, connectors: [(.ccs2, 60, 2), (.type2, 22, 2)]),
+        Seed(id: "akropolis", name: "Akropolis", address: "Ozo g. 25", city: "Vilnius", lat: 54.7106, lng: 25.2627, operatorId: "ignitis", profile: .mall, connectors: [(.ccs2, 150, 2), (.type2, 22, 4)], amenities: ["Shops", "Café", "WC"]),
+        Seed(id: "ozas", name: "Ozas", address: "Ozo g. 18", city: "Vilnius", lat: 54.7155, lng: 25.279, operatorId: "eleport", profile: .mall, connectors: [(.ccs2, 120, 2), (.type2, 22, 2)], amenities: ["Shops", "Café"]),
+        Seed(id: "europa", name: "Europa", address: "Konstitucijos pr. 7A", city: "Vilnius", lat: 54.6964, lng: 25.2775, operatorId: "enefit", profile: .office, connectors: [(.ccs2, 60, 2), (.type2, 11, 4)], amenities: ["Shops", "WC"]),
+        Seed(id: "panorama", name: "Panorama", address: "Saltoniškių g. 9", city: "Vilnius", lat: 54.699, lng: 25.2585, operatorId: "ignitis", profile: .mall, connectors: [(.ccs2, 100, 2), (.type2, 22, 2)], amenities: ["Shops", "Café"]),
+        Seed(id: "senamiestis", name: "Lukiškės Square", address: "Gedimino pr. 40", city: "Vilnius", lat: 54.6895, lng: 25.27, operatorId: "inbalance", profile: .office, connectors: [(.type2, 22, 4)]),
+        Seed(id: "oro-uostas", name: "Airport", address: "Rodūnios kl. 10A", city: "Vilnius", lat: 54.639, lng: 25.286, operatorId: "ignitis", profile: .transport, connectors: [(.ccs2, 150, 2), (.type2, 22, 4)], amenities: ["Café", "WC"]),
+        Seed(id: "stotis", name: "Railway Station", address: "Geležinkelio g. 16", city: "Vilnius", lat: 54.67, lng: 25.284, operatorId: "eleport", profile: .transport, connectors: [(.ccs2, 60, 2), (.type2, 22, 2)]),
         Seed(id: "antakalnis", name: "Antakalnis", address: "Antakalnio g. 54", city: "Vilnius", lat: 54.702, lng: 25.315, operatorId: "enefit", profile: .residential, connectors: [(.ccs2, 50, 1), (.type2, 22, 2)]),
         Seed(id: "zirmunai", name: "Žirmūnai", address: "Žirmūnų g. 64", city: "Vilnius", lat: 54.711, lng: 25.301, operatorId: "inbalance", profile: .residential, connectors: [(.ccs2, 50, 1), (.type2, 11, 3)]),
         Seed(id: "pasilaiciai", name: "Pašilaičiai", address: "Gabijos g. 86", city: "Vilnius", lat: 54.734, lng: 25.224, operatorId: "ignitis", profile: .residential, connectors: [(.ccs2, 75, 2), (.type2, 22, 2)]),
-        Seed(id: "ukmerges", name: "Ukmergės verslo centras", address: "Ukmergės g. 280", city: "Vilnius", lat: 54.73, lng: 25.24, operatorId: "eleport", profile: .office, connectors: [(.ccs2, 120, 2), (.type2, 22, 4)]),
+        Seed(id: "ukmerges", name: "Ukmergė Business Center", address: "Ukmergės g. 280", city: "Vilnius", lat: 54.73, lng: 25.24, operatorId: "eleport", profile: .office, connectors: [(.ccs2, 120, 2), (.type2, 22, 4)]),
         Seed(id: "pilaite", name: "Pilaitė", address: "Pilaitės pr. 16", city: "Vilnius", lat: 54.709, lng: 25.183, operatorId: "enefit", profile: .residential, connectors: [(.ccs2, 50, 1), (.type2, 22, 2)]),
         Seed(id: "lazdynai", name: "Lazdynai", address: "Architektų g. 19", city: "Vilnius", lat: 54.675, lng: 25.208, operatorId: "inbalance", profile: .residential, connectors: [(.type2, 22, 2)]),
         Seed(id: "santariskes", name: "Santariškės", address: "Santariškių g. 2", city: "Vilnius", lat: 54.7395, lng: 25.273, operatorId: "ignitis", profile: .office, connectors: [(.ccs2, 60, 2), (.type2, 22, 4)]),
-        Seed(id: "paupys", name: "Paupys", address: "Paupio g. 46", city: "Vilnius", lat: 54.68, lng: 25.3, operatorId: "eleport", profile: .office, connectors: [(.ccs2, 100, 1), (.type2, 22, 2)], amenities: ["Kavinė"]),
+        Seed(id: "paupys", name: "Paupys", address: "Paupio g. 46", city: "Vilnius", lat: 54.68, lng: 25.3, operatorId: "eleport", profile: .office, connectors: [(.ccs2, 100, 1), (.type2, 22, 2)], amenities: ["Café"]),
         Seed(id: "naujoji-vilnia", name: "Naujoji Vilnia", address: "Parko g. 2", city: "Vilnius", lat: 54.695, lng: 25.41, operatorId: "enefit", profile: .residential, connectors: [(.ccs2, 50, 1), (.chademo, 50, 1)]),
         // Intercity / highway corridors
-        Seed(id: "elektrenai", name: "Elektrėnai A1", address: "A1 magistralė, 47 km", city: "Elektrėnai", lat: 54.786, lng: 24.661, operatorId: "ignitis", profile: .highway, connectors: [(.ccs2, 300, 4), (.chademo, 50, 1)], amenities: ["Kavinė", "WC"]),
-        Seed(id: "kaunas-centras", name: "Kauno centras", address: "Laisvės al. 100", city: "Kaunas", lat: 54.8985, lng: 23.9036, operatorId: "eleport", profile: .office, connectors: [(.ccs2, 100, 2), (.type2, 22, 4)]),
-        Seed(id: "kaunas-mega", name: "Mega", address: "Islandijos pl. 32", city: "Kaunas", lat: 54.93, lng: 23.905, operatorId: "ignitis", profile: .mall, connectors: [(.ccs2, 150, 4), (.type2, 22, 4)], amenities: ["Parduotuvės", "Kavinė", "WC"]),
-        Seed(id: "raseiniai", name: "Raseiniai A1", address: "A1 magistralė, 140 km", city: "Raseiniai", lat: 55.374, lng: 23.122, operatorId: "enefit", profile: .highway, connectors: [(.ccs2, 150, 2)], amenities: ["Kavinė", "WC"]),
+        Seed(id: "elektrenai", name: "Elektrėnai A1", address: "A1 magistralė, 47 km", city: "Elektrėnai", lat: 54.786, lng: 24.661, operatorId: "ignitis", profile: .highway, connectors: [(.ccs2, 300, 4), (.chademo, 50, 1)], amenities: ["Café", "WC"]),
+        Seed(id: "kaunas-centras", name: "Kaunas Center", address: "Laisvės al. 100", city: "Kaunas", lat: 54.8985, lng: 23.9036, operatorId: "eleport", profile: .office, connectors: [(.ccs2, 100, 2), (.type2, 22, 4)]),
+        Seed(id: "kaunas-mega", name: "Mega", address: "Islandijos pl. 32", city: "Kaunas", lat: 54.93, lng: 23.905, operatorId: "ignitis", profile: .mall, connectors: [(.ccs2, 150, 4), (.type2, 22, 4)], amenities: ["Shops", "Café", "WC"]),
+        Seed(id: "raseiniai", name: "Raseiniai A1", address: "A1 magistralė, 140 km", city: "Raseiniai", lat: 55.374, lng: 23.122, operatorId: "enefit", profile: .highway, connectors: [(.ccs2, 150, 2)], amenities: ["Café", "WC"]),
         Seed(id: "klaipeda", name: "Klaipėda Akropolis", address: "Taikos pr. 61", city: "Klaipėda", lat: 55.7033, lng: 21.1443, operatorId: "ignitis", profile: .mall, connectors: [(.ccs2, 150, 2), (.type2, 22, 4)]),
         Seed(id: "palanga", name: "Palanga", address: "Vytauto g. 106", city: "Palanga", lat: 55.9175, lng: 21.0686, operatorId: "eleport", profile: .mall, connectors: [(.ccs2, 60, 2), (.type2, 22, 2)]),
-        Seed(id: "ukmerge", name: "Ukmergė A2", address: "A2 magistralė, 75 km", city: "Ukmergė", lat: 55.245, lng: 24.76, operatorId: "inbalance", profile: .highway, connectors: [(.ccs2, 120, 2)], amenities: ["Kavinė"]),
+        Seed(id: "ukmerge", name: "Ukmergė A2", address: "A2 magistralė, 75 km", city: "Ukmergė", lat: 55.245, lng: 24.76, operatorId: "inbalance", profile: .highway, connectors: [(.ccs2, 120, 2)], amenities: ["Café"]),
         Seed(id: "panevezys", name: "Panevėžys Babilonas", address: "J. Biliūno g. 1", city: "Panevėžys", lat: 55.7348, lng: 24.3575, operatorId: "ignitis", profile: .mall, connectors: [(.ccs2, 150, 2), (.type2, 22, 2)]),
         Seed(id: "siauliai", name: "Šiauliai Saulės miestas", address: "Aido g. 8", city: "Šiauliai", lat: 55.9349, lng: 23.3137, operatorId: "enefit", profile: .mall, connectors: [(.ccs2, 100, 2), (.type2, 22, 2)]),
         Seed(id: "bauska", name: "Bauska (LV)", address: "A7, Bauska", city: "Bauska", lat: 56.408, lng: 24.193, operatorId: "enefit", profile: .highway, connectors: [(.ccs2, 150, 2)]),
@@ -129,10 +129,10 @@ enum DemoData {
         // Connector states depend on the hour and a "tick" so the map changes over time.
         var live = SeededRandom("\(seed.id):\(hour):\(tick)")
         return Station(
-            id: seed.id, name: seed.name, address: seed.address, city: seed.city,
+            id: seed.id, name: trKey(seed.name), address: seed.address, city: seed.city,
             lat: seed.lat, lng: seed.lng, operatorId: seed.operatorId, pricePerKwh: price,
             connectors: buildConnectors(seed, rand: &live, occupancyNow: hourly[hour]),
-            hourlyOccupancy: hourly, amenities: seed.amenities
+            hourlyOccupancy: hourly, amenities: seed.amenities.map(trKey)
         )
     }
 
@@ -161,8 +161,8 @@ enum DemoData {
         vehicles.first { $0.id == id } ?? vehicles[0]
     }
 
-    static let places: [Place] = [
-        Place(id: "vilnius", name: "Vilnius (centras)", lat: 54.6872, lng: 25.2797),
+    static var places: [Place] { [
+        Place(id: "vilnius", name: "Vilnius (center)", lat: 54.6872, lng: 25.2797),
         Place(id: "kaunas", name: "Kaunas", lat: 54.8985, lng: 23.9036),
         Place(id: "klaipeda", name: "Klaipėda", lat: 55.7033, lng: 21.1443),
         Place(id: "palanga", name: "Palanga", lat: 55.9175, lng: 21.0686),
@@ -171,8 +171,8 @@ enum DemoData {
         Place(id: "druskininkai", name: "Druskininkai", lat: 54.017, lng: 23.97),
         Place(id: "utena", name: "Utena", lat: 55.4977, lng: 25.5992),
         Place(id: "marijampole", name: "Marijampolė", lat: 54.559, lng: 23.354),
-        Place(id: "riga", name: "Ryga (LV)", lat: 56.9496, lng: 24.1052),
-    ]
+        Place(id: "riga", name: "Riga (LV)", lat: 56.9496, lng: 24.1052),
+    ].map { Place(id: $0.id, name: trKey($0.name), lat: $0.lat, lng: $0.lng) } }
 
     static let vilniusCenter = LatLng(lat: 54.6872, lng: 25.2797)
 }

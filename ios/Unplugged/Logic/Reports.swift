@@ -34,9 +34,9 @@ enum Reports {
     /// Sanction for the n-th confirmed offence of the same plate.
     static func sanction(forOffence n: Int) -> String {
         switch n {
-        case ...1: "Įspėjimas"
-        case 2: "Bauda 20 €"
-        default: "Laikinas paskyros apribojimas (7 d.)"
+        case ...1: tr("Warning")
+        case 2: tr("€20 fine")
+        default: tr("Temporary account restriction (7 days)")
         }
     }
 
