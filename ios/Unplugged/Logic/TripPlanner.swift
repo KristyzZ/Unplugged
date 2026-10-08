@@ -139,8 +139,8 @@ enum TripPlanner {
 
             guard let pick = best else {
                 return summary(false, socAtDest, stops.isEmpty
-                    ? "Su dabartiniu įkrovos lygiu nepasiekiama nė viena tinkama stotelė pakeliui."
-                    : "Nepavyko rasti tolesnės pasiekiamos stotelės.")
+                    ? tr("No suitable station along the route is reachable at the current charge level.")
+                    : tr("Couldn't find a reachable station further along."))
             }
 
             // Charge enough to reach the destination if that's within maxChargeSoc
@@ -173,6 +173,6 @@ enum TripPlanner {
             soc = target
         }
 
-        return summary(false, soc, "Per daug sustojimų — patikrinkite pradinį įkrovos lygį.")
+        return summary(false, soc, tr("Too many stops — check the starting charge level."))
     }
 }

@@ -23,12 +23,12 @@ enum PointsReason: String, Codable, CaseIterable {
 
     var label: String {
         switch self {
-        case .movedFast: "Automobilis patrauktas per 2 min."
-        case .movedInGrace: "Automobilis patrauktas per „grace period“"
-        case .offPeak: "Įkrovimas ne piko metu"
-        case .reportConfirmed: "Patvirtintas pranešimas"
-        case .confirmReport: "Padėjote patvirtinti pranešimą"
-        case .redeem: "Iškeista į privalumą"
+        case .movedFast: tr("Car moved within 2 min")
+        case .movedInGrace: tr("Car moved within the grace period")
+        case .offPeak: tr("Charged off-peak")
+        case .reportConfirmed: tr("Confirmed report")
+        case .confirmReport: tr("Helped confirm a report")
+        case .redeem: tr("Redeemed for a reward")
         }
     }
 
@@ -50,24 +50,24 @@ enum Points {
         let cost: Int
     }
 
-    static let rewards: [Reward] = [
-        Reward(id: "coffee", title: "Nemokama kava", partner: "Partnerio kavinė", cost: 80),
-        Reward(id: "kwh-5", title: "−5 % kitam įkrovimui", partner: "Unplugged", cost: 100),
-        Reward(id: "eur-2", title: "2 € įkrovimo nuolaida", partner: "Unplugged", cost: 200),
-        Reward(id: "wash", title: "−50 % automobilio plovimui", partner: "Partnerio plovykla", cost: 250),
-        Reward(id: "kwh-20", title: "−20 % visiems įkrovimams savaitę", partner: "Unplugged", cost: 600),
-    ]
+    static var rewards: [Reward] { [
+        Reward(id: "coffee", title: tr("Free coffee"), partner: tr("Partner café"), cost: 80),
+        Reward(id: "kwh-5", title: tr("−5 % on your next charge"), partner: "Unplugged", cost: 100),
+        Reward(id: "eur-2", title: tr("€2 off charging"), partner: "Unplugged", cost: 200),
+        Reward(id: "wash", title: tr("−50 % car wash"), partner: tr("Partner car wash"), cost: 250),
+        Reward(id: "kwh-20", title: tr("−20 % on all charging for a week"), partner: "Unplugged", cost: 600),
+    ] }
 
     struct Tier {
         let name: String
         let min: Int
     }
 
-    static let tiers: [Tier] = [
-        Tier(name: "Bronza", min: 0),
-        Tier(name: "Sidabras", min: 300),
-        Tier(name: "Auksas", min: 1000),
-    ]
+    static var tiers: [Tier] { [
+        Tier(name: tr("Bronze"), min: 0),
+        Tier(name: tr("Silver"), min: 300),
+        Tier(name: tr("Gold"), min: 1000),
+    ] }
 
     static func tier(for lifetime: Int) -> (current: Tier, next: Tier?) {
         let idx = tiers.lastIndex { lifetime >= $0.min } ?? 0

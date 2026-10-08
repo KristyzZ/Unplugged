@@ -1,0 +1,12 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSLocationWhenInUseUsageDescription" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your location is used to show the nearest charging stations." } },
+        "lt" : { "stringUnit" : { "state" : "translated", "value" : "Jūsų vieta naudojama artimiausioms įkrovimo stotelėms rodyti." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

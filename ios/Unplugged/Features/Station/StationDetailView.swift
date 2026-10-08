@@ -13,7 +13,7 @@ struct StationDetailView: View {
             if let station = model.stations.first(where: { $0.id == stationId }) {
                 content(station)
             } else {
-                ContentUnavailableView("Stotelė nerasta", systemImage: "bolt.slash")
+                ContentUnavailableView("Station not found", systemImage: "bolt.slash")
             }
         }
         .background(Theme.background)
@@ -51,7 +51,7 @@ struct StationDetailView: View {
                     queueCard(station).padding(.top, 12)
                 }
 
-                SectionHeader(title: "Jungtys")
+                SectionHeader(title: "Connectors")
                 VStack(spacing: 8) {
                     ForEach(station.connectors) { c in
                         connectorRow(c, vehicle: vehicle, selectable: !busy)
@@ -63,28 +63,28 @@ struct StationDetailView: View {
                         .padding(.top, 12)
                 }
                 if busy {
-                    Text("Jau turite aktyvų įkrovimą — žr. skirtuką „Įkrovimas“.")
+                    Text("You already have an active session — see the “Charge” tab.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .padding(.top, 8)
                 }
 
-                SectionHeader(title: "Užimtumas pagal valandas")
+                SectionHeader(title: "Occupancy by hour")
                 CardBox {
                     OccupancyChart(values: station.hourlyOccupancy, currentHour: hour, highlight: best != hour ? best : nil)
                     Divider().padding(.vertical, 12)
                     HStack(alignment: .top) {
-                        StatView(label: "Įprastai šiuo metu laisva vieta", value: Fmt.pct(station.probabilityFree(atHour: hour)))
+                        StatView(label: "Usual chance of a free spot now", value: Fmt.pct(station.probabilityFree(atHour: hour)))
                         StatView(
-                            label: "Geriausias laikas per 6 val.",
+                            label: "Best time in the next 6 h",
                             value: Fmt.hour(best),
-                            sub: "tikimybė \(Fmt.pct(station.probabilityFree(atHour: best)))"
+                            sub: tr("chance \(Fmt.pct(station.probabilityFree(atHour: best)))")
                         )
                     }
                 }
 
                 if !station.amenities.isEmpty {
-                    SectionHeader(title: "Šalia")
+                    SectionHeader(title: "Nearby")
                     HStack {
                         ForEach(station.amenities, id: \.self) { Pill(text: $0) }
                     }
@@ -97,7 +97,7 @@ struct StationDetailView: View {
                 ReportContent(initialStationId: station.id)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Uždaryti") { showReport = false }
+                            Button("Close") { showReport = false }
                         }
                     }
             }
@@ -111,27 +111,27 @@ struct StationDetailView: View {
                     Pill(text: station.availability.label, color: station.availability.color)
                     HStack(alignment: .firstTextBaseline, spacing: 2) {
                         Text("\(station.freeCount)").font(.system(size: 34, weight: .bold))
-                        Text("/\(station.workingCount) laisvos").font(.headline).foregroundStyle(.secondary)
+                        Text("/\(station.workingCount) available").font(.headline).foregroundStyle(.secondary)
                     }
                 }
                 Spacer()
                 VStack(alignment: .trailing) {
                     Text(String(format: "%.2f €", station.pricePerKwh)).font(.title2.bold())
-                    Text("už kWh").font(.caption).foregroundStyle(.secondary)
+                    Text("per kWh").font(.caption).foregroundStyle(.secondary)
                 }
             }
             Divider().padding(.vertical, 12)
             HStack(alignment: .top) {
-                StatView(label: "Kraunasi", value: "\(station.count(.charging))")
-                StatView(label: "Baigė, stovi", value: "\(station.count(.idle))")
-                StatView(label: "Užimta be įkrovimo", value: "\(station.count(.blocked))")
+                StatView(label: "Charging", value: "\(station.count(.charging))")
+                StatView(label: "Finished, parked", value: "\(station.count(.idle))")
+                StatView(label: "Occupied, no charge", value: "\(station.count(.blocked))")
             }
             HStack(spacing: 8) {
                 if let url = URL(string: "http://maps.apple.com/?daddr=\(station.lat),\(station.lng)") {
-                    Link(destination: url) { Label("Maršrutas", systemImage: "arrow.triangle.turn.up.right.diamond") }
+                    Link(destination: url) { Label("Route", systemImage: "arrow.triangle.turn.up.right.diamond") }
                         .buttonStyle(SecondaryButtonStyle())
                 }
-                Button { showReport = true } label: { Label("Pranešti", systemImage: "exclamationmark.triangle") }
+                Button { showReport = true } label: { Label("Report", systemImage: "exclamationmark.triangle") }
                     .buttonStyle(SecondaryButtonStyle())
             }
             .padding(.top, 14)
@@ -142,20 +142,20 @@ struct StationDetailView: View {
         let soonest = station.connectors.compactMap(\.etaMinutes).min() ?? 60
         let inQueue = model.queue?.stationId == station.id
         return CardBox(stroke: Theme.warn) {
-            Text("Visos vietos užimtos").font(.headline)
-            Text("Prisijunkite prie virtualios eilės — pranešime, kai atsilaisvins vieta. Artimiausia laisva vieta tikėtina per \(Fmt.minutes(Double(soonest)))")
+            Text("All spots are taken").font(.headline)
+            Text("Join the virtual queue — we'll notify you when a spot frees up. The next free spot is expected in \(Fmt.minutes(Double(soonest)))")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)
             if inQueue {
                 HStack {
-                    Text("Esate eilėje: **\(model.queue?.position ?? 1) vieta**").font(.subheadline)
+                    Text("You're in the queue: position **\(model.queue?.position ?? 1)**").font(.subheadline)
                     Spacer()
-                    Button("Palikti eilę") { model.leaveQueue() }
+                    Button("Leave queue") { model.leaveQueue() }
                 }
                 .padding(.top, 12)
             } else {
-                Button("Stoti į eilę") { model.joinQueue(station) }
+                Button("Join queue") { model.joinQueue(station) }
                     .buttonStyle(PrimaryButtonStyle())
                     .padding(.top, 12)
             }
@@ -178,7 +178,7 @@ struct StationDetailView: View {
                 }
                 Spacer()
                 if compatible {
-                    Text("iki \(Int(Charging.effectivePeakKw(vehicle, c))) kW").font(.caption).foregroundStyle(.secondary)
+                    Text("up to \(Int(Charging.effectivePeakKw(vehicle, c))) kW").font(.caption).foregroundStyle(.secondary)
                 }
             }
             .padding(12)
@@ -196,12 +196,12 @@ struct StationDetailView: View {
     private func detail(_ c: Connector, compatible: Bool) -> String {
         var text = c.status.label
         if c.status == .charging, let eta = c.etaMinutes {
-            text += " · atsilaisvins ~\(Fmt.clock(Date().addingTimeInterval(Double(eta) * 60)))"
+            text += tr(" · frees up ~\(Fmt.clock(Date().addingTimeInterval(Double(eta) * 60)))")
         }
         if c.status == .idle, let idle = c.idleMinutes {
-            text += " · stovi jau \(idle) min."
+            text += tr(" · parked for \(idle) min")
         }
-        if !compatible { text += " · netinka jūsų automobiliui" }
+        if !compatible { text += tr(" · not compatible with your car") }
         return text
     }
 
@@ -211,11 +211,11 @@ struct StationDetailView: View {
         let tiersText = IdleFee.tiers.map { String(format: "%.2f €", $0.eurPerMin) }.joined(separator: " → ")
         let finishText = Fmt.clock(Date().addingTimeInterval(Double(estimate.minutes) * 60))
         return CardBox {
-            Text("Įkrovimas: \(vehicle.name)").font(.headline)
+            Text("Charging: \(vehicle.name)").font(.headline)
             HStack {
-                Text("Dabar \(Int(model.soc)) %")
+                Text("Now \(Int(model.soc)) %")
                 Spacer()
-                Text("Iki \(Int(target)) %")
+                Text("To \(Int(target)) %")
             }
             .font(.subheadline)
             .padding(.top, 10)
@@ -224,18 +224,18 @@ struct StationDetailView: View {
                 Slider(value: $target, in: minTarget...100, step: 1).padding(.top, 6)
             }
             HStack(alignment: .top) {
-                StatView(label: "Trukmė", value: Fmt.minutes(Double(estimate.minutes)), sub: "baigsis ~\(finishText)")
-                StatView(label: "Energija", value: String(format: "%.1f kWh", estimate.kwh))
-                StatView(label: "Kaina", value: Fmt.eur(estimate.kwh * station.pricePerKwh))
+                StatView(label: "Duration", value: Fmt.minutes(Double(estimate.minutes)), sub: tr("ends ~\(finishText)"))
+                StatView(label: "Energy", value: String(format: "%.1f kWh", estimate.kwh))
+                StatView(label: "Cost", value: Fmt.eur(estimate.kwh * station.pricePerKwh))
             }
             .padding(.top, 10)
-            Text("Baigus įkrovimą turėsite **\(grace) min.** patraukti automobilį (dabartinė paklausa \(Fmt.pct(demand))). Vėliau prastovos mokestis didėja: \(tiersText) per min. Patraukę laiku gausite taškų.")
+            Text("Once charging ends you'll have **\(grace) min** to move your car (current demand \(Fmt.pct(demand))). After that the idle fee grows: \(tiersText) per min. Move on time to earn points.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(10)
                 .background(Theme.fill, in: RoundedRectangle(cornerRadius: 10))
                 .padding(.top, 12)
-            Button("Pradėti ir mokėti per Unplugged") {
+            Button("Start and pay with Unplugged") {
                 model.startCharging(at: station, connector: connector, targetSoc: target)
                 pickedConnectorId = nil
             }

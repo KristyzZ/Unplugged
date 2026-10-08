@@ -17,7 +17,7 @@ struct PlanScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Suplanuosime, kur ir kiek krautis, atsižvelgiant į automobilį, maršrutą ir stotelių užimtumą.")
+                    Text("We'll plan where and how much to charge based on your car, route and station occupancy.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.bottom, 12)
@@ -29,7 +29,7 @@ struct PlanScreen: View {
                 .padding(16)
             }
             .background(Theme.background)
-            .navigationTitle("Kelionė")
+            .navigationTitle("Trip")
             .navigationDestination(for: String.self) { id in
                 StationDetailView(stationId: id)
             }
@@ -41,8 +41,8 @@ struct PlanScreen: View {
         let socBinding = Binding(get: { model.soc }, set: { model.setSoc($0) })
         let vehicleBinding = Binding(get: { model.vehicleId }, set: { model.setVehicle($0) })
         return CardBox {
-            Text("Automobilis").font(.subheadline.weight(.medium))
-            Picker("Automobilis", selection: vehicleBinding) {
+            Text("Car").font(.subheadline.weight(.medium))
+            Picker("Car", selection: vehicleBinding) {
                 ForEach(DemoData.vehicles) { v in
                     Text("\(v.name) · \(Int(v.batteryKwh)) kWh").tag(v.id)
                 }
@@ -50,10 +50,10 @@ struct PlanScreen: View {
             .pickerStyle(.menu)
             .padding(.bottom, 12)
 
-            Text("Dabartinė baterijos įkrova: \(Int(model.soc)) %").font(.subheadline.weight(.medium))
+            Text("Current battery level: \(Int(model.soc)) %").font(.subheadline.weight(.medium))
             Slider(value: socBinding, in: 5...100, step: 1)
             SocBar(value: model.soc)
-            Text("≈ \(Int(vehicle.rangeKm(soc: model.soc))) km nuvažiuojamo atstumo")
+            Text("≈ \(Int(vehicle.rangeKm(soc: model.soc))) km of range")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)
@@ -61,16 +61,16 @@ struct PlanScreen: View {
 
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading) {
-                    Text("Iš").font(.subheadline.weight(.medium))
+                    Text("From").font(.subheadline.weight(.medium))
                     placePicker(selection: $originId)
                 }
                 VStack(alignment: .leading) {
-                    Text("Į").font(.subheadline.weight(.medium))
+                    Text("To").font(.subheadline.weight(.medium))
                     placePicker(selection: $destinationId)
                 }
             }
 
-            Button("Planuoti kelionę") {
+            Button("Plan trip") {
                 departure = Date()
                 plannedFrom = origin
                 plannedTo = destination
@@ -93,7 +93,7 @@ struct PlanScreen: View {
     }
 
     private func placePicker(selection: Binding<String>) -> some View {
-        Picker("Vieta", selection: selection) {
+        Picker("Place", selection: selection) {
             ForEach(DemoData.places) { p in Text(p.name).tag(p.id) }
         }
         .pickerStyle(.menu)
@@ -102,26 +102,26 @@ struct PlanScreen: View {
 
     @ViewBuilder
     private func results(_ plan: TripPlan, from: Place, to: Place) -> some View {
-        SectionHeader(title: "Planas")
+        SectionHeader(title: "Plan")
         if !plan.feasible {
             CardBox(stroke: Theme.bad) {
-                Text("**Kelionės suplanuoti nepavyko.** \(plan.message ?? "")").font(.subheadline)
+                Text("**Couldn't plan the trip.** \(plan.message ?? "")").font(.subheadline)
             }
             .padding(.bottom, 12)
         }
         CardBox {
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 14) {
                 GridRow {
-                    StatView(label: "Atstumas", value: "\(plan.totalKm) km")
+                    StatView(label: "Distance", value: "\(plan.totalKm) km")
                     StatView(
-                        label: "Kelionės laikas",
+                        label: "Trip time",
                         value: Fmt.minutes(Double(plan.driveMinutes + plan.chargeMinutes)),
-                        sub: "iš jų krovimas \(Fmt.minutes(Double(plan.chargeMinutes)))"
+                        sub: tr("of which charging \(Fmt.minutes(Double(plan.chargeMinutes)))")
                     )
                 }
                 GridRow {
-                    StatView(label: "Atvyksite", value: Fmt.clock(plan.arriveAt), sub: "su \(plan.arriveSoc) % baterija")
-                    StatView(label: "Įkrovimų kaina", value: Fmt.eur(plan.costEur), sub: Fmt.stops(plan.stops.count))
+                    StatView(label: "Arrive", value: Fmt.clock(plan.arriveAt), sub: tr("with \(plan.arriveSoc) % battery"))
+                    StatView(label: "Charging cost", value: Fmt.eur(plan.costEur), sub: Fmt.stops(plan.stops.count))
                 }
             }
         }
@@ -132,11 +132,11 @@ struct PlanScreen: View {
             .padding(.top, 12)
 
         VStack(alignment: .leading, spacing: 8) {
-            endpoint(from.name, "Išvykimas \(Fmt.clock(departure)) · \(Int(model.soc)) %")
+            endpoint(from.name, tr("Departure \(Fmt.clock(departure)) · \(Int(model.soc)) %"))
             ForEach(Array(plan.stops.enumerated()), id: \.element.id) { item in
                 stopCard(item.element, index: item.offset + 1)
             }
-            endpoint(to.name, "Atvykimas \(Fmt.clock(plan.arriveAt)) · \(plan.arriveSoc) %")
+            endpoint(to.name, tr("Arrival \(Fmt.clock(plan.arriveAt)) · \(plan.arriveSoc) %"))
         }
         .padding(.top, 12)
     }
@@ -177,7 +177,7 @@ struct PlanScreen: View {
             CardBox {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(index) sustojimas · po \(stop.distanceFromPrevKm) km · \(op.name)")
+                        Text("Stop \(index) · after \(stop.distanceFromPrevKm) km · \(op.name)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Text(stop.station.name).font(.headline)
@@ -186,12 +186,12 @@ struct PlanScreen: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Pill(text: "laisva \(Fmt.pct(stop.freeProbability))", color: pColor)
+                    Pill(text: tr("free \(Fmt.pct(stop.freeProbability))"), color: pColor)
                 }
                 HStack(alignment: .top) {
-                    StatView(label: "Atvykimas", value: Fmt.clock(stop.arriveAt), sub: "\(stop.arriveSoc) %")
-                    StatView(label: "Krautis", value: Fmt.minutes(Double(stop.chargeMinutes)), sub: "iki \(stop.departSoc) %")
-                    StatView(label: "Kaina", value: Fmt.eur(stop.costEur), sub: String(format: "%.1f kWh", stop.energyKwh))
+                    StatView(label: "Arrival", value: Fmt.clock(stop.arriveAt), sub: "\(stop.arriveSoc) %")
+                    StatView(label: "Charge for", value: Fmt.minutes(Double(stop.chargeMinutes)), sub: tr("to \(stop.departSoc) %"))
+                    StatView(label: "Cost", value: Fmt.eur(stop.costEur), sub: String(format: "%.1f kWh", stop.energyKwh))
                 }
                 .padding(.top, 12)
             }

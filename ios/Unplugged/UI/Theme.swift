@@ -32,11 +32,11 @@ extension Color {
 extension ConnectorStatus {
     var label: String {
         switch self {
-        case .available: "Laisva"
-        case .charging: "Kraunasi"
-        case .idle: "Baigė, bet stovi"
-        case .blocked: "Užimta nesikraunant"
-        case .offline: "Neveikia"
+        case .available: tr("Available")
+        case .charging: tr("Charging")
+        case .idle: tr("Finished, still parked")
+        case .blocked: tr("Occupied, not charging")
+        case .offline: tr("Out of service")
         }
     }
 
@@ -54,10 +54,10 @@ extension ConnectorStatus {
 extension AvailabilityLevel {
     var label: String {
         switch self {
-        case .free: "Laisva"
-        case .limited: "Beveik užimta"
-        case .full: "Užimta"
-        case .offline: "Neveikia"
+        case .free: tr("Available")
+        case .limited: tr("Nearly full")
+        case .full: tr("Full")
+        case .offline: tr("Out of service")
         }
     }
 
@@ -78,7 +78,7 @@ extension ChargeOperator {
 // MARK: Formatting
 
 enum Fmt {
-    static let locale = Locale(identifier: "lt_LT")
+    static var locale: Locale { L10n.locale }
 
     static func eur(_ v: Double) -> String {
         v.formatted(.currency(code: "EUR").locale(locale))
@@ -88,8 +88,8 @@ enum Fmt {
         let total = max(0, Int(m.rounded()))
         let h = total / 60
         let min = total % 60
-        if h == 0 { return "\(min) min." }
-        return min == 0 ? "\(h) val." : "\(h) val. \(min) min."
+        if h == 0 { return tr("\(min) min") }
+        return min == 0 ? tr("\(h) h") : tr("\(h) h \(min) min")
     }
 
     static func clock(_ d: Date) -> String {
@@ -112,6 +112,9 @@ enum Fmt {
     static func hour(_ h: Int) -> String { String(format: "%02d:00", h) }
 
     static func stops(_ n: Int) -> String {
+        if L10n.current == .en {
+            return n == 0 ? "no stops" : n == 1 ? "1 stop" : "\(n) stops"
+        }
         if n == 0 { return "be sustojimų" }
         if n % 10 == 1 && n % 100 != 11 { return "\(n) sustojimas" }
         if (2...9).contains(n % 10) && !(11...19).contains(n % 100) { return "\(n) sustojimai" }
@@ -142,7 +145,7 @@ struct SectionHeader: View {
     let title: String
 
     var body: some View {
-        Text(title.uppercased())
+        Text(trKey(title).uppercased())
             .font(.footnote.weight(.semibold))
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -158,9 +161,9 @@ struct StatView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(label).font(.caption).foregroundStyle(.secondary)
+            Text(trKey(label)).font(.caption).foregroundStyle(.secondary)
             Text(value).font(.headline)
-            if let sub { Text(sub).font(.caption2).foregroundStyle(.secondary) }
+            if let sub { Text(trKey(sub)).font(.caption2).foregroundStyle(.secondary) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -171,7 +174,7 @@ struct Pill: View {
     var color: Color? = nil
 
     var body: some View {
-        Text(text)
+        Text(trKey(text))
             .font(.caption.weight(.medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
@@ -187,7 +190,7 @@ struct Chip: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title)
+            Text(trKey(title))
                 .font(.subheadline)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 7)
@@ -256,8 +259,8 @@ struct EmptyStateCard: View {
         CardBox {
             VStack(spacing: 8) {
                 Image(systemName: systemImage).font(.largeTitle).foregroundStyle(Theme.brand)
-                Text(title).font(.headline)
-                Text(message).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                Text(trKey(title)).font(.headline)
+                Text(trKey(message)).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)

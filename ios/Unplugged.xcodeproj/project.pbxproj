@@ -86,7 +86,7 @@
 				};
 			};
 			buildConfigurationList = AA000000000000000000000B /* Build configuration list for PBXProject "Unplugged" */;
-			developmentRegion = lt;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				lt,
@@ -197,7 +197,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Unplugged;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Jūsų vieta naudojama artimiausioms įkrovimo stotelėms rodyti.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the nearest charging stations.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -225,7 +225,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Unplugged;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Jūsų vieta naudojama artimiausioms įkrovimo stotelėms rodyti.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the nearest charging stations.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

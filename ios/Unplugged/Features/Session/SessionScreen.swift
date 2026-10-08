@@ -18,11 +18,11 @@ struct SessionScreen: View {
                         demoControls
                     } else {
                         EmptyStateCard(
-                            title: "Šiuo metu nesikraunate",
-                            message: "Pasirinkite stotelę žemėlapyje ir pradėkite įkrovimą — atsiskaitysite čia pat.",
+                            title: "Not charging right now",
+                            message: "Pick a station on the map and start charging — you'll pay right here.",
                             systemImage: "bolt.car"
                         )
-                        Button("Rasti stotelę", action: onFindStation)
+                        Button("Find a station", action: onFindStation)
                             .buttonStyle(PrimaryButtonStyle())
                             .padding(.top, 12)
                     }
@@ -30,7 +30,7 @@ struct SessionScreen: View {
                 .padding(16)
             }
             .background(Theme.background)
-            .navigationTitle("Įkrovimas")
+            .navigationTitle("Charge")
         }
     }
 
@@ -45,7 +45,7 @@ struct SessionScreen: View {
             HStack {
                 phasePill(snap.phase)
                 Spacer()
-                Text("pradėta \(Fmt.clock(s.startedAt))").font(.caption).foregroundStyle(.secondary)
+                Text("started \(Fmt.clock(s.startedAt))").font(.caption).foregroundStyle(.secondary)
             }
             Text("\(Int(snap.soc.rounded())) %")
                 .font(.system(size: 56, weight: .bold, design: .rounded))
@@ -55,36 +55,36 @@ struct SessionScreen: View {
             HStack {
                 Text("\(Int(s.startSoc)) %")
                 Spacer()
-                Text("tikslas \(Int(s.targetSoc)) %")
+                Text("target \(Int(s.targetSoc)) %")
             }
             .font(.caption)
             .foregroundStyle(.secondary)
             .padding(.top, 4)
             Divider().padding(.vertical, 12)
             HStack(alignment: .top) {
-                StatView(label: "Energija", value: String(format: "%.1f kWh", snap.kwh))
-                StatView(label: "Kaina", value: Fmt.eur(snap.energyCost))
+                StatView(label: "Energy", value: String(format: "%.1f kWh", snap.kwh))
+                StatView(label: "Cost", value: Fmt.eur(snap.energyCost))
                 if snap.phase == .charging {
-                    StatView(label: "Liko", value: Fmt.minutes(snap.minutesLeft))
+                    StatView(label: "Left", value: Fmt.minutes(snap.minutesLeft))
                 } else {
-                    StatView(label: "Prastovos mokestis", value: Fmt.eur(snap.idleFee))
+                    StatView(label: "Idle fee", value: Fmt.eur(snap.idleFee))
                 }
             }
         }
 
         switch snap.phase {
         case .charging:
-            Button("Sustabdyti įkrovimą") { model.stopCharging() }
+            Button("Stop charging") { model.stopCharging() }
                 .buttonStyle(SecondaryButtonStyle())
                 .padding(.top, 16)
         case .grace:
             CardBox(stroke: Theme.warn) {
                 VStack(spacing: 6) {
-                    Text("Nemokamas laikas patraukti automobilį").font(.subheadline).foregroundStyle(.secondary)
+                    Text("Free time to move your car").font(.subheadline).foregroundStyle(.secondary)
                     Text(Fmt.mmss(snap.graceLeft))
                         .font(.system(size: 52, weight: .bold, design: .rounded))
                         .monospacedDigit()
-                    Text("Patraukite per 2 min. ir gausite **\(PointsReason.movedFast.points) tšk.**, per „grace period“ — **\(PointsReason.movedInGrace.points) tšk.**")
+                    Text("Move within 2 min to earn **\(PointsReason.movedFast.points) pts**, or within the grace period to earn **\(PointsReason.movedInGrace.points) pts**")
                         .font(.footnote)
                         .multilineTextAlignment(.center)
                 }
@@ -97,24 +97,24 @@ struct SessionScreen: View {
             leaveButton
         case .ended:
             receipt(s, snap).padding(.top, 12)
-            Button("Baigti") { model.finishSession() }
+            Button("Done") { model.finishSession() }
                 .buttonStyle(PrimaryButtonStyle())
                 .padding(.top, 16)
         }
     }
 
     private var leaveButton: some View {
-        Button("Patraukiau automobilį") { model.leaveSpot() }
+        Button("I moved my car") { model.leaveSpot() }
             .buttonStyle(PrimaryButtonStyle())
             .padding(.top, 16)
     }
 
     private func phasePill(_ phase: SessionSnapshot.Phase) -> some View {
         switch phase {
-        case .charging: Pill(text: "Kraunasi", color: Theme.info)
-        case .grace: Pill(text: "Baigta — patraukite automobilį", color: Theme.warn)
-        case .idle: Pill(text: "Skaičiuojamas prastovos mokestis", color: Theme.bad)
-        case .ended: Pill(text: "Užbaigta", color: Theme.ok)
+        case .charging: Pill(text: "Charging", color: Theme.info)
+        case .grace: Pill(text: "Finished — move your car", color: Theme.warn)
+        case .idle: Pill(text: "Idle fee is running", color: Theme.bad)
+        case .ended: Pill(text: "Completed", color: Theme.ok)
         }
     }
 
@@ -122,9 +122,9 @@ struct SessionScreen: View {
         let rate = IdleFee.currentRate(minutes: snap.idleMinutes)
         return CardBox(stroke: Theme.bad) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Stovite be reikalo \(Fmt.minutes(snap.idleMinutes))").font(.headline)
+                Text("You've been idle for \(Fmt.minutes(snap.idleMinutes))").font(.headline)
                 Spacer()
-                Text(String(format: "%.2f €/min.", rate)).font(.subheadline).foregroundStyle(.secondary)
+                Text(String(format: "%.2f €/min", rate)).font(.subheadline).foregroundStyle(.secondary)
             }
             HStack(spacing: 6) {
                 ForEach(Array(IdleFee.tiers.enumerated()), id: \.offset) { item in
@@ -132,8 +132,8 @@ struct SessionScreen: View {
                     let end = item.offset + 1 < IdleFee.tiers.count ? IdleFee.tiers[item.offset + 1].fromMin : nil
                     let active = rate == tier.eurPerMin
                     VStack(spacing: 2) {
-                        Text(String(format: "%.2f €/min.", tier.eurPerMin)).font(.caption.weight(.semibold))
-                        Text(end.map { "\(Int(tier.fromMin))–\(Int($0)) min." } ?? "\(Int(tier.fromMin))+ min.").font(.caption2)
+                        Text(String(format: "%.2f €/min", tier.eurPerMin)).font(.caption.weight(.semibold))
+                        Text(end.map { "\(Int(tier.fromMin))–\(Int($0)) min" } ?? "\(Int(tier.fromMin))+ min").font(.caption2)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
@@ -142,7 +142,7 @@ struct SessionScreen: View {
                 }
             }
             .padding(.top, 12)
-            Text("Maksimalus mokestis \(Fmt.eur(IdleFee.capEur)). Kiti vairuotojai laukia šios vietos.")
+            Text("Maximum fee \(Fmt.eur(IdleFee.capEur)). Other drivers are waiting for this spot.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
@@ -151,20 +151,20 @@ struct SessionScreen: View {
 
     private func receipt(_ s: ChargingSession, _ snap: SessionSnapshot) -> some View {
         CardBox {
-            Text("Kvitas").font(.headline).padding(.bottom, 8)
-            row(String(format: "Įkrovimas (%.1f kWh × %.2f €)", snap.kwh, s.pricePerKwh), Fmt.eur(snap.energyCost))
-            row("Prastovos mokestis", Fmt.eur(snap.idleFee))
+            Text("Receipt").font(.headline).padding(.bottom, 8)
+            row(String(format: trKey("Charging (%.1f kWh × %.2f €)"), snap.kwh, s.pricePerKwh), Fmt.eur(snap.energyCost))
+            row("Idle fee", Fmt.eur(snap.idleFee))
             Divider().padding(.vertical, 6)
-            row("Iš viso", Fmt.eur(snap.energyCost + snap.idleFee), bold: true)
+            row("Total", Fmt.eur(snap.energyCost + snap.idleFee), bold: true)
             if let pts = s.pointsEarned, pts > 0 {
-                row("Gauta taškų", "+\(pts)")
+                row("Points earned", "+\(pts)")
             }
         }
     }
 
     private func row(_ label: String, _ value: String, bold: Bool = false) -> some View {
         HStack {
-            Text(label).foregroundStyle(bold ? .primary : .secondary)
+            Text(trKey(label)).foregroundStyle(bold ? .primary : .secondary)
             Spacer()
             Text(value)
         }
@@ -174,13 +174,13 @@ struct SessionScreen: View {
 
     private var demoControls: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionHeader(title: "Demo: laiko pagreitis")
+            SectionHeader(title: "Demo: time acceleration")
             HStack(spacing: 8) {
                 ForEach(speeds, id: \.self) { s in
                     Chip(title: "\(Int(s))×", active: model.speed == s) { model.setSpeed(s) }
                 }
             }
-            Text("Pagreitinkite laiką, kad pamatytumėte pranešimą, „grace period“ ir didėjantį mokestį.")
+            Text("Speed up time to see the notification, the grace period and the growing fee.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
