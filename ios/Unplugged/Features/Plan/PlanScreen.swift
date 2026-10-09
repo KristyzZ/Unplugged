@@ -82,7 +82,7 @@ struct PlanScreen: View {
                 departure = Date()
                 plannedFrom = origin
                 plannedTo = destination
-                withAnimation {
+                withMotion {
                     plan = TripPlanner.plan(TripInput(
                         vehicle: vehicle,
                         startSoc: model.soc,
@@ -114,8 +114,8 @@ struct PlanScreen: View {
             .padding(.bottom, 12)
         }
         CardBox {
-            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 14) {
-                GridRow {
+            VStack(alignment: .leading, spacing: 14) {
+                StatRow(spacing: 12) {
                     StatView(label: "Distance", value: "\(plan.totalKm) km")
                     StatView(
                         label: "Trip time",
@@ -123,7 +123,7 @@ struct PlanScreen: View {
                         sub: tr("of which charging \(Fmt.minutes(Double(plan.chargeMinutes)))")
                     )
                 }
-                GridRow {
+                StatRow(spacing: 12) {
                     StatView(label: "Arrive", value: Fmt.clock(plan.arriveAt), sub: tr("with \(plan.arriveSoc) % battery"))
                     StatView(label: "Charging cost", value: Fmt.eur(plan.costEur), sub: Fmt.stops(plan.stops.count))
                 }
@@ -192,7 +192,7 @@ struct PlanScreen: View {
                     Spacer()
                     Pill(text: tr("free \(Fmt.pct(stop.freeProbability))"), color: pColor)
                 }
-                HStack(alignment: .top) {
+                StatRow {
                     StatView(label: "Arrival", value: Fmt.clock(stop.arriveAt), sub: "\(stop.arriveSoc) %")
                     StatView(label: "Charge for", value: Fmt.minutes(Double(stop.chargeMinutes)), sub: tr("to \(stop.departSoc) %"))
                     StatView(label: "Cost", value: Fmt.eur(stop.costEur), sub: String(format: "%.1f kWh", stop.energyKwh))

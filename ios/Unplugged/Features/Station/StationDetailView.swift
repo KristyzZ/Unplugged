@@ -75,7 +75,7 @@ struct StationDetailView: View {
                 CardBox {
                     OccupancyChart(values: station.hourlyOccupancy, currentHour: hour, highlight: best != hour ? best : nil)
                     Divider().padding(.vertical, 12)
-                    HStack(alignment: .top) {
+                    StatRow {
                         StatView(label: "Usual chance of a free spot now", value: Fmt.pct(station.probabilityFree(atHour: hour)))
                         StatView(
                             label: "Best time in the next 6 h",
@@ -112,7 +112,7 @@ struct StationDetailView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Pill(text: station.availability.label, color: station.availability.color)
                     HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text("\(station.freeCount)").font(.system(size: 34, weight: .bold))
+                        Text("\(station.freeCount)").scaledFont(34, weight: .bold, relativeTo: .largeTitle)
                         Text("/\(station.workingCount) available").font(.headline).foregroundStyle(Theme.muted)
                     }
                 }
@@ -123,7 +123,7 @@ struct StationDetailView: View {
                 }
             }
             Divider().padding(.vertical, 12)
-            HStack(alignment: .top) {
+            StatRow {
                 StatView(label: "Charging now", value: "\(station.count(.charging))")
                 StatView(label: "Finished, parked", value: "\(station.count(.idle))")
                 StatView(label: "Occupied, no charge", value: "\(station.count(.blocked))")
@@ -225,7 +225,7 @@ struct StationDetailView: View {
             if minTarget < 100 {
                 Slider(value: $target, in: minTarget...100, step: 1).padding(.top, 6)
             }
-            HStack(alignment: .top) {
+            StatRow {
                 StatView(label: "Duration", value: Fmt.minutes(Double(estimate.minutes)), sub: tr("ends ~\(finishText)"))
                 StatView(label: "Energy", value: String(format: "%.1f kWh", estimate.kwh))
                 StatView(label: "Cost", value: Fmt.eur(estimate.kwh * station.pricePerKwh))

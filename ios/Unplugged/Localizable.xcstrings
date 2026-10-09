@@ -2700,6 +2700,26 @@
           }
         }
       }
+    },
+    "Charging, session in progress": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimas, vyksta sesija"
+          }
+        }
+      }
+    },
+    "Double-tap to dismiss": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dukart bakstelėkite, kad paslėptumėte"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

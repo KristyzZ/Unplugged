@@ -52,7 +52,7 @@ struct SessionScreen: View {
                 Text("started \(Fmt.clock(s.startedAt))").font(.caption).foregroundStyle(Theme.muted)
             }
             Text("\(Int(snap.soc.rounded())) %")
-                .font(.system(size: 56, weight: .bold, design: .rounded))
+                .scaledFont(56, weight: .bold, design: .rounded, relativeTo: .largeTitle)
                 .contentTransition(.numericText())
                 .padding(.top, 12)
             SocBar(value: snap.soc, target: s.targetSoc, height: 12).padding(.top, 8)
@@ -65,7 +65,7 @@ struct SessionScreen: View {
             .foregroundStyle(Theme.muted)
             .padding(.top, 4)
             Divider().padding(.vertical, 12)
-            HStack(alignment: .top) {
+            StatRow {
                 StatView(label: "Energy", value: String(format: "%.1f kWh", snap.kwh))
                 StatView(label: "Cost", value: Fmt.eur(snap.energyCost))
                 if snap.phase == .charging {
@@ -86,7 +86,7 @@ struct SessionScreen: View {
                 VStack(spacing: 6) {
                     Text("Free time to move your car").font(.subheadline).foregroundStyle(Theme.muted)
                     Text(Fmt.mmss(snap.graceLeft))
-                        .font(.system(size: 52, weight: .bold, design: .rounded))
+                        .scaledFont(52, weight: .bold, design: .rounded, relativeTo: .largeTitle)
                         .monospacedDigit()
                     Text("Move within 2 min to earn **\(PointsReason.movedFast.points) pts**, or within the grace period to earn **\(PointsReason.movedInGrace.points) pts**")
                         .font(.footnote)
