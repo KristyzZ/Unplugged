@@ -49,17 +49,10 @@ struct OperatorScreen: View {
     }
 
     private var filters: some View {
-        HStack {
-            Picker("City", selection: $city) {
-                Text("All cities").tag("")
-                ForEach(cities, id: \.self) { Text($0).tag($0) }
-            }
-            Picker("Operator", selection: $operatorId) {
-                Text("All operators").tag("")
-                ForEach(DemoData.operators) { Text($0.name).tag($0.id) }
-            }
+        HStack(spacing: 10) {
+            DropdownField(selection: $city, options: [("", tr("All cities"))] + cities.map { ($0, $0) })
+            DropdownField(selection: $operatorId, options: [("", tr("All operators"))] + DemoData.operators.map { ($0.id, $0.name) })
         }
-        .pickerStyle(.menu)
         .padding(.bottom, 12)
     }
 

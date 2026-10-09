@@ -38,15 +38,10 @@ struct ProfileScreen: View {
         let vehicleBinding = Binding(get: { model.vehicleId }, set: { model.setVehicle($0) })
         let socBinding = Binding(get: { model.soc }, set: { model.setSoc($0) })
         return CardBox {
-            HStack {
-                Text("Car").font(.subheadline.weight(.medium))
-                Spacer()
-                Picker("Car", selection: vehicleBinding) {
-                    ForEach(DemoData.vehicles) { v in Text(v.name).tag(v.id) }
-                }
-                .pickerStyle(.menu)
-            }
-            Divider().padding(.vertical, 8)
+            Text("Car").font(.subheadline.weight(.medium))
+            DropdownField(selection: vehicleBinding, options: DemoData.vehicles.map { ($0.id, $0.name) })
+                .padding(.top, 4)
+            Divider().padding(.vertical, 12)
             HStack(alignment: .top) {
                 StatView(label: "Battery", value: "\(Int(vehicle.batteryKwh)) kWh")
                 StatView(label: "Max DC", value: "\(Int(vehicle.maxDcKw)) kW")
@@ -163,10 +158,8 @@ struct ProfileScreen: View {
             HStack {
                 Label("Language", systemImage: "globe").font(.subheadline.weight(.medium))
                 Spacer()
-                Picker("Language", selection: langBinding) {
-                    ForEach(Lang.allCases) { lang in Text(lang.title).tag(lang) }
-                }
-                .pickerStyle(.menu)
+                DropdownField(selection: langBinding, options: Lang.allCases.map { ($0, $0.title) })
+                    .frame(width: 160)
             }
             Divider().padding(.vertical, 8)
             Button(role: .destructive) { confirmReset = true } label: {

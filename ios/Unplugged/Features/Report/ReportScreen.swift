@@ -60,22 +60,18 @@ struct ReportContent: View {
             Text(station?.name ?? "").font(.headline).padding(.bottom, 10)
 
             Text("What's the problem?").font(.subheadline.weight(.medium))
-            Picker("What's the problem?", selection: $kind) {
-                ForEach(ReportKind.allCases) { k in Text(k.title).tag(k) }
-            }
-            .pickerStyle(.menu)
-            .padding(.bottom, 6)
+            DropdownField(selection: $kind, options: ReportKind.allCases.map { ($0, $0.title) })
+                .padding(.top, 4)
+                .padding(.bottom, 10)
 
             if kind == .chargerProblem, let station {
                 Text("Connector").font(.subheadline.weight(.medium))
-                Picker("Connector", selection: $connectorId) {
-                    Text("Whole station").tag("")
-                    ForEach(station.connectors) { c in
-                        Text("\(c.type.rawValue) · \(Int(c.powerKw)) kW").tag(c.id)
-                    }
-                }
-                .pickerStyle(.menu)
-                .padding(.bottom, 6)
+                DropdownField(
+                    selection: $connectorId,
+                    options: [("", tr("Whole station"))] + station.connectors.map { ($0.id, "\($0.type.rawValue) · \(Int($0.powerKw)) kW") }
+                )
+                .padding(.top, 4)
+                .padding(.bottom, 10)
             }
 
             if kind == .wrongUsage {

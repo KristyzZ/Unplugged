@@ -98,11 +98,7 @@ struct PlanScreen: View {
     }
 
     private func placePicker(selection: Binding<String>) -> some View {
-        Picker("Place", selection: selection) {
-            ForEach(DemoData.places) { p in Text(p.name).tag(p.id) }
-        }
-        .pickerStyle(.menu)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        DropdownField(selection: selection, options: DemoData.places.map { ($0.id, $0.name) })
     }
 
     @ViewBuilder
