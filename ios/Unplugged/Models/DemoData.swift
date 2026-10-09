@@ -175,4 +175,32 @@ enum DemoData {
     ].map { Place(id: $0.id, name: trKey($0.name), lat: $0.lat, lng: $0.lng) } }
 
     static let vilniusCenter = LatLng(lat: 54.6872, lng: 25.2797)
+
+    // MARK: Profile (fictional payment methods and operator plans)
+
+    struct PaymentMethod: Identifiable, Hashable {
+        let id: String
+        let title: String
+        let detail: String
+        let systemImage: String
+    }
+
+    static var paymentMethods: [PaymentMethod] { [
+        PaymentMethod(id: "visa", title: "Visa •••• 4242", detail: tr("Card"), systemImage: "creditcard"),
+        PaymentMethod(id: "applepay", title: "Apple Pay", detail: tr("Wallet"), systemImage: "apple.logo"),
+        PaymentMethod(id: "sepa", title: "SEPA •••• 1187", detail: tr("Bank account"), systemImage: "building.columns"),
+    ] }
+
+    struct OperatorPlan: Identifiable, Hashable {
+        let id: String        // operator id
+        let name: String
+        let perk: String
+    }
+
+    static var plans: [OperatorPlan] { [
+        OperatorPlan(id: "ignitis", name: "Ignitis ON Plus", perk: tr("−10 % on energy")),
+        OperatorPlan(id: "eleport", name: "Eleport Flex", perk: tr("No session start fee")),
+        OperatorPlan(id: "enefit", name: "Enefit Volt Member", perk: tr("−8 % on energy")),
+        OperatorPlan(id: "inbalance", name: "Inbalance Pass", perk: tr("−12 % on AC charging")),
+    ] }
 }

@@ -1,36 +1,6 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "Map": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Žemėlapis"
-          }
-        }
-      }
-    },
-    "Trip": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kelionė"
-          }
-        }
-      }
-    },
-    "Charge": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Įkrovimas"
-          }
-        }
-      }
-    },
     "Points": {
       "localizations": {
         "lt": {
@@ -57,16 +27,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Laisva"
-          }
-        }
-      }
-    },
-    "Charging": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kraunasi"
           }
         }
       }
@@ -177,16 +137,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stotelė nerasta"
-          }
-        }
-      }
-    },
-    "You already have an active session — see the “Charge” tab.": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jau turite aktyvų įkrovimą — žr. skirtuką „Įkrovimas“."
           }
         }
       }
@@ -1271,16 +1221,6 @@
         }
       }
     },
-    "Is a car that isn't charging, or isn't electric, blocking a charging spot? Report it — confirmed reports help enforce warnings and fines.": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Įkrovimo vietą užima nesikraunantis ar ne elektrinis automobilis? Praneškite — patvirtinti pranešimai padeda taikyti įspėjimus ir baudas."
-          }
-        }
-      }
-    },
     "Reports near you": {
       "localizations": {
         "lt": {
@@ -2067,6 +2007,516 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stotelės duomenys"
+          }
+        }
+      }
+    },
+    "You already have an active session — see the “Charging” tab.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jau turite aktyvų įkrovimą — žr. skirtuką „Įkrovimas“."
+          }
+        }
+      }
+    },
+    "Explore": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Žemėlapis"
+          }
+        }
+      }
+    },
+    "Charging": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimas"
+          }
+        }
+      }
+    },
+    "Profile": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profilis"
+          }
+        }
+      }
+    },
+    "Charging now": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kraunasi"
+          }
+        }
+      }
+    },
+    "My car": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mano automobilis"
+          }
+        }
+      }
+    },
+    "Payment methods": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mokėjimo būdai"
+          }
+        }
+      }
+    },
+    "Subscriptions": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prenumeratos"
+          }
+        }
+      }
+    },
+    "Rewards": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apdovanojimai"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nustatymai"
+          }
+        }
+      }
+    },
+    "Battery": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baterija"
+          }
+        }
+      }
+    },
+    "Max DC": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maks. DC"
+          }
+        }
+      }
+    },
+    "Max AC": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maks. AC"
+          }
+        }
+      }
+    },
+    "Consumption": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sąnaudos"
+          }
+        }
+      }
+    },
+    "Range now": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuvažiuosite dabar"
+          }
+        }
+      }
+    },
+    "Range at 80 %": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuvažiuosite su 80 %"
+          }
+        }
+      }
+    },
+    "Range at 100 %": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuvažiuosite su 100 %"
+          }
+        }
+      }
+    },
+    "Range is estimated from your car's battery size and real-world consumption. It is used for trip planning and for showing compatible chargers.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atstumas apskaičiuojamas pagal automobilio baterijos talpą ir realias sąnaudas. Jis naudojamas kelionėms planuoti ir tinkamoms įkrovimo stotelėms rodyti."
+          }
+        }
+      }
+    },
+    "Card": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kortelė"
+          }
+        }
+      }
+    },
+    "Wallet": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piniginė"
+          }
+        }
+      }
+    },
+    "Bank account": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Banko sąskaita"
+          }
+        }
+      }
+    },
+    "Default": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numatytasis"
+          }
+        }
+      }
+    },
+    "Demo payment methods. Payments are simulated in this prototype.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstraciniai mokėjimo būdai. Prototipe mokėjimai imituojami."
+          }
+        }
+      }
+    },
+    "Fictional demo plans. Linking real operator accounts needs operator-supported authorization.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išgalvoti demonstraciniai planai. Tikrai operatorių paskyrų sąsajai reikia operatoriaus palaikomo prisijungimo."
+          }
+        }
+      }
+    },
+    "−10 %% on energy": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "−10 %% energijai"
+          }
+        }
+      }
+    },
+    "No session start fee": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Be pradžios mokesčio"
+          }
+        }
+      }
+    },
+    "−8 %% on energy": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "−8 %% energijai"
+          }
+        }
+      }
+    },
+    "−12 %% on AC charging": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "−12 %% AC krovimui"
+          }
+        }
+      }
+    },
+    "%lld pts · %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld tšk. · %@"
+          }
+        }
+      }
+    },
+    "Change": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keisti"
+          }
+        }
+      }
+    },
+    "%lld kWh · max %lld kW DC": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld kWh · maks. %lld kW DC"
+          }
+        }
+      }
+    },
+    "No past sessions yet.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kol kas nėra įkrovimų."
+          }
+        }
+      }
+    },
+    "Includes idle fee %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įskaičiuotas prastovos mokestis %@"
+          }
+        }
+      }
+    },
+    "Reports for this station": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šios stotelės pranešimai"
+          }
+        }
+      }
+    },
+    "No reports for this station yet.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šiai stotelei pranešimų dar nėra."
+          }
+        }
+      }
+    },
+    "What's the problem?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kokia problema?"
+          }
+        }
+      }
+    },
+    "Wrong use of the charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Netinkamas stotelės naudojimas"
+          }
+        }
+      }
+    },
+    "Charger problem": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelės gedimas"
+          }
+        }
+      }
+    },
+    "Other": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kita"
+          }
+        }
+      }
+    },
+    "Report a problem at this station. Confirmed reports of wrong use help enforce warnings and fines.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Praneškite apie problemą šioje stotelėje. Patvirtinti pranešimai apie netinkamą naudojimą padeda taikyti įspėjimus ir baudas."
+          }
+        }
+      }
+    },
+    "Connector": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jungtis"
+          }
+        }
+      }
+    },
+    "Whole station": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visa stotelė"
+          }
+        }
+      }
+    },
+    "E.g., the connector won't lock or the screen is dead": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pvz., jungtis neužsifiksuoja arba ekranas neveikia"
+          }
+        }
+      }
+    },
+    "Describe what's wrong": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprašykite problemą"
+          }
+        }
+      }
+    },
+    "A photo helps the operator understand the problem.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuotrauka padeda operatoriui suprasti problemą."
+          }
+        }
+      }
+    },
+    "Thanks — we'll pass it on to the operator.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ačiū — perduosime operatoriui."
+          }
+        }
+      }
+    },
+    "Sent to operator": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perduota operatoriui"
+          }
+        }
+      }
+    },
+    "Same here": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ir man taip"
+          }
+        }
+      }
+    },
+    "Thanks!": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ačiū!"
+          }
+        }
+      }
+    },
+    "Your confirmation helps the operator prioritize.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų patvirtinimas padeda operatoriui nustatyti prioritetus."
+          }
+        }
+      }
+    },
+    "The first connector won't start a session.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pirma jungtis nepradeda įkrovimo."
           }
         }
       }

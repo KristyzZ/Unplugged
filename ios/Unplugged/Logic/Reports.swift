@@ -4,6 +4,35 @@ import Foundation
 // Evidence from several sources builds a confidence score; once it is high
 // enough the report is confirmed and a sanction from the ladder applies.
 
+enum ReportKind: String, Codable, CaseIterable, Identifiable {
+    case wrongUsage, chargerProblem, other
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .wrongUsage: tr("Wrong use of the charger")
+        case .chargerProblem: tr("Charger problem")
+        case .other: tr("Other")
+        }
+    }
+
+    var placeholder: String {
+        switch self {
+        case .wrongUsage: tr("E.g., a petrol car is parked in the charging spot")
+        case .chargerProblem: tr("E.g., the connector won't lock or the screen is dead")
+        case .other: tr("Describe what's wrong")
+        }
+    }
+
+    var photoHint: String {
+        switch self {
+        case .wrongUsage: tr("A photo with a visible plate greatly increases credibility.")
+        case .chargerProblem, .other: tr("A photo helps the operator understand the problem.")
+        }
+    }
+}
+
 struct AbuseReport: Identifiable, Codable, Hashable {
     var id: String = UUID().uuidString
     let stationId: String
@@ -15,7 +44,11 @@ struct AbuseReport: Identifiable, Codable, Hashable {
     var confirmations: Int
     let createdAt: Date
     let byMe: Bool
+    // Added later; optional so older saved reports still decode (they are wrong-use reports).
+    var kind: ReportKind? = nil
+    var connectorId: String? = nil
 
+    var category: ReportKind { kind ?? .wrongUsage }
     var confidence: Double { Reports.confidence(hasPhoto: hasPhoto, telemetryMatches: telemetryMatches, confirmations: confirmations) }
     var isConfirmed: Bool { confidence >= Reports.confirmThreshold }
 }

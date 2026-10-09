@@ -26,11 +26,12 @@ struct SessionScreen: View {
                             .buttonStyle(PrimaryButtonStyle())
                             .padding(.top, 12)
                     }
+                    history
                 }
                 .padding(16)
             }
             .background(Theme.background)
-            .navigationTitle("Charge")
+            .navigationTitle("Charging")
         }
     }
 
@@ -111,7 +112,7 @@ struct SessionScreen: View {
 
     private func phasePill(_ phase: SessionSnapshot.Phase) -> some View {
         switch phase {
-        case .charging: Pill(text: "Charging", color: Theme.info)
+        case .charging: Pill(text: tr("Charging now"), color: Theme.info)
         case .grace: Pill(text: "Finished — move your car", color: Theme.warn)
         case .idle: Pill(text: "Idle fee is running", color: Theme.bad)
         case .ended: Pill(text: "Completed", color: Theme.ok)
@@ -170,6 +171,40 @@ struct SessionScreen: View {
         }
         .font(bold ? .subheadline.weight(.semibold) : .subheadline)
         .padding(.vertical, 2)
+    }
+
+    private var history: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionHeader(title: "History")
+            CardBox {
+                if model.sessionHistory.isEmpty {
+                    Text("No past sessions yet.").font(.subheadline).foregroundStyle(.secondary)
+                }
+                ForEach(Array(model.sessionHistory.enumerated()), id: \.offset) { item in
+                    let s = item.element
+                    let snap = SessionSnapshot(s, now: s.endedAt ?? s.startedAt)
+                    if item.offset > 0 { Divider().padding(.vertical, 8) }
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(s.stationName).font(.subheadline.weight(.semibold))
+                            Text("\(s.startedAt.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(L10n.locale))) · \(String(format: "%.1f kWh", snap.kwh))")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            if snap.idleFee > 0 {
+                                Text("Includes idle fee \(Fmt.eur(snap.idleFee))").font(.caption).foregroundStyle(Theme.warn)
+                            }
+                        }
+                        Spacer()
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text(Fmt.eur(snap.energyCost + snap.idleFee)).font(.subheadline.weight(.semibold))
+                            if let pts = s.pointsEarned, pts > 0 {
+                                Text("+\(pts) pts").font(.caption).foregroundStyle(Theme.ok)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private var demoControls: some View {

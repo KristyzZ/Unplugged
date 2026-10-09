@@ -35,10 +35,13 @@ final class AppModel {
     private(set) var session: ChargingSession?
     private(set) var queue: QueueEntry?
     private(set) var reports: [AbuseReport] = AppModel.demoReports
+    private(set) var sessionHistory: [ChargingSession] = AppModel.demoSessionHistory
+    private(set) var defaultPaymentId = "visa"
+    private(set) var activePlanIds: Set<String> = ["ignitis"]
 
     // MARK: Live
     private(set) var lang: Lang = L10n.current
-    var tab: AppTab = .map
+    var tab: AppTab = .explore
     private(set) var stations: [Station] = []
     private(set) var tick = 0
     /// Demo time multiplier for the charging simulation (1 = real time).
@@ -209,7 +212,23 @@ final class AppModel {
     }
 
     func finishSession() {
+        if let s = session, s.endedAt != nil {
+            sessionHistory.insert(s, at: 0)
+            sessionHistory = Array(sessionHistory.prefix(30))
+        }
         session = nil
+        save()
+    }
+
+    // MARK: Profile
+
+    func setDefaultPayment(_ id: String) {
+        defaultPaymentId = id
+        save()
+    }
+
+    func setPlan(_ operatorId: String, active: Bool) {
+        if active { activePlanIds.insert(operatorId) } else { activePlanIds.remove(operatorId) }
         save()
     }
 
@@ -253,22 +272,36 @@ final class AppModel {
 
     // MARK: Reports
 
-    func submitReport(station: Station, plate: String, description: String, hasPhoto: Bool) {
-        // Station telemetry: a bay that is occupied without an active session.
-        let telemetry = station.connectors.contains { $0.status == .blocked }
+    func submitReport(station: Station, kind: ReportKind, connectorId: String?, plate: String, description: String, hasPhoto: Bool) {
+        // Station telemetry backs the report: a bay occupied without a session
+        // (wrong use), or a connector the station already shows as out of service.
+        let telemetry: Bool
+        switch kind {
+        case .wrongUsage:
+            telemetry = station.connectors.contains { $0.status == .blocked }
+        case .chargerProblem:
+            let scope = station.connectors.filter { connectorId == nil || $0.id == connectorId }
+            telemetry = scope.contains { $0.status == .offline }
+        case .other:
+            telemetry = false
+        }
         let report = AbuseReport(
             stationId: station.id,
-            plate: plate.uppercased(),
+            plate: kind == .wrongUsage ? plate.uppercased() : "",
             description: description,
             hasPhoto: hasPhoto,
             telemetryMatches: telemetry,
             confirmations: 0,
             createdAt: .now,
-            byMe: true
+            byMe: true,
+            kind: kind,
+            connectorId: kind == .chargerProblem ? connectorId : nil
         )
         reports.insert(report, at: 0)
         save()
-        if report.isConfirmed {
+        if kind != .wrongUsage {
+            showBanner(tr("Report sent"), tr("Thanks — we'll pass it on to the operator."))
+        } else if report.isConfirmed {
             addPoints(.reportConfirmed, note: station.name)
             showBanner(tr("Report confirmed"), tr("Station data confirmed the violation. +\(PointsReason.reportConfirmed.points) pts"))
         } else {
@@ -279,6 +312,10 @@ final class AppModel {
     func confirmReport(_ id: String) {
         guard let i = reports.firstIndex(where: { $0.id == id }) else { return }
         reports[i].confirmations += 1
+        guard reports[i].category == .wrongUsage else {
+            showBanner(tr("Thanks!"), tr("Your confirmation helps the operator prioritize."))
+            return
+        }
         let name = stations.first { $0.id == reports[i].stationId }?.name
         addPoints(.confirmReport, note: name)
         showBanner(tr("+\(PointsReason.confirmReport.points) pts"), tr("Thanks for helping to confirm."))
@@ -311,6 +348,9 @@ final class AppModel {
         session = nil
         queue = nil
         reports = AppModel.demoReports
+        sessionHistory = AppModel.demoSessionHistory
+        defaultPaymentId = "visa"
+        activePlanIds = ["ignitis"]
         realAnchor = Date()
         simAnchor = Date()
         speed = 1
@@ -329,6 +369,10 @@ final class AppModel {
         var session: ChargingSession?
         var queue: QueueEntry?
         var reports: [AbuseReport]
+        // Added later; optional so older saved state still decodes.
+        var sessionHistory: [ChargingSession]?
+        var defaultPaymentId: String?
+        var activePlanIds: [String]?
         /// Simulated clock offset (sim − real) so a sped-up session survives relaunch.
         var simOffset: TimeInterval
     }
@@ -337,6 +381,7 @@ final class AppModel {
         let state = Persisted(
             vehicleId: vehicleId, soc: soc, points: points, lifetimePoints: lifetimePoints,
             history: history, session: session, queue: queue, reports: reports,
+            sessionHistory: sessionHistory, defaultPaymentId: defaultPaymentId, activePlanIds: Array(activePlanIds),
             simOffset: simNow().timeIntervalSinceNow
         )
         if let data = try? JSONEncoder().encode(state) {
@@ -355,6 +400,9 @@ final class AppModel {
         session = s.session
         queue = s.queue
         reports = s.reports
+        sessionHistory = s.sessionHistory ?? AppModel.demoSessionHistory
+        defaultPaymentId = s.defaultPaymentId ?? "visa"
+        activePlanIds = Set(s.activePlanIds ?? ["ignitis"])
         realAnchor = Date()
         simAnchor = Date().addingTimeInterval(s.simOffset)
     }
@@ -366,12 +414,39 @@ final class AppModel {
         PointsEntry(reason: .offPeak, points: 10, at: Date().addingTimeInterval(-2 * 86_400)),
     ]
 
+    private static let demoSessionHistory: [ChargingSession] = {
+        let now = Date()
+        func entry(_ id: String, _ name: String, _ connector: String, daysAgo: Double, charge: Double,
+                   idle: Double, grace: Int, price: Double, from: Double, to: Double, kwh: Double, points: Int) -> ChargingSession {
+            let start = now.addingTimeInterval(-daysAgo * 86_400)
+            let done = start.addingTimeInterval(charge * 60)
+            return ChargingSession(
+                stationId: id, stationName: name, connectorLabel: connector, startedAt: start,
+                startSoc: from, targetSoc: to, minutesToTarget: charge, graceMinutes: grace,
+                pricePerKwh: price, batteryKwh: kwh,
+                doneAt: done, endedAt: done.addingTimeInterval((Double(grace) + idle) * 60),
+                idleFeeEur: IdleFee.fee(minutes: idle), pointsEarned: points
+            )
+        }
+        return [
+            entry("akropolis", "Akropolis", "CCS2 · 150 kW", daysAgo: 2, charge: 32, idle: 0, grace: 10, price: 0.59, from: 22, to: 80, kwh: 77, points: 30),
+            entry("ozas", "Ozas", "CCS2 · 120 kW", daysAgo: 6, charge: 41, idle: 12, grace: 8, price: 0.55, from: 18, to: 85, kwh: 77, points: 0),
+        ]
+    }()
+
     private static let demoReports: [AbuseReport] = [
         AbuseReport(
             id: "r-demo", stationId: "europa", plate: "KLM 482",
             description: "A petrol car has been parked in the charging spot since morning.",
             hasPhoto: true, telemetryMatches: false, confirmations: 1,
             createdAt: Date().addingTimeInterval(-3600), byMe: false
+        ),
+        AbuseReport(
+            id: "r-demo-2", stationId: "europa", plate: "",
+            description: "The first connector won't start a session.",
+            hasPhoto: false, telemetryMatches: false, confirmations: 2,
+            createdAt: Date().addingTimeInterval(-7200), byMe: false,
+            kind: .chargerProblem
         ),
     ]
 }

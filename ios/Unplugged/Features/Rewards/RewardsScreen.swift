@@ -2,53 +2,38 @@ import SwiftUI
 
 struct RewardsScreen: View {
     @Environment(AppModel.self) private var model
-    @State private var confirmReset = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Use stations responsibly to earn points and exchange them for discounts.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .padding(.bottom, 12)
-                    balance
-                    SectionHeader(title: "How to earn")
-                    CardBox {
-                        ForEach(Array(PointsReason.earning.enumerated()), id: \.element) { item in
-                            if item.offset > 0 { Divider().padding(.vertical, 8) }
-                            HStack {
-                                Text(item.element.label).font(.subheadline)
-                                Spacer()
-                                Text("+\(item.element.points)").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ok)
-                            }
+                Text("Use stations responsibly to earn points and exchange them for discounts.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 12)
+                balance
+                SectionHeader(title: "How to earn")
+                CardBox {
+                    ForEach(Array(PointsReason.earning.enumerated()), id: \.element) { item in
+                        if item.offset > 0 { Divider().padding(.vertical, 8) }
+                        HStack {
+                            Text(item.element.label).font(.subheadline)
+                            Spacer()
+                            Text("+\(item.element.points)").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ok)
                         }
                     }
-                    SectionHeader(title: "Redeem")
-                    VStack(spacing: 8) {
-                        ForEach(Points.rewards) { reward in rewardRow(reward) }
-                    }
-                    SectionHeader(title: "History")
-                    history
                 }
-                .padding(16)
-            }
-            .background(Theme.background)
-            .navigationTitle("Points")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        LanguageMenu()
-                        Button("Reset demo data", role: .destructive) { confirmReset = true }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                    }
+                SectionHeader(title: "Redeem")
+                VStack(spacing: 8) {
+                    ForEach(Points.rewards) { reward in rewardRow(reward) }
                 }
+                SectionHeader(title: "History")
+                history
             }
-            .confirmationDialog("Reset all demo data?", isPresented: $confirmReset, titleVisibility: .visible) {
-                Button("Reset", role: .destructive) { model.resetDemo() }
-            }
+            .padding(16)
         }
+        .background(Theme.background)
+        .navigationTitle("Points")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private var balance: some View {

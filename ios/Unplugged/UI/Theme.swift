@@ -33,7 +33,7 @@ extension ConnectorStatus {
     var label: String {
         switch self {
         case .available: tr("Available")
-        case .charging: tr("Charging")
+        case .charging: tr("Charging now")
         case .idle: tr("Finished, still parked")
         case .blocked: tr("Occupied, not charging")
         case .offline: tr("Out of service")
@@ -265,5 +265,45 @@ struct EmptyStateCard: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
         }
+    }
+}
+
+/// Bordered dropdown: shows the current choice in a field with a chevron and
+/// opens a menu of options. Titles must already be localized.
+struct DropdownField<Value: Hashable>: View {
+    let selection: Binding<Value>
+    let options: [(value: Value, title: String)]
+
+    private var currentTitle: String {
+        options.first { $0.value == selection.wrappedValue }?.title ?? ""
+    }
+
+    var body: some View {
+        Menu {
+            Picker("", selection: selection) {
+                ForEach(options.indices, id: \.self) { i in
+                    Text(options[i].title).tag(options[i].value)
+                }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Text(currentTitle)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                Spacer(minLength: 4)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Theme.brand)
+            }
+            .font(.subheadline)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 11)
+            .frame(maxWidth: .infinity)
+            .background(Theme.card, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color(.systemGray3), lineWidth: 1))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }

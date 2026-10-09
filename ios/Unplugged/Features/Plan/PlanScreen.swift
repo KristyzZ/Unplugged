@@ -29,7 +29,7 @@ struct PlanScreen: View {
                 .padding(16)
             }
             .background(Theme.background)
-            .navigationTitle("Trip")
+            .navigationTitle("Plan")
             .navigationDestination(for: String.self) { id in
                 StationDetailView(stationId: id)
             }
@@ -39,15 +39,20 @@ struct PlanScreen: View {
     private var form: some View {
         let vehicle = model.vehicle
         let socBinding = Binding(get: { model.soc }, set: { model.setSoc($0) })
-        let vehicleBinding = Binding(get: { model.vehicleId }, set: { model.setVehicle($0) })
         return CardBox {
             Text("Car").font(.subheadline.weight(.medium))
-            Picker("Car", selection: vehicleBinding) {
-                ForEach(DemoData.vehicles) { v in
-                    Text("\(v.name) · \(Int(v.batteryKwh)) kWh").tag(v.id)
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(vehicle.name).font(.headline)
+                    Text("\(Int(vehicle.batteryKwh)) kWh · max \(Int(vehicle.maxDcKw)) kW DC")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
+                Spacer()
+                Button("Change") { model.tab = .profile }
+                    .font(.subheadline.weight(.semibold))
             }
-            .pickerStyle(.menu)
+            .padding(.top, 2)
             .padding(.bottom, 12)
 
             Text("Current battery level: \(Int(model.soc)) %").font(.subheadline.weight(.medium))
@@ -93,11 +98,7 @@ struct PlanScreen: View {
     }
 
     private func placePicker(selection: Binding<String>) -> some View {
-        Picker("Place", selection: selection) {
-            ForEach(DemoData.places) { p in Text(p.name).tag(p.id) }
-        }
-        .pickerStyle(.menu)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        DropdownField(selection: selection, options: DemoData.places.map { ($0.id, $0.name) })
     }
 
     @ViewBuilder
