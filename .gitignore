@@ -4,3 +4,8 @@ xcuserdata/
 DerivedData/
 *.xcuserstate
 build/
+
+# EV data pipeline
+pipeline/data/
+__pycache__/
+*.pyc
