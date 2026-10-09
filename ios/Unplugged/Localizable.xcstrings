@@ -1221,16 +1221,6 @@
         }
       }
     },
-    "Is a car that isn't charging, or isn't electric, blocking a charging spot? Report it — confirmed reports help enforce warnings and fines.": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Įkrovimo vietą užima nesikraunantis ar ne elektrinis automobilis? Praneškite — patvirtinti pranešimai padeda taikyti įspėjimus ir baudas."
-          }
-        }
-      }
-    },
     "Reports near you": {
       "localizations": {
         "lt": {
@@ -2367,6 +2357,166 @@
           "stringUnit": {
             "state": "translated",
             "value": "Šiai stotelei pranešimų dar nėra."
+          }
+        }
+      }
+    },
+    "What's the problem?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kokia problema?"
+          }
+        }
+      }
+    },
+    "Wrong use of the charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Netinkamas stotelės naudojimas"
+          }
+        }
+      }
+    },
+    "Charger problem": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelės gedimas"
+          }
+        }
+      }
+    },
+    "Other": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kita"
+          }
+        }
+      }
+    },
+    "Report a problem at this station. Confirmed reports of wrong use help enforce warnings and fines.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Praneškite apie problemą šioje stotelėje. Patvirtinti pranešimai apie netinkamą naudojimą padeda taikyti įspėjimus ir baudas."
+          }
+        }
+      }
+    },
+    "Connector": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jungtis"
+          }
+        }
+      }
+    },
+    "Whole station": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visa stotelė"
+          }
+        }
+      }
+    },
+    "E.g., the connector won't lock or the screen is dead": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pvz., jungtis neužsifiksuoja arba ekranas neveikia"
+          }
+        }
+      }
+    },
+    "Describe what's wrong": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprašykite problemą"
+          }
+        }
+      }
+    },
+    "A photo helps the operator understand the problem.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuotrauka padeda operatoriui suprasti problemą."
+          }
+        }
+      }
+    },
+    "Thanks — we'll pass it on to the operator.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ačiū — perduosime operatoriui."
+          }
+        }
+      }
+    },
+    "Sent to operator": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perduota operatoriui"
+          }
+        }
+      }
+    },
+    "Same here": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ir man taip"
+          }
+        }
+      }
+    },
+    "Thanks!": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ačiū!"
+          }
+        }
+      }
+    },
+    "Your confirmation helps the operator prioritize.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų patvirtinimas padeda operatoriui nustatyti prioritetus."
+          }
+        }
+      }
+    },
+    "The first connector won't start a session.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pirma jungtis nepradeda įkrovimo."
           }
         }
       }

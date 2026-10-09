@@ -272,22 +272,36 @@ final class AppModel {
 
     // MARK: Reports
 
-    func submitReport(station: Station, plate: String, description: String, hasPhoto: Bool) {
-        // Station telemetry: a bay that is occupied without an active session.
-        let telemetry = station.connectors.contains { $0.status == .blocked }
+    func submitReport(station: Station, kind: ReportKind, connectorId: String?, plate: String, description: String, hasPhoto: Bool) {
+        // Station telemetry backs the report: a bay occupied without a session
+        // (wrong use), or a connector the station already shows as out of service.
+        let telemetry: Bool
+        switch kind {
+        case .wrongUsage:
+            telemetry = station.connectors.contains { $0.status == .blocked }
+        case .chargerProblem:
+            let scope = station.connectors.filter { connectorId == nil || $0.id == connectorId }
+            telemetry = scope.contains { $0.status == .offline }
+        case .other:
+            telemetry = false
+        }
         let report = AbuseReport(
             stationId: station.id,
-            plate: plate.uppercased(),
+            plate: kind == .wrongUsage ? plate.uppercased() : "",
             description: description,
             hasPhoto: hasPhoto,
             telemetryMatches: telemetry,
             confirmations: 0,
             createdAt: .now,
-            byMe: true
+            byMe: true,
+            kind: kind,
+            connectorId: kind == .chargerProblem ? connectorId : nil
         )
         reports.insert(report, at: 0)
         save()
-        if report.isConfirmed {
+        if kind != .wrongUsage {
+            showBanner(tr("Report sent"), tr("Thanks — we'll pass it on to the operator."))
+        } else if report.isConfirmed {
             addPoints(.reportConfirmed, note: station.name)
             showBanner(tr("Report confirmed"), tr("Station data confirmed the violation. +\(PointsReason.reportConfirmed.points) pts"))
         } else {
@@ -298,6 +312,10 @@ final class AppModel {
     func confirmReport(_ id: String) {
         guard let i = reports.firstIndex(where: { $0.id == id }) else { return }
         reports[i].confirmations += 1
+        guard reports[i].category == .wrongUsage else {
+            showBanner(tr("Thanks!"), tr("Your confirmation helps the operator prioritize."))
+            return
+        }
         let name = stations.first { $0.id == reports[i].stationId }?.name
         addPoints(.confirmReport, note: name)
         showBanner(tr("+\(PointsReason.confirmReport.points) pts"), tr("Thanks for helping to confirm."))
@@ -422,6 +440,13 @@ final class AppModel {
             description: "A petrol car has been parked in the charging spot since morning.",
             hasPhoto: true, telemetryMatches: false, confirmations: 1,
             createdAt: Date().addingTimeInterval(-3600), byMe: false
+        ),
+        AbuseReport(
+            id: "r-demo-2", stationId: "europa", plate: "",
+            description: "The first connector won't start a session.",
+            hasPhoto: false, telemetryMatches: false, confirmations: 2,
+            createdAt: Date().addingTimeInterval(-7200), byMe: false,
+            kind: .chargerProblem
         ),
     ]
 }
