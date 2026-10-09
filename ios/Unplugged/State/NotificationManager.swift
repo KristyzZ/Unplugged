@@ -10,10 +10,17 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     static let graceOverId = "grace-over"
 
     private let center = UNUserNotificationCenter.current()
+    /// The notification center talks to a system service and some calls wait
+    /// for its reply. Keep them off the main thread so a slow or restarting
+    /// service can never freeze the UI (it did at launch in the simulator).
+    /// Serial, so a cancel always runs before the schedule that follows it.
+    private let queue = DispatchQueue(label: "unplugged.notifications", qos: .utility)
 
     func setUp() {
         center.delegate = self
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+        queue.async { [center] in
+            center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+        }
     }
 
     func schedule(id: String, title: String, body: String, after seconds: TimeInterval) {
@@ -22,11 +29,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         content.body = body
         content.sound = .default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(1, seconds), repeats: false)
-        center.add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        queue.async { [center] in center.add(request) }
     }
 
     func cancel(_ ids: [String]) {
-        center.removePendingNotificationRequests(withIdentifiers: ids)
+        queue.async { [center] in center.removePendingNotificationRequests(withIdentifiers: ids) }
     }
 
     func userNotificationCenter(
