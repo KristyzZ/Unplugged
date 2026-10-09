@@ -2670,6 +2670,36 @@
           }
         }
       }
+    },
+    "Lock Screen": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Užrakinimo ekranas"
+          }
+        }
+      }
+    },
+    "Show on Lock Screen": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti užrakinimo ekrane"
+          }
+        }
+      }
+    },
+    "Progress and countdowns on the Lock Screen and in the Dynamic Island, even with the app closed. You can also swipe it away there.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progresas ir atgalinis laikas užrakinimo ekrane bei Dynamic Island, net uždarius programėlę. Ten jį galima ir nubraukti."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

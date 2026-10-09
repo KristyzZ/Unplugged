@@ -38,6 +38,8 @@ final class AppModel {
     private(set) var sessionHistory: [ChargingSession] = AppModel.demoSessionHistory
     private(set) var defaultPaymentId = "visa"
     private(set) var activePlanIds: Set<String> = ["ignitis"]
+    /// Show the charging Live Activity on the Lock Screen / Dynamic Island.
+    private(set) var lockScreenEnabled = true
 
     // MARK: Live
     private(set) var lang: Lang = L10n.current
@@ -120,10 +122,12 @@ final class AppModel {
             s.doneAt = s.scheduledDoneAt
             session = s
             save()
+            syncLiveActivity()
             showBanner(tr("Charging complete"), tr("You have \(s.graceMinutes) min to move your car. After that an idle fee applies."))
         }
         if let done = s.doneAt, graceAnnouncedFor != done, now >= done.addingTimeInterval(Double(s.graceMinutes) * 60) {
             graceAnnouncedFor = done
+            syncLiveActivity()
             showBanner(tr("Idle fee has started"), tr("The longer you stay, the higher the rate."))
         }
     }
@@ -212,6 +216,7 @@ final class AppModel {
         }
         NotificationManager.shared.cancel([NotificationManager.chargeDoneId, NotificationManager.graceOverId])
         save()
+        syncLiveActivity()
     }
 
     func finishSession() {
@@ -222,6 +227,25 @@ final class AppModel {
         session = nil
         tileHiddenFor = nil
         save()
+        syncLiveActivity()
+    }
+
+    // MARK: Lock Screen
+
+    func setLockScreen(_ on: Bool) {
+        lockScreenEnabled = on
+        save()
+        syncLiveActivity()
+    }
+
+    private func syncLiveActivity() {
+        LiveActivityManager.shared.sync(
+            session: session,
+            enabled: lockScreenEnabled,
+            simNow: simNow(),
+            speed: speed,
+            lang: lang
+        )
     }
 
     /// × on the charging tile. A finished session is closed for good;
@@ -249,6 +273,7 @@ final class AppModel {
     }
 
     private func rescheduleNotifications() {
+        syncLiveActivity()
         let n = NotificationManager.shared
         n.cancel([NotificationManager.chargeDoneId, NotificationManager.graceOverId])
         guard let s = session, s.endedAt == nil else { return }
@@ -392,6 +417,7 @@ final class AppModel {
         var activePlanIds: [String]?
         /// Simulated clock offset (sim − real) so a sped-up session survives relaunch.
         var simOffset: TimeInterval
+        var lockScreen: Bool?
     }
 
     private func save() {
@@ -399,7 +425,8 @@ final class AppModel {
             vehicleId: vehicleId, soc: soc, points: points, lifetimePoints: lifetimePoints,
             history: history, session: session, queue: queue, reports: reports,
             sessionHistory: sessionHistory, defaultPaymentId: defaultPaymentId, activePlanIds: Array(activePlanIds),
-            simOffset: simNow().timeIntervalSinceNow
+            simOffset: simNow().timeIntervalSinceNow,
+            lockScreen: lockScreenEnabled
         )
         if let data = try? JSONEncoder().encode(state) {
             UserDefaults.standard.set(data, forKey: storageKey)
@@ -420,6 +447,7 @@ final class AppModel {
         sessionHistory = s.sessionHistory ?? AppModel.demoSessionHistory
         defaultPaymentId = s.defaultPaymentId ?? "visa"
         activePlanIds = Set(s.activePlanIds ?? ["ignitis"])
+        lockScreenEnabled = s.lockScreen ?? true
         realAnchor = Date()
         simAnchor = Date().addingTimeInterval(s.simOffset)
     }

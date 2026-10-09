@@ -6,8 +6,37 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AA000000000000000000001A /* UnpluggedWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000010 /* UnpluggedWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AA000000000000000000001C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA000000000000000000000A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000000000000013;
+			remoteInfo = UnpluggedWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA000000000000000000001B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AA000000000000000000001A /* UnpluggedWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		AA0000000000000000000001 /* Unplugged.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Unplugged.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000010 /* UnpluggedWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = UnpluggedWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +45,27 @@
 			path = Unplugged;
 			sourceTree = "<group>";
 		};
+		AA0000000000000000000011 /* UnpluggedWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = UnpluggedWidgets;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000012 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AA0000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000015 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +79,8 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000002 /* Unplugged */,
+				AA0000000000000000000012 /* Shared */,
+				AA0000000000000000000011 /* UnpluggedWidgets */,
 				AA0000000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000001 /* Unplugged.app */,
+				AA0000000000000000000010 /* UnpluggedWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,13 +104,16 @@
 				AA0000000000000000000008 /* Sources */,
 				AA0000000000000000000003 /* Frameworks */,
 				AA0000000000000000000009 /* Resources */,
+				AA000000000000000000001B /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA000000000000000000001D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AA0000000000000000000002 /* Unplugged */,
+				AA0000000000000000000012 /* Shared */,
 			);
 			name = Unplugged;
 			packageProductDependencies = (
@@ -69,6 +121,29 @@
 			productName = Unplugged;
 			productReference = AA0000000000000000000001 /* Unplugged.app */;
 			productType = "com.apple.product-type.application";
+		};
+		AA0000000000000000000013 /* UnpluggedWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000017 /* Build configuration list for PBXNativeTarget "UnpluggedWidgets" */;
+			buildPhases = (
+				AA0000000000000000000014 /* Sources */,
+				AA0000000000000000000015 /* Frameworks */,
+				AA0000000000000000000016 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AA0000000000000000000011 /* UnpluggedWidgets */,
+				AA0000000000000000000012 /* Shared */,
+			);
+			name = UnpluggedWidgets;
+			packageProductDependencies = (
+			);
+			productName = UnpluggedWidgets;
+			productReference = AA0000000000000000000010 /* UnpluggedWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +156,9 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					AA0000000000000000000006 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					AA0000000000000000000013 = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
@@ -101,12 +179,20 @@
 			projectRoot = "";
 			targets = (
 				AA0000000000000000000006 /* Unplugged */,
+				AA0000000000000000000013 /* UnpluggedWidgets */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AA0000000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000016 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -123,7 +209,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000000000000014 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AA000000000000000000001D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0000000000000000000013 /* UnpluggedWidgets */;
+			targetProxy = AA000000000000000000001C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AA000000000000000000000C /* Debug */ = {
@@ -198,6 +299,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Unplugged;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the nearest charging stations.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -226,6 +328,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Unplugged;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the nearest charging stations.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -237,6 +340,54 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = lt.vilniushack.unplugged;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		AA0000000000000000000018 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "UnpluggedWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Unplugged;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = lt.vilniushack.unplugged.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		AA0000000000000000000019 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "UnpluggedWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Unplugged;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = lt.vilniushack.unplugged.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -260,6 +411,15 @@
 			buildConfigurations = (
 				AA000000000000000000000C /* Debug */,
 				AA000000000000000000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0000000000000000000017 /* Build configuration list for PBXNativeTarget "UnpluggedWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000018 /* Debug */,
+				AA0000000000000000000019 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
