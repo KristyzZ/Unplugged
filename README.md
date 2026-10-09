@@ -22,12 +22,12 @@ To set a location in the simulator, use *Features → Location → Custom Locati
 
 | Screen | Features |
 |---|---|
-| Map | Full-screen dark map with stations across operators, search, filters (available, ≥ 50 kW, compatible with my vehicle, operator), and a draggable panel with the nearest or selected station and the full list |
-| Station | Connector states (available / charging / charging complete but still occupied / occupied without charging / out of service), pricing, hourly occupancy (Swift Charts), probability of finding an available space, a virtual queue, charging start and payment, and Apple Maps directions |
-| Charging tile | Not a tab: a tile in the top-left corner while charging (tap for details, × to hide until the next phase). Session flow: progress → completion notification → 5–15-minute grace period → progressive fee → receipt and points. Also shown on the Lock Screen and in the Dynamic Island as a Live Activity. Time can be accelerated from 1× to 300× for the demo |
-| Trip | Vehicle + battery level + destination → where, when, and how much to charge, battery percentage on arrival, cost, and route on the map |
-| Points | Balance, levels, ways to earn points, reward redemption, history. The ••• menu has operator analytics, language and demo data reset |
-| Report | License plate + photo → confidence based on the photo, station data, and other users' confirmations → escalating sanctions |
+| Explore | Full-screen dark map with stations across operators, search, filters (available, ≥ 50 kW, compatible with my vehicle, operator), and a draggable panel with the nearest or selected station and the full list |
+| Station | Connector states (available / charging / charging complete but still occupied / occupied without charging / out of service), pricing, hourly occupancy, probability of finding an available space, a virtual queue, charging start and payment, directions, and reporting a problem (wrong use, charger problem, other) |
+| Plan | Car from Profile + battery level + destination → where, when, and how much to charge, battery percentage on arrival, cost, and route on the map |
+| Charging | Session flow: progress → completion notification → 5–15-minute grace period → progressive fee → receipt and points, plus session history. Time can be accelerated from 1× to 300× for the demo |
+| Charging tile | While charging, a tile in the top-left corner of the other tabs (tap to open Charging, × to hide until the next phase). Also shown on the Lock Screen and in the Dynamic Island as a Live Activity |
+| Profile | Car, payment methods, operator plans (demo), points and rewards, city/operator analytics, language and demo data reset |
 
 ## Project Structure
 
