@@ -33,7 +33,7 @@ extension ConnectorStatus {
     var label: String {
         switch self {
         case .available: tr("Available")
-        case .charging: tr("Charging")
+        case .charging: tr("Charging now")
         case .idle: tr("Finished, still parked")
         case .blocked: tr("Occupied, not charging")
         case .offline: tr("Out of service")

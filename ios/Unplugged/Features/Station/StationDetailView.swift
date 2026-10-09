@@ -63,7 +63,7 @@ struct StationDetailView: View {
                         .padding(.top, 12)
                 }
                 if busy {
-                    Text("You already have an active session — see the “Charge” tab.")
+                    Text("You already have an active session — see the “Charging” tab.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .padding(.top, 8)
@@ -94,7 +94,7 @@ struct StationDetailView: View {
         }
         .sheet(isPresented: $showReport) {
             NavigationStack {
-                ReportContent(initialStationId: station.id)
+                ReportContent(stationId: station.id)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Close") { showReport = false }
@@ -122,7 +122,7 @@ struct StationDetailView: View {
             }
             Divider().padding(.vertical, 12)
             HStack(alignment: .top) {
-                StatView(label: "Charging", value: "\(station.count(.charging))")
+                StatView(label: "Charging now", value: "\(station.count(.charging))")
                 StatView(label: "Finished, parked", value: "\(station.count(.idle))")
                 StatView(label: "Occupied, no charge", value: "\(station.count(.blocked))")
             }

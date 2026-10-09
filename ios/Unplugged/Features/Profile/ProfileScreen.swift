@@ -1,0 +1,179 @@
+import SwiftUI
+
+/// Vehicles, payment methods, operator plans and settings. The selected
+/// vehicle drives range estimates, connector compatibility and trip planning.
+struct ProfileScreen: View {
+    @Environment(AppModel.self) private var model
+    @State private var confirmReset = false
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    SectionHeader(title: "My car").padding(.top, 0)
+                    vehicleCard
+                    SectionHeader(title: "Payment methods")
+                    paymentCard
+                    SectionHeader(title: "Subscriptions")
+                    plansCard
+                    SectionHeader(title: "Rewards")
+                    pointsLink
+                    SectionHeader(title: "Settings")
+                    settingsCard
+                }
+                .padding(16)
+            }
+            .background(Theme.background)
+            .navigationTitle("Profile")
+            .confirmationDialog("Reset all demo data?", isPresented: $confirmReset, titleVisibility: .visible) {
+                Button("Reset", role: .destructive) { model.resetDemo() }
+            }
+        }
+    }
+
+    // MARK: Vehicle
+
+    private var vehicleCard: some View {
+        let vehicle = model.vehicle
+        let vehicleBinding = Binding(get: { model.vehicleId }, set: { model.setVehicle($0) })
+        let socBinding = Binding(get: { model.soc }, set: { model.setSoc($0) })
+        return CardBox {
+            HStack {
+                Text("Car").font(.subheadline.weight(.medium))
+                Spacer()
+                Picker("Car", selection: vehicleBinding) {
+                    ForEach(DemoData.vehicles) { v in Text(v.name).tag(v.id) }
+                }
+                .pickerStyle(.menu)
+            }
+            Divider().padding(.vertical, 8)
+            HStack(alignment: .top) {
+                StatView(label: "Battery", value: "\(Int(vehicle.batteryKwh)) kWh")
+                StatView(label: "Max DC", value: "\(Int(vehicle.maxDcKw)) kW")
+                StatView(label: "Max AC", value: "\(Int(vehicle.maxAcKw)) kW")
+            }
+            HStack(alignment: .top) {
+                StatView(label: "Consumption", value: String(format: "%.0f kWh/100 km", vehicle.consumptionKwhPer100))
+                StatView(label: "Connectors", value: vehicle.connectors.map(\.rawValue).joined(separator: ", "))
+            }
+            .padding(.top, 10)
+            Divider().padding(.vertical, 12)
+            Text("Current battery level: \(Int(model.soc)) %").font(.subheadline.weight(.medium))
+            Slider(value: socBinding, in: 1...100, step: 1)
+            SocBar(value: model.soc)
+            HStack(alignment: .top) {
+                StatView(label: "Range now", value: Fmt.km(vehicle.rangeKm(soc: model.soc)))
+                StatView(label: "Range at 80 %", value: Fmt.km(vehicle.rangeKm(soc: 80)))
+                StatView(label: "Range at 100 %", value: Fmt.km(vehicle.rangeKm(soc: 100)))
+            }
+            .padding(.top, 12)
+            Text("Range is estimated from your car's battery size and real-world consumption. It is used for trip planning and for showing compatible chargers.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.top, 8)
+        }
+    }
+
+    // MARK: Payments
+
+    private var paymentCard: some View {
+        CardBox {
+            ForEach(Array(DemoData.paymentMethods.enumerated()), id: \.element.id) { item in
+                let method = item.element
+                if item.offset > 0 { Divider().padding(.vertical, 8) }
+                Button { model.setDefaultPayment(method.id) } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: method.systemImage).frame(width: 28).foregroundStyle(Theme.brand)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(method.title).font(.subheadline.weight(.medium))
+                            Text(method.detail).font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if model.defaultPaymentId == method.id {
+                            Pill(text: tr("Default"), color: Theme.ok)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            Text("Demo payment methods. Payments are simulated in this prototype.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.top, 10)
+        }
+    }
+
+    // MARK: Subscriptions
+
+    private var plansCard: some View {
+        CardBox {
+            ForEach(Array(DemoData.plans.enumerated()), id: \.element.id) { item in
+                let plan = item.element
+                let binding = Binding(
+                    get: { model.activePlanIds.contains(plan.id) },
+                    set: { model.setPlan(plan.id, active: $0) }
+                )
+                if item.offset > 0 { Divider().padding(.vertical, 8) }
+                Toggle(isOn: binding) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(plan.name).font(.subheadline.weight(.medium))
+                        Text("\(DemoData.chargeOperator(plan.id).name) · \(plan.perk)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .tint(Theme.brand)
+            }
+            Text("Fictional demo plans. Linking real operator accounts needs operator-supported authorization.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.top, 10)
+        }
+    }
+
+    // MARK: Points
+
+    private var pointsLink: some View {
+        NavigationLink {
+            RewardsScreen()
+        } label: {
+            CardBox {
+                HStack {
+                    Image(systemName: "star.fill").foregroundStyle(Theme.warn)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Points").font(.subheadline.weight(.medium))
+                        Text("\(model.points) pts · \(Points.tier(for: model.lifetimePoints).current.name)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: Settings
+
+    private var settingsCard: some View {
+        let langBinding = Binding(get: { model.lang }, set: { model.setLang($0) })
+        return CardBox {
+            HStack {
+                Label("Language", systemImage: "globe").font(.subheadline.weight(.medium))
+                Spacer()
+                Picker("Language", selection: langBinding) {
+                    ForEach(Lang.allCases) { lang in Text(lang.title).tag(lang) }
+                }
+                .pickerStyle(.menu)
+            }
+            Divider().padding(.vertical, 8)
+            Button(role: .destructive) { confirmReset = true } label: {
+                Label("Reset demo data", systemImage: "arrow.counterclockwise")
+                    .font(.subheadline.weight(.medium))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+}

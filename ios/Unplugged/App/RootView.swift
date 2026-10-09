@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum AppTab: Hashable {
-    case map, plan, session, rewards, report
+    case explore, plan, charging, profile
 }
 
 struct RootView: View {
@@ -11,26 +11,23 @@ struct RootView: View {
         @Bindable var model = model
         TabView(selection: $model.tab) {
             MapScreen()
-                .tabItem { Label("Map", systemImage: "map") }
-                .tag(AppTab.map)
+                .tabItem { Label("Explore", systemImage: "map") }
+                .tag(AppTab.explore)
             PlanScreen()
-                .tabItem { Label("Trip", systemImage: "point.topleft.down.to.point.bottomright.curvepath") }
+                .tabItem { Label("Plan", systemImage: "point.topleft.down.to.point.bottomright.curvepath") }
                 .tag(AppTab.plan)
-            SessionScreen(onFindStation: { model.tab = .map })
-                .tabItem { Label("Charge", systemImage: "bolt.car") }
-                .tag(AppTab.session)
+            SessionScreen(onFindStation: { model.tab = .explore })
+                .tabItem { Label("Charging", systemImage: "bolt.car") }
+                .tag(AppTab.charging)
                 .badge(model.hasActiveSession ? Text("•") : nil)
-            RewardsScreen()
-                .tabItem { Label("Points", systemImage: "star") }
-                .tag(AppTab.rewards)
-            ReportScreen()
-                .tabItem { Label("Report", systemImage: "exclamationmark.triangle") }
-                .tag(AppTab.report)
+            ProfileScreen()
+                .tabItem { Label("Profile", systemImage: "person.crop.circle") }
+                .tag(AppTab.profile)
         }
         .overlay(alignment: .top) { BannerStack() }
         .onChange(of: model.session?.stationId) { _, newValue in
             // Jump to the session tab when charging starts.
-            if newValue != nil { model.tab = .session }
+            if newValue != nil { model.tab = .charging }
         }
     }
 }

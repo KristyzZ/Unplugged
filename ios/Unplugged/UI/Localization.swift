@@ -61,18 +61,3 @@ func tr(_ value: String.LocalizationValue) -> String { L10n.string(value) }
 /// Localize a dynamic string by looking it up as a catalog key. Unknown keys
 /// (user input, proper names, already-translated text) come back unchanged.
 func trKey(_ key: String) -> String { L10n.string(key) }
-
-/// Language picker, used in toolbar menus.
-struct LanguageMenu: View {
-    @Environment(AppModel.self) private var model
-
-    var body: some View {
-        Menu {
-            Picker("Language", selection: Binding(get: { model.lang }, set: { model.setLang($0) })) {
-                ForEach(Lang.allCases) { lang in Text(lang.title).tag(lang) }
-            }
-        } label: {
-            Label("Language", systemImage: "globe")
-        }
-    }
-}

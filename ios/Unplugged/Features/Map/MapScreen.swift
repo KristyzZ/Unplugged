@@ -63,9 +63,6 @@ struct MapScreen: View {
             .navigationTitle("Unplugged")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    LanguageMenu().labelStyle(.iconOnly)
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink {
                         OperatorScreen()

@@ -1,20 +1,11 @@
 import PhotosUI
 import SwiftUI
 
-struct ReportScreen: View {
-    var body: some View {
-        NavigationStack {
-            ReportContent()
-        }
-    }
-}
-
-/// Report form + list of reports. Also shown as a sheet from a station page.
+/// Report form + reports for one station. Shown as a sheet from the station page.
 struct ReportContent: View {
-    var initialStationId: String? = nil
+    let stationId: String
 
     @Environment(AppModel.self) private var model
-    @State private var stationId = ""
     @State private var plate = ""
     @State private var details = ""
     @State private var photoItem: PhotosPickerItem?
@@ -31,9 +22,13 @@ struct ReportContent: View {
                     .foregroundStyle(.secondary)
                     .padding(.bottom, 12)
                 form
-                SectionHeader(title: "Reports near you")
+                SectionHeader(title: "Reports for this station")
+                let reports = model.reports.filter { $0.stationId == stationId }
+                if reports.isEmpty {
+                    Text("No reports for this station yet.").font(.subheadline).foregroundStyle(.secondary)
+                }
                 VStack(spacing: 8) {
-                    ForEach(model.reports) { r in reportCard(r) }
+                    ForEach(reports) { r in reportCard(r) }
                 }
             }
             .padding(16)
@@ -41,9 +36,6 @@ struct ReportContent: View {
         .scrollDismissesKeyboard(.interactively)
         .background(Theme.background)
         .navigationTitle("Report")
-        .onAppear {
-            if stationId.isEmpty, let initialStationId { stationId = initialStationId }
-        }
         .onChange(of: photoItem) { _, item in
             Task {
                 let data = try? await item?.loadTransferable(type: Data.self)
@@ -54,13 +46,7 @@ struct ReportContent: View {
 
     private var form: some View {
         CardBox {
-            Text("Station").font(.subheadline.weight(.medium))
-            Picker("Station", selection: $stationId) {
-                Text("Select…").tag("")
-                ForEach(model.stations) { s in Text("\(s.name) (\(s.city))").tag(s.id) }
-            }
-            .pickerStyle(.menu)
-            .padding(.bottom, 10)
+            Text(station?.name ?? "").font(.headline).padding(.bottom, 10)
 
             Text("License plate").font(.subheadline.weight(.medium))
             TextField("ABC 123", text: $plate)
