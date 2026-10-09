@@ -5,6 +5,8 @@ struct ReportScreen: View {
     var body: some View {
         NavigationStack {
             ReportContent()
+                .toolbar(.hidden, for: .navigationBar)
+                .safeAreaInset(edge: .top, spacing: 0) { ScreenHeader(title: "Report") }
         }
     }
 }
@@ -28,7 +30,7 @@ struct ReportContent: View {
             VStack(alignment: .leading, spacing: 0) {
                 Text("Is a car that isn't charging, or isn't electric, blocking a charging spot? Report it — confirmed reports help enforce warnings and fines.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                     .padding(.bottom, 12)
                 form
                 SectionHeader(title: "Reports near you")
@@ -39,6 +41,7 @@ struct ReportContent: View {
             .padding(16)
         }
         .scrollDismissesKeyboard(.interactively)
+        .tabBarClearance()
         .background(Theme.background)
         .navigationTitle("Report")
         .onAppear {
@@ -85,7 +88,7 @@ struct ReportContent: View {
             .buttonStyle(SecondaryButtonStyle())
             Text("A photo with a visible plate greatly increases credibility.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 4)
             if let photo {
                 Image(uiImage: photo)
@@ -120,7 +123,7 @@ struct ReportContent: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(r.plate).font(.headline)
-                    Text(stationName + (r.byMe ? tr(" · your report") : "")).font(.caption).foregroundStyle(.secondary)
+                    Text(stationName + (r.byMe ? tr(" · your report") : "")).font(.caption).foregroundStyle(Theme.muted)
                 }
                 Spacer()
                 Pill(text: r.isConfirmed ? "Confirmed" : "Awaiting confirmation", color: r.isConfirmed ? Theme.ok : Theme.warn)
@@ -135,14 +138,14 @@ struct ReportContent: View {
             }
             .padding(.top, 10)
             HStack(spacing: 8) {
-                Text("Confidence").font(.caption).foregroundStyle(.secondary)
+                Text("Confidence").font(.caption).foregroundStyle(Theme.muted)
                 SocBar(value: r.confidence * 100, target: Reports.confirmThreshold * 100, height: 8)
             }
             .padding(.top, 10)
             if r.isConfirmed {
                 Text("Offence no. \(offences) for this plate · applied: \(Reports.sanction(forOffence: offences))")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                     .padding(.top, 8)
             } else if !r.byMe {
                 Button("I see it too — confirm") { model.confirmReport(r.id) }

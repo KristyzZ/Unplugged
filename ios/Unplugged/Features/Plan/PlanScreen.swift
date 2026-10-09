@@ -19,7 +19,7 @@ struct PlanScreen: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("We'll plan where and how much to charge based on your car, route and station occupancy.")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.muted)
                         .padding(.bottom, 12)
                     form
                     if let plan, let from = plannedFrom, let to = plannedTo {
@@ -28,8 +28,11 @@ struct PlanScreen: View {
                 }
                 .padding(16)
             }
+            .tabBarClearance()
             .background(Theme.background)
             .navigationTitle("Trip")
+            .toolbar(.hidden, for: .navigationBar)
+            .safeAreaInset(edge: .top, spacing: 0) { ScreenHeader(title: "Trip") }
             .navigationDestination(for: String.self) { id in
                 StationDetailView(stationId: id)
             }
@@ -55,7 +58,7 @@ struct PlanScreen: View {
             SocBar(value: model.soc)
             Text("≈ \(Int(vehicle.rangeKm(soc: model.soc))) km of range")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 4)
                 .padding(.bottom, 12)
 
@@ -164,7 +167,7 @@ struct PlanScreen: View {
             Circle().fill(Theme.brand).frame(width: 12, height: 12)
             VStack(alignment: .leading) {
                 Text(title).font(.headline)
-                Text(sub).font(.caption).foregroundStyle(.secondary)
+                Text(sub).font(.caption).foregroundStyle(Theme.muted)
             }
         }
         .padding(.horizontal, 6)
@@ -179,11 +182,11 @@ struct PlanScreen: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Stop \(index) · after \(stop.distanceFromPrevKm) km · \(op.name)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.muted)
                         Text(stop.station.name).font(.headline)
                         Text("\(stop.connector.type.rawValue) · \(Int(stop.connector.powerKw)) kW")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.muted)
                     }
                     Spacer()
                     Pill(text: tr("free \(Fmt.pct(stop.freeProbability))"), color: pColor)

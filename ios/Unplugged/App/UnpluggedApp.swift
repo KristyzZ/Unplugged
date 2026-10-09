@@ -17,6 +17,7 @@ struct UnpluggedApp: App {
                 .environment(\.locale, model.lang.locale)
                 .id(model.lang)
                 .tint(Theme.brand)
+                .preferredColorScheme(.dark)
         }
     }
 }

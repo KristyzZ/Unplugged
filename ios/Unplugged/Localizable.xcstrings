@@ -2070,6 +2070,166 @@
           }
         }
       }
+    },
+    "Charging status: %@, %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimo būsena: %@, %@"
+          }
+        }
+      }
+    },
+    "Opens charging details": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atidaro įkrovimo informaciją"
+          }
+        }
+      }
+    },
+    "Hide charging status": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slėpti įkrovimo būseną"
+          }
+        }
+      }
+    },
+    "Move your car": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patraukite automobilį"
+          }
+        }
+      }
+    },
+    "Charging started": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimas pradėtas"
+          }
+        }
+      }
+    },
+    "Track it in the top-left corner.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sekite jį viršuje kairėje."
+          }
+        }
+      }
+    },
+    "Where to charge?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kur krausimės?"
+          }
+        }
+      }
+    },
+    "Clear search": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išvalyti paiešką"
+          }
+        }
+      }
+    },
+    "Show my location": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti mano vietą"
+          }
+        }
+      }
+    },
+    "Show one station": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti vieną stotelę"
+          }
+        }
+      }
+    },
+    "Show all stations": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti visas stoteles"
+          }
+        }
+      }
+    },
+    "%lld stations nearby": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelių šalia: %lld"
+          }
+        }
+      }
+    },
+    "No stations match these filters.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pagal šiuos filtrus stotelių nėra."
+          }
+        }
+      }
+    },
+    "%lld/%lld free": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld laisvos"
+          }
+        }
+      }
+    },
+    "More": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daugiau"
+          }
+        }
+      }
+    },
+    "You're already charging — view session": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jau kraunatės — peržiūrėti įkrovimą"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

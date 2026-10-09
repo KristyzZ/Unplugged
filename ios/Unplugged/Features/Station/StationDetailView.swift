@@ -4,6 +4,7 @@ struct StationDetailView: View {
     let stationId: String
 
     @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
     @State private var pickedConnectorId: String?
     @State private var target: Double = 80
     @State private var showReport = false
@@ -16,8 +17,10 @@ struct StationDetailView: View {
                 ContentUnavailableView("Station not found", systemImage: "bolt.slash")
             }
         }
+        .tabBarClearance()
         .background(Theme.background)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Theme.background, for: .navigationBar)
     }
 
     @ViewBuilder
@@ -41,7 +44,7 @@ struct StationDetailView: View {
                         Text("\(op.name) · \(station.address), \(station.city)")
                     }
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                 }
                 .padding(.bottom, 16)
 
@@ -63,10 +66,9 @@ struct StationDetailView: View {
                         .padding(.top, 12)
                 }
                 if busy {
-                    Text("You already have an active session — see the “Charge” tab.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 8)
+                    Button("You're already charging — view session") { model.showSession = true }
+                        .buttonStyle(SecondaryButtonStyle())
+                        .padding(.top, 10)
                 }
 
                 SectionHeader(title: "Occupancy by hour")
@@ -111,13 +113,13 @@ struct StationDetailView: View {
                     Pill(text: station.availability.label, color: station.availability.color)
                     HStack(alignment: .firstTextBaseline, spacing: 2) {
                         Text("\(station.freeCount)").font(.system(size: 34, weight: .bold))
-                        Text("/\(station.workingCount) available").font(.headline).foregroundStyle(.secondary)
+                        Text("/\(station.workingCount) available").font(.headline).foregroundStyle(Theme.muted)
                     }
                 }
                 Spacer()
                 VStack(alignment: .trailing) {
                     Text(String(format: "%.2f €", station.pricePerKwh)).font(.title2.bold())
-                    Text("per kWh").font(.caption).foregroundStyle(.secondary)
+                    Text("per kWh").font(.caption).foregroundStyle(Theme.muted)
                 }
             }
             Divider().padding(.vertical, 12)
@@ -145,7 +147,7 @@ struct StationDetailView: View {
             Text("All spots are taken").font(.headline)
             Text("Join the virtual queue — we'll notify you when a spot frees up. The next free spot is expected in \(Fmt.minutes(Double(soonest)))")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 4)
             if inQueue {
                 HStack {
@@ -174,11 +176,11 @@ struct StationDetailView: View {
                 Circle().fill(c.status.color).frame(width: 10, height: 10)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(c.type.rawValue) · \(Int(c.powerKw)) kW").font(.body.weight(.medium))
-                    Text(detail(c, compatible: compatible)).font(.caption).foregroundStyle(.secondary)
+                    Text(detail(c, compatible: compatible)).font(.caption).foregroundStyle(Theme.muted)
                 }
                 Spacer()
                 if compatible {
-                    Text("up to \(Int(Charging.effectivePeakKw(vehicle, c))) kW").font(.caption).foregroundStyle(.secondary)
+                    Text("up to \(Int(Charging.effectivePeakKw(vehicle, c))) kW").font(.caption).foregroundStyle(Theme.muted)
                 }
             }
             .padding(12)
@@ -231,13 +233,15 @@ struct StationDetailView: View {
             .padding(.top, 10)
             Text("Once charging ends you'll have **\(grace) min** to move your car (current demand \(Fmt.pct(demand))). After that the idle fee grows: \(tiersText) per min. Move on time to earn points.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(10)
-                .background(Theme.fill, in: RoundedRectangle(cornerRadius: 10))
+                .background(Theme.fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .padding(.top, 12)
             Button("Start and pay with Unplugged") {
                 model.startCharging(at: station, connector: connector, targetSoc: target)
                 pickedConnectorId = nil
+                // Back to the map, where the charging tile now shows progress.
+                dismiss()
             }
             .buttonStyle(PrimaryButtonStyle())
             .padding(.top, 12)

@@ -1,9 +1,9 @@
 import SwiftUI
 
-struct SessionScreen: View {
-    var onFindStation: () -> Void = {}
-
+/// Full charging details, opened from the charging tile.
+struct SessionSheet: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
     private let speeds: [Double] = [1, 10, 60, 300]
 
     var body: some View {
@@ -22,30 +22,36 @@ struct SessionScreen: View {
                             message: "Pick a station on the map and start charging — you'll pay right here.",
                             systemImage: "bolt.car"
                         )
-                        Button("Find a station", action: onFindStation)
-                            .buttonStyle(PrimaryButtonStyle())
-                            .padding(.top, 12)
                     }
                 }
                 .padding(16)
             }
             .background(Theme.background)
             .navigationTitle("Charge")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Close") { dismiss() }
+                }
+            }
         }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.background)
     }
 
     @ViewBuilder
     private func sessionContent(_ s: ChargingSession, _ snap: SessionSnapshot) -> some View {
         Text("\(s.stationName) · \(s.connectorLabel)")
             .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.muted)
             .padding(.bottom, 12)
 
         CardBox {
             HStack {
                 phasePill(snap.phase)
                 Spacer()
-                Text("started \(Fmt.clock(s.startedAt))").font(.caption).foregroundStyle(.secondary)
+                Text("started \(Fmt.clock(s.startedAt))").font(.caption).foregroundStyle(Theme.muted)
             }
             Text("\(Int(snap.soc.rounded())) %")
                 .font(.system(size: 56, weight: .bold, design: .rounded))
@@ -58,7 +64,7 @@ struct SessionScreen: View {
                 Text("target \(Int(s.targetSoc)) %")
             }
             .font(.caption)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.muted)
             .padding(.top, 4)
             Divider().padding(.vertical, 12)
             HStack(alignment: .top) {
@@ -80,7 +86,7 @@ struct SessionScreen: View {
         case .grace:
             CardBox(stroke: Theme.warn) {
                 VStack(spacing: 6) {
-                    Text("Free time to move your car").font(.subheadline).foregroundStyle(.secondary)
+                    Text("Free time to move your car").font(.subheadline).foregroundStyle(Theme.muted)
                     Text(Fmt.mmss(snap.graceLeft))
                         .font(.system(size: 52, weight: .bold, design: .rounded))
                         .monospacedDigit()
@@ -124,7 +130,7 @@ struct SessionScreen: View {
             HStack(alignment: .firstTextBaseline) {
                 Text("You've been idle for \(Fmt.minutes(snap.idleMinutes))").font(.headline)
                 Spacer()
-                Text(String(format: "%.2f €/min", rate)).font(.subheadline).foregroundStyle(.secondary)
+                Text(String(format: "%.2f €/min", rate)).font(.subheadline).foregroundStyle(Theme.muted)
             }
             HStack(spacing: 6) {
                 ForEach(Array(IdleFee.tiers.enumerated()), id: \.offset) { item in
@@ -138,13 +144,13 @@ struct SessionScreen: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
                     .foregroundStyle(active ? Color.white : Color.primary)
-                    .background(active ? Theme.bad : Theme.fill, in: RoundedRectangle(cornerRadius: 10))
+                    .background(active ? Theme.bad : Theme.fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
             }
             .padding(.top, 12)
             Text("Maximum fee \(Fmt.eur(IdleFee.capEur)). Other drivers are waiting for this spot.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 8)
         }
     }
@@ -164,7 +170,7 @@ struct SessionScreen: View {
 
     private func row(_ label: String, _ value: String, bold: Bool = false) -> some View {
         HStack {
-            Text(trKey(label)).foregroundStyle(bold ? .primary : .secondary)
+            Text(trKey(label)).foregroundStyle(bold ? Theme.text : Theme.muted)
             Spacer()
             Text(value)
         }
@@ -182,7 +188,7 @@ struct SessionScreen: View {
             }
             Text("Speed up time to see the notification, the grace period and the growing fee.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
         }
     }
 }
