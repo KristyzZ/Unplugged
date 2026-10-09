@@ -1,7 +1,25 @@
 import SwiftUI
 
-enum AppTab: Hashable {
+enum AppTab: Hashable, CaseIterable {
     case explore, plan, charging, profile
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .explore: "Explore"
+        case .plan: "Plan"
+        case .charging: "Charging"
+        case .profile: "Profile"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .explore: "mappin.and.ellipse"
+        case .plan: "point.topleft.down.to.point.bottomright.curvepath"
+        case .charging: "bolt.fill"
+        case .profile: "person.crop.circle.fill"
+        }
+    }
 }
 
 struct RootView: View {
@@ -9,26 +27,75 @@ struct RootView: View {
 
     var body: some View {
         @Bindable var model = model
-        TabView(selection: $model.tab) {
-            MapScreen()
-                .tabItem { Label("Explore", systemImage: "map") }
-                .tag(AppTab.explore)
-            PlanScreen()
-                .tabItem { Label("Plan", systemImage: "point.topleft.down.to.point.bottomright.curvepath") }
-                .tag(AppTab.plan)
-            SessionScreen(onFindStation: { model.tab = .explore })
-                .tabItem { Label("Charging", systemImage: "bolt.car") }
-                .tag(AppTab.charging)
-                .badge(model.hasActiveSession ? Text("•") : nil)
-            ProfileScreen()
-                .tabItem { Label("Profile", systemImage: "person.crop.circle") }
-                .tag(AppTab.profile)
+        // All four tabs stay alive (keeps scroll position, map camera and
+        // navigation) — only the selected one is visible.
+        ZStack {
+            Theme.background.ignoresSafeArea()
+            tabContent(.explore) { MapScreen() }
+            tabContent(.plan) { PlanScreen() }
+            tabContent(.charging) { SessionScreen(onFindStation: { model.tab = .explore }) }
+            tabContent(.profile) { ProfileScreen() }
+        }
+        .overlay(alignment: .bottom) {
+            GlassTabBar(selection: $model.tab, chargingActive: model.hasActiveSession)
+                .ignoresSafeArea(.keyboard)
         }
         .overlay(alignment: .top) { BannerStack() }
         .onChange(of: model.session?.stationId) { _, newValue in
             // Jump to the session tab when charging starts.
             if newValue != nil { model.tab = .charging }
         }
+    }
+
+    private func tabContent<Content: View>(_ tab: AppTab, @ViewBuilder content: () -> Content) -> some View {
+        let selected = model.tab == tab
+        return content()
+            .opacity(selected ? 1 : 0)
+            .allowsHitTesting(selected)
+            .accessibilityHidden(!selected)
+    }
+}
+
+/// Floating Liquid Glass tab bar.
+struct GlassTabBar: View {
+    @Binding var selection: AppTab
+    var chargingActive = false
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(AppTab.allCases, id: \.self) { tab in
+                let active = selection == tab
+                Button {
+                    selection = tab
+                } label: {
+                    VStack(spacing: 3) {
+                        Image(systemName: tab.icon)
+                            .font(.system(size: 19, weight: .semibold))
+                            .frame(height: 24)
+                            .overlay(alignment: .topTrailing) {
+                                if tab == .charging && chargingActive {
+                                    Circle().fill(Theme.brand).frame(width: 8, height: 8).offset(x: 6, y: -1)
+                                }
+                            }
+                        Text(tab.title)
+                            .font(.caption2.weight(.medium))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+                    .foregroundStyle(active ? Theme.brand : Theme.text.opacity(0.82))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 9)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(active ? .isSelected : [])
+            }
+        }
+        .padding(.horizontal, 6)
+        .glass(in: Capsule())
+        .padding(.horizontal, 20)
+        .padding(.bottom, 2)
+        .sensoryFeedback(.selection, trigger: selection)
     }
 }
 
@@ -47,9 +114,10 @@ struct BannerStack: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(14)
-                .foregroundStyle(.white)
-                .background(Color.black.opacity(0.88), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .shadow(radius: 8, y: 4)
+                .foregroundStyle(Theme.text)
+                .background(Theme.card.opacity(0.75), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .glass(in: RoundedRectangle(cornerRadius: 20, style: .continuous), interactive: false)
+                .shadow(color: .black.opacity(0.3), radius: 10, y: 4)
                 .onTapGesture { model.banners.removeAll { $0.id == banner.id } }
                 .transition(.move(edge: .top).combined(with: .opacity))
             }

@@ -18,13 +18,18 @@ struct ProfileScreen: View {
                     plansCard
                     SectionHeader(title: "Rewards")
                     pointsLink
+                    SectionHeader(title: "For operators")
+                    operatorLink
                     SectionHeader(title: "Settings")
                     settingsCard
                 }
                 .padding(16)
             }
+            .tabBarClearance()
             .background(Theme.background)
             .navigationTitle("Profile")
+            .toolbar(.hidden, for: .navigationBar)
+            .safeAreaInset(edge: .top, spacing: 0) { ScreenHeader(title: "Profile") }
             .confirmationDialog("Reset all demo data?", isPresented: $confirmReset, titleVisibility: .visible) {
                 Button("Reset", role: .destructive) { model.resetDemo() }
             }
@@ -64,7 +69,7 @@ struct ProfileScreen: View {
             .padding(.top, 12)
             Text("Range is estimated from your car's battery size and real-world consumption. It is used for trip planning and for showing compatible chargers.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 8)
         }
     }
@@ -81,7 +86,7 @@ struct ProfileScreen: View {
                         Image(systemName: method.systemImage).frame(width: 28).foregroundStyle(Theme.brand)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(method.title).font(.subheadline.weight(.medium))
-                            Text(method.detail).font(.caption).foregroundStyle(.secondary)
+                            Text(method.detail).font(.caption).foregroundStyle(Theme.muted)
                         }
                         Spacer()
                         if model.defaultPaymentId == method.id {
@@ -94,7 +99,7 @@ struct ProfileScreen: View {
             }
             Text("Demo payment methods. Payments are simulated in this prototype.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 10)
         }
     }
@@ -115,14 +120,14 @@ struct ProfileScreen: View {
                         Text(plan.name).font(.subheadline.weight(.medium))
                         Text("\(DemoData.chargeOperator(plan.id).name) · \(plan.perk)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.muted)
                     }
                 }
                 .tint(Theme.brand)
             }
             Text("Fictional demo plans. Linking real operator accounts needs operator-supported authorization.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 10)
         }
     }
@@ -140,10 +145,31 @@ struct ProfileScreen: View {
                         Text("Points").font(.subheadline.weight(.medium))
                         Text("\(model.points) pts · \(Points.tier(for: model.lifetimePoints).current.name)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.muted)
                     }
                     Spacer()
-                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
+                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Theme.muted)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: Operators
+
+    private var operatorLink: some View {
+        NavigationLink {
+            OperatorScreen()
+        } label: {
+            CardBox {
+                HStack {
+                    Image(systemName: "chart.bar.xaxis").foregroundStyle(Theme.brand)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("City and operator analytics").font(.subheadline.weight(.medium))
+                        Text("Idle time, demand by hour, blocked spots").font(.caption).foregroundStyle(Theme.muted)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Theme.muted)
                 }
             }
         }

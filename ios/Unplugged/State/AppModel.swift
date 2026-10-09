@@ -42,6 +42,8 @@ final class AppModel {
     // MARK: Live
     private(set) var lang: Lang = L10n.current
     var tab: AppTab = .explore
+    /// The charging tile was closed with × during this phase; it comes back on the next one.
+    private(set) var tileHiddenFor: SessionSnapshot.Phase?
     private(set) var stations: [Station] = []
     private(set) var tick = 0
     /// Demo time multiplier for the charging simulation (1 = real time).
@@ -176,6 +178,7 @@ final class AppModel {
         )
         queue = nil
         graceAnnouncedFor = nil
+        tileHiddenFor = nil
         rescheduleNotifications()
         save()
     }
@@ -217,7 +220,20 @@ final class AppModel {
             sessionHistory = Array(sessionHistory.prefix(30))
         }
         session = nil
+        tileHiddenFor = nil
         save()
+    }
+
+    /// × on the charging tile. A finished session is closed for good;
+    /// otherwise the tile hides until the next phase.
+    func hideTile() {
+        guard let s = session else { return }
+        let phase = SessionSnapshot(s, now: simNow()).phase
+        if phase == .ended {
+            finishSession()
+        } else {
+            tileHiddenFor = phase
+        }
     }
 
     // MARK: Profile
@@ -346,6 +362,7 @@ final class AppModel {
         lifetimePoints = 240
         history = AppModel.demoHistory
         session = nil
+        tileHiddenFor = nil
         queue = nil
         reports = AppModel.demoReports
         sessionHistory = AppModel.demoSessionHistory

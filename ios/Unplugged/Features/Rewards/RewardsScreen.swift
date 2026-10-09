@@ -8,7 +8,7 @@ struct RewardsScreen: View {
                 VStack(alignment: .leading, spacing: 0) {
                 Text("Use stations responsibly to earn points and exchange them for discounts.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                     .padding(.bottom, 12)
                 balance
                 SectionHeader(title: "How to earn")
@@ -31,6 +31,7 @@ struct RewardsScreen: View {
             }
             .padding(16)
         }
+        .tabBarClearance()
         .background(Theme.background)
         .navigationTitle("Points")
         .navigationBarTitleDisplayMode(.inline)
@@ -39,7 +40,7 @@ struct RewardsScreen: View {
     private var balance: some View {
         let tier = Points.tier(for: model.lifetimePoints)
         return CardBox {
-            Text("Your points").font(.subheadline).foregroundStyle(.secondary)
+            Text("Your points").font(.subheadline).foregroundStyle(Theme.muted)
             Text("\(model.points)")
                 .font(.system(size: 52, weight: .bold, design: .rounded))
                 .contentTransition(.numericText())
@@ -49,7 +50,7 @@ struct RewardsScreen: View {
                 if let next = tier.next {
                     Text("Until “\(next.name)”: \(next.min - model.lifetimePoints) to go")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.muted)
                 }
             }
             .padding(.top, 8)
@@ -66,11 +67,13 @@ struct RewardsScreen: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(reward.title).font(.headline)
-                    Text(reward.partner).font(.caption).foregroundStyle(.secondary)
+                    Text(reward.partner).font(.caption).foregroundStyle(Theme.muted)
                 }
                 Spacer()
                 Button("\(reward.cost) pts") { model.redeem(reward) }
                     .buttonStyle(.borderedProminent)
+                    .tint(Theme.brand)
+                    .foregroundStyle(Theme.ink)
                     .disabled(!affordable)
             }
         }
@@ -79,7 +82,7 @@ struct RewardsScreen: View {
     private var history: some View {
         CardBox {
             if model.history.isEmpty {
-                Text("Nothing yet.").font(.subheadline).foregroundStyle(.secondary)
+                Text("Nothing yet.").font(.subheadline).foregroundStyle(Theme.muted)
             }
             ForEach(Array(model.history.prefix(20).enumerated()), id: \.element.id) { item in
                 let h = item.element
@@ -89,7 +92,7 @@ struct RewardsScreen: View {
                         Text(h.reason == .redeem ? (h.note ?? h.reason.label) : h.reason.label).font(.subheadline)
                         Text([h.at.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(L10n.locale)), h.reason == .redeem ? nil : h.note].compactMap { $0 }.joined(separator: " · "))
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.muted)
                     }
                     Spacer()
                     Text(h.points > 0 ? "+\(h.points)" : "\(h.points)")
