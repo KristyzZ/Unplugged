@@ -180,6 +180,18 @@ struct SessionSheet: View {
 
     private var demoControls: some View {
         VStack(alignment: .leading, spacing: 8) {
+            SectionHeader(title: "Lock Screen")
+            CardBox {
+                Toggle(isOn: Binding(get: { model.lockScreenEnabled }, set: { model.setLockScreen($0) })) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Show on Lock Screen").font(.subheadline.weight(.semibold))
+                        Text("Progress and countdowns on the Lock Screen and in the Dynamic Island, even with the app closed. You can also swipe it away there.")
+                            .font(.caption)
+                            .foregroundStyle(Theme.muted)
+                    }
+                }
+                .tint(Theme.brand)
+            }
             SectionHeader(title: "Demo: time acceleration")
             HStack(spacing: 8) {
                 ForEach(speeds, id: \.self) { s in
