@@ -8,13 +8,13 @@ Vilnius Hack 2026 · Challenge #13.
 
 ## Getting Started
 
-Requires a **Mac** with **Xcode 16** or later (available free on the App Store).
+Requires a **Mac** with **Xcode 26** or later (available free on the App Store). Liquid Glass shows on iOS 26+; older iOS versions get a frosted fallback.
 
 1. `git clone https://github.com/KristyzZ/Unplugged.git`
 2. Open `ios/Unplugged.xcodeproj`.
 3. Select a simulator at the top (e.g., iPhone 16) and press ▶ (`⌘R`).
 
-**On your iPhone:** connect your phone, then in Xcode open the *Unplugged* project → *Signing & Capabilities* → *Team* and select your Apple ID. If the Bundle ID is already taken, change `lt.vilniushack.unplugged` to a unique value. On your phone, go to *Settings → General → VPN & Device Management* and trust the developer.
+**On your iPhone:** connect your phone, then in Xcode open the *Unplugged* project → *Signing & Capabilities* → *Team* and select your Apple ID. Do the same for the *UnpluggedWidgets* target (it shows charging on the Lock Screen). If the Bundle ID is already taken, change `lt.vilniushack.unplugged` to a unique value and set the widget's ID to the same value plus `.widgets`. On your phone, go to *Settings → General → VPN & Device Management* and trust the developer.
 
 To set a location in the simulator, use *Features → Location → Custom Location* (Vilnius: 54.6872, 25.2797).
 
@@ -22,12 +22,12 @@ To set a location in the simulator, use *Features → Location → Custom Locati
 
 | Screen | Features |
 |---|---|
-| Map | Apple Maps with stations across operators, filters (available, ≥ 50 kW, compatible with my vehicle, operator), and a list sorted by distance. Operator analytics is accessible from the top-right corner |
-| Station | Connector states (available / charging / charging complete but still occupied / occupied without charging / out of service), pricing, hourly occupancy (Swift Charts), probability of finding an available space, a virtual queue, charging start and payment, and Apple Maps directions |
-| Charging | Session flow: progress → completion notification (a real iOS notification) → 5–15-minute grace period → progressive fee → receipt and points. Time can be accelerated from 1× to 300× for the demo |
-| Trip | Vehicle + battery level + destination → where, when, and how much to charge, battery percentage on arrival, cost, and route on the map |
-| Points | Balance, levels, ways to earn points, reward redemption, history, and demo data reset |
-| Report | License plate + photo → confidence based on the photo, station data, and other users' confirmations → escalating sanctions |
+| Explore | Full-screen dark map with stations across operators, search, filters (available, ≥ 50 kW, compatible with my vehicle, operator), and a draggable panel with the nearest or selected station and the full list |
+| Station | Connector states (available / charging / charging complete but still occupied / occupied without charging / out of service), pricing, hourly occupancy, probability of finding an available space, a virtual queue, charging start and payment, directions, and reporting a problem (wrong use, charger problem, other) |
+| Plan | Car from Profile + battery level + destination → where, when, and how much to charge, battery percentage on arrival, cost, and route on the map |
+| Charging | Session flow: progress → completion notification → 5–15-minute grace period → progressive fee → receipt and points, plus session history. Time can be accelerated from 1× to 300× for the demo |
+| Charging tile | While charging, a tile in the top-left corner of the other tabs (tap to open Charging, × to hide until the next phase). Also shown on the Lock Screen and in the Dynamic Island as a Live Activity |
+| Profile | Car, payment methods, operator plans (demo), points and rewards, city/operator analytics, language and demo data reset |
 
 ## Project Structure
 
@@ -46,8 +46,10 @@ ios/
       Reports.swift        report confidence, sanctions
       Analytics.swift      operator / city analytics
     State/        AppModel (persisted state), notifications, location
-    UI/Theme.swift  colors, formatting, shared components — change design here
+    UI/Theme.swift  colors, glass, formatting, shared components — change design here
     Features/     screens
+  UnpluggedWidgets/ Lock Screen / Dynamic Island Live Activity
+  Shared/         code used by both the app and the widget
 web/              earlier web prototype (Next.js)
 ```
 
@@ -56,4 +58,3 @@ web/              earlier web prototype (Next.js)
 - Real data: operator APIs (OCPI) or a backend
 - Actual routing (MKDirections) instead of straight-line distance × 1.2
 - Payments (Apple Pay / Stripe) and accounts
-- Live Activity for charging progress on the lock screen

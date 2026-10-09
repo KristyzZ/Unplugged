@@ -30,8 +30,11 @@ struct SessionScreen: View {
                 }
                 .padding(16)
             }
-            .background(Theme.background)
+            .tabBarClearance()
+            .screenBackdrop()
             .navigationTitle("Charging")
+            .toolbar(.hidden, for: .navigationBar)
+            .safeAreaInset(edge: .top, spacing: 0) { ScreenHeader(title: "Charging") }
         }
     }
 
@@ -39,14 +42,14 @@ struct SessionScreen: View {
     private func sessionContent(_ s: ChargingSession, _ snap: SessionSnapshot) -> some View {
         Text("\(s.stationName) · \(s.connectorLabel)")
             .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.muted)
             .padding(.bottom, 12)
 
         CardBox {
             HStack {
                 phasePill(snap.phase)
                 Spacer()
-                Text("started \(Fmt.clock(s.startedAt))").font(.caption).foregroundStyle(.secondary)
+                Text("started \(Fmt.clock(s.startedAt))").font(.caption).foregroundStyle(Theme.muted)
             }
             Text("\(Int(snap.soc.rounded())) %")
                 .font(.system(size: 56, weight: .bold, design: .rounded))
@@ -59,7 +62,7 @@ struct SessionScreen: View {
                 Text("target \(Int(s.targetSoc)) %")
             }
             .font(.caption)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.muted)
             .padding(.top, 4)
             Divider().padding(.vertical, 12)
             HStack(alignment: .top) {
@@ -81,7 +84,7 @@ struct SessionScreen: View {
         case .grace:
             CardBox(stroke: Theme.warn) {
                 VStack(spacing: 6) {
-                    Text("Free time to move your car").font(.subheadline).foregroundStyle(.secondary)
+                    Text("Free time to move your car").font(.subheadline).foregroundStyle(Theme.muted)
                     Text(Fmt.mmss(snap.graceLeft))
                         .font(.system(size: 52, weight: .bold, design: .rounded))
                         .monospacedDigit()
@@ -125,7 +128,7 @@ struct SessionScreen: View {
             HStack(alignment: .firstTextBaseline) {
                 Text("You've been idle for \(Fmt.minutes(snap.idleMinutes))").font(.headline)
                 Spacer()
-                Text(String(format: "%.2f €/min", rate)).font(.subheadline).foregroundStyle(.secondary)
+                Text(String(format: "%.2f €/min", rate)).font(.subheadline).foregroundStyle(Theme.muted)
             }
             HStack(spacing: 6) {
                 ForEach(Array(IdleFee.tiers.enumerated()), id: \.offset) { item in
@@ -139,13 +142,13 @@ struct SessionScreen: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
                     .foregroundStyle(active ? Color.white : Color.primary)
-                    .background(active ? Theme.bad : Theme.fill, in: RoundedRectangle(cornerRadius: 10))
+                    .background(active ? Theme.bad : Theme.fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
             }
             .padding(.top, 12)
             Text("Maximum fee \(Fmt.eur(IdleFee.capEur)). Other drivers are waiting for this spot.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 8)
         }
     }
@@ -165,7 +168,7 @@ struct SessionScreen: View {
 
     private func row(_ label: String, _ value: String, bold: Bool = false) -> some View {
         HStack {
-            Text(trKey(label)).foregroundStyle(bold ? .primary : .secondary)
+            Text(trKey(label)).foregroundStyle(bold ? Theme.text : Theme.muted)
             Spacer()
             Text(value)
         }
@@ -178,7 +181,7 @@ struct SessionScreen: View {
             SectionHeader(title: "History")
             CardBox {
                 if model.sessionHistory.isEmpty {
-                    Text("No past sessions yet.").font(.subheadline).foregroundStyle(.secondary)
+                    Text("No past sessions yet.").font(.subheadline).foregroundStyle(Theme.muted)
                 }
                 ForEach(Array(model.sessionHistory.enumerated()), id: \.offset) { item in
                     let s = item.element
@@ -189,7 +192,7 @@ struct SessionScreen: View {
                             Text(s.stationName).font(.subheadline.weight(.semibold))
                             Text("\(s.startedAt.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(L10n.locale))) · \(String(format: "%.1f kWh", snap.kwh))")
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Theme.muted)
                             if snap.idleFee > 0 {
                                 Text("Includes idle fee \(Fmt.eur(snap.idleFee))").font(.caption).foregroundStyle(Theme.warn)
                             }
@@ -209,6 +212,18 @@ struct SessionScreen: View {
 
     private var demoControls: some View {
         VStack(alignment: .leading, spacing: 8) {
+            SectionHeader(title: "Lock Screen")
+            CardBox {
+                Toggle(isOn: Binding(get: { model.lockScreenEnabled }, set: { model.setLockScreen($0) })) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Show on Lock Screen").font(.subheadline.weight(.semibold))
+                        Text("Progress and countdowns on the Lock Screen and in the Dynamic Island, even with the app closed. You can also swipe it away there.")
+                            .font(.caption)
+                            .foregroundStyle(Theme.muted)
+                    }
+                }
+                .tint(Theme.brand)
+            }
             SectionHeader(title: "Demo: time acceleration")
             HStack(spacing: 8) {
                 ForEach(speeds, id: \.self) { s in
@@ -217,7 +232,7 @@ struct SessionScreen: View {
             }
             Text("Speed up time to see the notification, the grace period and the growing fee.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
         }
     }
 }

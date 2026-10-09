@@ -30,13 +30,13 @@ struct ReportContent: View {
             VStack(alignment: .leading, spacing: 0) {
                 Text("Report a problem at this station. Confirmed reports of wrong use help enforce warnings and fines.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                     .padding(.bottom, 12)
                 form
                 SectionHeader(title: "Reports for this station")
                 let reports = model.reports.filter { $0.stationId == stationId }
                 if reports.isEmpty {
-                    Text("No reports for this station yet.").font(.subheadline).foregroundStyle(.secondary)
+                    Text("No reports for this station yet.").font(.subheadline).foregroundStyle(Theme.muted)
                 }
                 VStack(spacing: 8) {
                     ForEach(reports) { r in reportCard(r) }
@@ -81,7 +81,7 @@ struct ReportContent: View {
                     .autocorrectionDisabled()
                     .focused($focused)
                     .padding(10)
-                    .background(Theme.fill, in: RoundedRectangle(cornerRadius: 10))
+                    .background(Theme.fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .padding(.bottom, 10)
             }
 
@@ -90,7 +90,7 @@ struct ReportContent: View {
                 .lineLimit(2...4)
                 .focused($focused)
                 .padding(10)
-                .background(Theme.fill, in: RoundedRectangle(cornerRadius: 10))
+                .background(Theme.fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .padding(.bottom, 10)
 
             PhotosPicker(selection: $photoItem, matching: .images) {
@@ -99,7 +99,7 @@ struct ReportContent: View {
             .buttonStyle(SecondaryButtonStyle())
             Text(kind.photoHint)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 4)
             if let photo {
                 Image(uiImage: photo)
@@ -135,7 +135,7 @@ struct ReportContent: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(r.category == .wrongUsage ? r.plate : r.category.title).font(.headline)
-                    Text(stationName + (r.byMe ? tr(" · your report") : "")).font(.caption).foregroundStyle(.secondary)
+                    Text(stationName + (r.byMe ? tr(" · your report") : "")).font(.caption).foregroundStyle(Theme.muted)
                 }
                 Spacer()
                 if r.category == .wrongUsage {
@@ -155,7 +155,7 @@ struct ReportContent: View {
             .padding(.top, 10)
             if r.category == .wrongUsage {
                 HStack(spacing: 8) {
-                    Text("Confidence").font(.caption).foregroundStyle(.secondary)
+                    Text("Confidence").font(.caption).foregroundStyle(Theme.muted)
                     SocBar(value: r.confidence * 100, target: Reports.confirmThreshold * 100, height: 8)
                 }
                 .padding(.top, 10)
@@ -163,7 +163,7 @@ struct ReportContent: View {
             if r.category == .wrongUsage && r.isConfirmed {
                 Text("Offence no. \(offences) for this plate · applied: \(Reports.sanction(forOffence: offences))")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                     .padding(.top, 8)
             } else if !r.byMe {
                 Button(r.category == .wrongUsage ? "I see it too — confirm" : "Same here") { model.confirmReport(r.id) }

@@ -23,7 +23,7 @@ struct OperatorScreen: View {
             VStack(alignment: .leading, spacing: 0) {
                 Text("How to make better use of existing charging infrastructure. Demo data.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                     .padding(.bottom, 12)
                 filters
                 if filtered.isEmpty {
@@ -43,7 +43,8 @@ struct OperatorScreen: View {
             }
             .padding(16)
         }
-        .background(Theme.background)
+        .tabBarClearance()
+        .screenBackdrop()
         .navigationTitle("For operators")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -88,7 +89,7 @@ struct OperatorScreen: View {
             .padding(.top, 8)
             Text("Frees up \(Int(sum.idleHoursSavedPerDay)) station-hours per day → ~\(sum.extraSessionsPerDay) additional sessions from the same number of stations.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.muted)
                 .padding(.top, 8)
         }
     }
@@ -103,7 +104,7 @@ struct OperatorScreen: View {
                     HStack {
                         Text(st.station.name).font(.headline)
                         Spacer()
-                        Text(DemoData.chargeOperator(st.station.operatorId).name).font(.caption).foregroundStyle(.secondary)
+                        Text(DemoData.chargeOperator(st.station.operatorId).name).font(.caption).foregroundStyle(Theme.muted)
                     }
                     HStack(alignment: .top) {
                         StatView(label: "Occupancy", value: Fmt.pct(st.utilization))
