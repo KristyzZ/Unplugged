@@ -1,33 +1,18 @@
 import SwiftUI
 
+/// Points: what you have, what you can get for them, how to earn more.
 struct RewardsScreen: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
         ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                Text("Use stations responsibly to earn points and exchange them for discounts.")
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.muted)
-                    .padding(.bottom, 12)
+            VStack(alignment: .leading, spacing: 20) {
                 balance
-                SectionHeader(title: "How to earn")
-                CardBox {
-                    ForEach(Array(PointsReason.earning.enumerated()), id: \.element) { item in
-                        if item.offset > 0 { Divider().padding(.vertical, 8) }
-                        HStack {
-                            Text(item.element.label).font(.subheadline)
-                            Spacer()
-                            Text("+\(item.element.points)").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ok)
-                        }
-                    }
+                section("Spend points") { rewards }
+                section("How to earn") { earning }
+                if !model.history.isEmpty {
+                    section("History") { history }
                 }
-                SectionHeader(title: "Redeem")
-                VStack(spacing: 8) {
-                    ForEach(Points.rewards) { reward in rewardRow(reward) }
-                }
-                SectionHeader(title: "History")
-                history
             }
             .padding(16)
         }
@@ -37,68 +22,136 @@ struct RewardsScreen: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    private func section<Content: View>(_ title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.headline).foregroundStyle(Theme.text)
+            content()
+        }
+    }
+
+    // MARK: Balance
+
     private var balance: some View {
         let tier = Points.tier(for: model.lifetimePoints)
         return CardBox {
-            Text("Your points").font(.subheadline).foregroundStyle(Theme.muted)
-            Text("\(model.points)")
-                .scaledFont(52, weight: .bold, design: .rounded, relativeTo: .largeTitle)
-                .contentTransition(.numericText())
-            HStack {
-                Text(tier.current.name).font(.subheadline.weight(.semibold))
+            HStack(alignment: .firstTextBaseline) {
+                Text("\(model.points)")
+                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .foregroundStyle(Theme.text)
+                Text("points").font(.headline).foregroundStyle(Theme.muted)
                 Spacer()
-                if let next = tier.next {
-                    Text("Until “\(next.name)”: \(next.min - model.lifetimePoints) to go")
-                        .font(.caption)
-                        .foregroundStyle(Theme.muted)
-                }
+                Pill(text: tier.current.name, color: Theme.warn)
             }
-            .padding(.top, 8)
             if let next = tier.next {
                 let progress = Double(model.lifetimePoints - tier.current.min) / Double(next.min - tier.current.min)
-                SocBar(value: progress * 100, height: 8).padding(.top, 4)
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Theme.fill)
+                        Capsule().fill(Theme.brand).frame(width: geo.size.width * min(1, max(0, progress)))
+                    }
+                }
+                .frame(height: 6)
+                .padding(.top, 6)
+                Text(tr("\(next.min - model.lifetimePoints) more to reach \(next.name)"))
+                    .font(.caption)
+                    .foregroundStyle(Theme.muted)
+                    .padding(.top, 6)
             }
         }
     }
 
-    private func rewardRow(_ reward: Points.Reward) -> some View {
-        let affordable = model.points >= reward.cost
-        return CardBox {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(reward.title).font(.headline)
-                    Text(reward.partner).font(.caption).foregroundStyle(Theme.muted)
-                }
-                Spacer()
-                Button("\(reward.cost) pts") { model.redeem(reward) }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Theme.brand)
-                    .foregroundStyle(Theme.ink)
+    // MARK: Rewards
+
+    private var rewards: some View {
+        ListCard {
+            ForEach(Array(Points.rewards.enumerated()), id: \.element.id) { item in
+                let reward = item.element
+                let affordable = model.points >= reward.cost
+                if item.offset > 0 { RowDivider() }
+                HStack(spacing: 12) {
+                    IconBadge(systemImage: "gift.fill", color: affordable ? Theme.brand : Theme.muted)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(reward.title).font(.body.weight(.medium)).foregroundStyle(Theme.text)
+                        Text(reward.partner).font(.caption).foregroundStyle(Theme.muted)
+                    }
+                    Spacer()
+                    Button { model.redeem(reward) } label: {
+                        Text("\(reward.cost)")
+                            .font(.subheadline.weight(.semibold))
+                            .monospacedDigit()
+                            .foregroundStyle(affordable ? Theme.ink : Theme.muted)
+                            .padding(.horizontal, 14)
+                            .frame(height: 32)
+                            .background(affordable ? Theme.brand : Theme.fill, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
                     .disabled(!affordable)
+                    .accessibilityLabel(Text("Get for \(reward.cost) points"))
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
             }
         }
     }
+
+    // MARK: Earning
+
+    private var earning: some View {
+        ListCard {
+            ForEach(Array(PointsReason.earning.enumerated()), id: \.element) { item in
+                if item.offset > 0 { RowDivider() }
+                HStack(spacing: 12) {
+                    IconBadge(systemImage: icon(item.element), color: Theme.ok)
+                    Text(item.element.label).font(.subheadline).foregroundStyle(Theme.text)
+                    Spacer()
+                    Text("+\(item.element.points)")
+                        .font(.subheadline.weight(.semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.ok)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+            }
+        }
+    }
+
+    private func icon(_ reason: PointsReason) -> String {
+        switch reason {
+        case .movedFast: "hare.fill"
+        case .movedInGrace: "car.side.fill"
+        case .offPeak: "moon.fill"
+        case .reportConfirmed: "checkmark.shield.fill"
+        case .confirmReport: "hand.thumbsup.fill"
+        case .redeem: "gift.fill"
+        }
+    }
+
+    // MARK: History
 
     private var history: some View {
-        CardBox {
-            if model.history.isEmpty {
-                Text("Nothing yet.").font(.subheadline).foregroundStyle(Theme.muted)
-            }
-            ForEach(Array(model.history.prefix(20).enumerated()), id: \.element.id) { item in
+        ListCard {
+            ForEach(Array(model.history.prefix(10).enumerated()), id: \.element.id) { item in
                 let h = item.element
-                if item.offset > 0 { Divider().padding(.vertical, 8) }
+                if item.offset > 0 { RowDivider() }
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(h.reason == .redeem ? (h.note ?? h.reason.label) : h.reason.label).font(.subheadline)
-                        Text([h.at.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(L10n.locale)), h.reason == .redeem ? nil : h.note].compactMap { $0 }.joined(separator: " · "))
+                        Text(h.reason == .redeem ? (h.note ?? h.reason.label) : h.reason.label)
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.text)
+                        Text(h.at.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(L10n.locale)))
                             .font(.caption)
                             .foregroundStyle(Theme.muted)
                     }
                     Spacer()
                     Text(h.points > 0 ? "+\(h.points)" : "\(h.points)")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(h.points > 0 ? Theme.ok : Color.primary)
+                        .monospacedDigit()
+                        .foregroundStyle(h.points > 0 ? Theme.ok : Theme.muted)
                 }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
             }
         }
     }

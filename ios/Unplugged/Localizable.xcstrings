@@ -2720,6 +2720,446 @@
           }
         }
       }
+    },
+    "%.2f €/min": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%.2f €/min"
+          }
+        }
+      }
+    },
+    "%@ charging": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ už įkrovimą"
+          }
+        }
+      }
+    },
+    "%@ left": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "liko %@"
+          }
+        }
+      }
+    },
+    "%@ · idle fee %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · prastovos mokestis %@"
+          }
+        }
+      }
+    },
+    "%lld %%": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld %%"
+          }
+        }
+      }
+    },
+    "%lld %% · ≈ %lld km range": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld %% · ≈ %lld km rida"
+          }
+        }
+      }
+    },
+    "%lld active": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktyvūs: %lld"
+          }
+        }
+      }
+    },
+    "%lld more to reach %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iki lygio „%2$@“ trūksta %1$lld"
+          }
+        }
+      }
+    },
+    "**Can't make this trip.** %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**Šios kelionės nepavyks įveikti.** %@"
+          }
+        }
+      }
+    },
+    "Already pay for an operator's plan? Turn it on and we'll show your discounted price at their stations.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jau mokate už operatoriaus planą? Įjunkite jį ir to operatoriaus stotelėse rodysime jūsų kainą su nuolaida."
+          }
+        }
+      }
+    },
+    "Arrive %@ with %lld %%": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvykstate %@ su %lld %%"
+          }
+        }
+      }
+    },
+    "arrive with %lld %%": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "atvyksite su %lld %%"
+          }
+        }
+      }
+    },
+    "At 80 %": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esant 80 %"
+          }
+        }
+      }
+    },
+    "Battery now": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baterija dabar"
+          }
+        }
+      }
+    },
+    "Charge %@ to %lld %%": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Krauti %@ iki %lld %%"
+          }
+        }
+      }
+    },
+    "Charging is done. Move within these free minutes to earn %lld–%lld points.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimas baigtas. Patraukite automobilį per šias nemokamas minutes ir gausite %lld–%lld taškų."
+          }
+        }
+      }
+    },
+    "Charging is paid with the checked method. Demo only: no real payments are made.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Už įkrovimą mokama pažymėtu būdu. Tik demonstracija: tikri mokėjimai neatliekami."
+          }
+        }
+      }
+    },
+    "Charging on Lock Screen": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimas užrakinimo ekrane"
+          }
+        }
+      }
+    },
+    "Charging to %lld %%. We'll tell you when it's done.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kraunama iki %lld %%. Pranešime, kai baigsis."
+          }
+        }
+      }
+    },
+    "Demo plans. Linking real accounts needs the operator's sign-in.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demo planai. Tikroms paskyroms susieti reikia prisijungti prie operatoriaus."
+          }
+        }
+      }
+    },
+    "Demo: speed up time": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demo: pagreitinti laiką"
+          }
+        }
+      }
+    },
+    "Get for %lld points": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gauti už %lld taškų"
+          }
+        }
+      }
+    },
+    "Idle fee is running and goes up the longer the car stays. Others are waiting for this spot.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skaičiuojamas prastovos mokestis – kuo ilgiau stovite, tuo jis didesnis. Kiti laukia šios vietos."
+          }
+        }
+      }
+    },
+    "Leave %@ with %lld %%": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išvykstate %@ su %lld %%"
+          }
+        }
+      }
+    },
+    "Max charging %lld kW DC / %lld kW AC · %@. Used to show only chargers that fit and to plan trips.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maks. įkrovimas %lld kW DC / %lld kW AC · %@. Naudojama rodant tik tinkančias stoteles ir planuojant keliones."
+          }
+        }
+      }
+    },
+    "None": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nėra"
+          }
+        }
+      }
+    },
+    "Operator plans": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Operatorių planai"
+          }
+        }
+      }
+    },
+    "Payment": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mokėjimas"
+          }
+        }
+      }
+    },
+    "Pick a station on Explore and start there. Your session shows up here.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasirinkite stotelę žemėlapyje ir pradėkite įkrovimą. Jis bus rodomas čia."
+          }
+        }
+      }
+    },
+    "Plan route": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planuoti maršrutą"
+          }
+        }
+      }
+    },
+    "points": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "taškų"
+          }
+        }
+      }
+    },
+    "Recent": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naujausi"
+          }
+        }
+      }
+    },
+    "Speeds up time so you can see the finished notice, the free minutes and the idle fee.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pagreitina laiką, kad pamatytumėte pranešimą apie pabaigą, nemokamas minutes ir prastovos mokestį."
+          }
+        }
+      }
+    },
+    "Spend points": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išleisti taškus"
+          }
+        }
+      }
+    },
+    "Swap start and destination": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sukeisti pradžią ir tikslą"
+          }
+        }
+      }
+    },
+    "Thanks for freeing the spot.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ačiū, kad atlaisvinote vietą."
+          }
+        }
+      }
+    },
+    "Thanks for freeing the spot. You earned %lld points.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ačiū, kad atlaisvinote vietą. Gavote %lld taškų."
+          }
+        }
+      }
+    },
+    "to move your car": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "patraukti automobilį"
+          }
+        }
+      }
+    },
+    "total": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iš viso"
+          }
+        }
+      }
+    },
+    "Usually free: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paprastai laisva: %@"
+          }
+        }
+      }
+    },
+    "We'll pick charging stops that fit your car and are usually free when you get there.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parinksime jūsų automobiliui tinkančias stoteles, kurios paprastai būna laisvos, kai atvažiuojate."
+          }
+        }
+      }
+    },
+    "You're not charging": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dabar nesikraunate"
+          }
+        }
+      }
+    },
+    "Your car": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų automobilis"
+          }
+        }
+      }
+    },
+    "≈ %lld km range": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %lld km rida"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

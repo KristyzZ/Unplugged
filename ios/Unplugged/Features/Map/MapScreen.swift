@@ -254,6 +254,8 @@ struct StationPin: View {
             Text("\(Int(station.maxPower))")
                 .scaledFont(13, weight: .bold, design: .rounded, relativeTo: .footnote)
                 .foregroundStyle(Theme.ink)
+                .lineLimit(1)
+                .fixedSize()
                 .padding(.horizontal, 6)
                 .frame(minWidth: 34, minHeight: 34)
                 .background(color, in: Capsule())
