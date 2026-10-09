@@ -3570,6 +3570,646 @@
           }
         }
       }
+    },
+    "Held for the next driver": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laikoma kitam vairuotojui"
+          }
+        }
+      }
+    },
+    "Handed the spot to the next driver": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perleido vietą kitam vairuotojui"
+          }
+        }
+      }
+    },
+    "Held for you": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laikoma jums"
+          }
+        }
+      }
+    },
+    "%@: we'll hold the next free spot for you.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: kitą atsilaisvinusią vietą palaikysime jums."
+          }
+        }
+      }
+    },
+    "Spot released": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vietos atsisakyta"
+          }
+        }
+      }
+    },
+    "It goes to the next driver in line.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ji atitenka kitam eilėje laukiančiam vairuotojui."
+          }
+        }
+      }
+    },
+    "Your held spot was passed on": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jums laikyta vieta perleista kitam"
+          }
+        }
+      }
+    },
+    "The %lld minutes ran out, so it went to the next driver.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Praėjo %lld min., todėl vieta atiteko kitam vairuotojui."
+          }
+        }
+      }
+    },
+    "You moved up": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasistūmėjote eilėje"
+          }
+        }
+      }
+    },
+    "You're next at %@.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esate kitas eilėje: %@."
+          }
+        }
+      }
+    },
+    "%lld in line at %@.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eilėje esate %1$lld-as: %2$@."
+          }
+        }
+      }
+    },
+    "A spot is held for you": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta laikoma jums"
+          }
+        }
+      }
+    },
+    "%@: it's yours for %lld min.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: vieta jūsų %2$lld min."
+          }
+        }
+      }
+    },
+    "1 min left on your spot": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laikomai vietai liko 1 min."
+          }
+        }
+      }
+    },
+    "%@: start charging or it goes to the next driver.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: pradėkite krauti, kitaip vieta atiteks kitam vairuotojui."
+          }
+        }
+      }
+    },
+    "Release spot": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atsisakyti vietos"
+          }
+        }
+      }
+    },
+    "You're in the queue": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esate eilėje"
+          }
+        }
+      }
+    },
+    "You're next. When a car leaves, its charger is held for you for %lld min. Expected in about %@.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esate kitas. Kai automobilis išvažiuos, jo stotelė jums bus laikoma %1$lld min. Tikėtina po maždaug %2$@."
+          }
+        }
+      }
+    },
+    "%lld in line. The next car is expected to leave in about %@.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eilėje esate %1$lld-as. Kitas automobilis turėtų išvažiuoti po maždaug %2$@."
+          }
+        }
+      }
+    },
+    "Join the queue. When a car leaves, its charger is held for the next driver for %lld min, so nobody can grab it first.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stokite į eilę. Kai automobilis išvažiuos, jo stotelė kitam eilės vairuotojui bus laikoma %lld min., kad niekas jos neužimtų pirmas."
+          }
+        }
+      }
+    },
+    "This spot is held for you": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ši vieta laikoma jums"
+          }
+        }
+      }
+    },
+    "%@ · until %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · iki %2$@"
+          }
+        }
+      }
+    },
+    "A driver just left and you were next in line. Plug in before the time runs out, or it goes to the next person.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vairuotojas ką tik išvažiavo, o jūs buvote kitas eilėje. Prisijunkite, kol nesibaigė laikas, kitaip vieta atiteks kitam."
+          }
+        }
+      }
+    },
+    "Release": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atsisakyti"
+          }
+        }
+      }
+    },
+    "Charge here": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Krauti čia"
+          }
+        }
+      }
+    },
+    "Next driver notified. Your spot is held for them for %lld min.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitas vairuotojas informuotas. Vieta jam laikoma %lld min."
+          }
+        }
+      }
+    },
+    "Spot sensor: occupied, no charging session": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vietos jutiklis: užimta, įkrovimas nevyksta"
+          }
+        }
+      }
+    },
+    "Charger: no charging session": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelė: įkrovimas nevyksta"
+          }
+        }
+      }
+    },
+    "Charger: finished charging, car still parked": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelė: įkrovimas baigtas, automobilis tebestovi"
+          }
+        }
+      }
+    },
+    "Charger: a car is charging there": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelė: ten kraunasi automobilis"
+          }
+        }
+      }
+    },
+    "Charger: no data": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelė: duomenų nėra"
+          }
+        }
+      }
+    },
+    "The charger confirms the spot is blocked.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelė patvirtina, kad vieta užimta."
+          }
+        }
+      }
+    },
+    "Photo, plate and charger data agree.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuotrauka, numeris ir stotelės duomenys sutampa."
+          }
+        }
+      }
+    },
+    "Report a problem at this station. Confirmed reports of wrong use lead to warnings and fines.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Praneškite apie problemą šioje stotelėje. Patvirtinti netinkamo naudojimo pranešimai lemia įspėjimus ir baudas."
+          }
+        }
+      }
+    },
+    "Send report": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siųsti pranešimą"
+          }
+        }
+      }
+    },
+    "Which spot?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuri vieta?"
+          }
+        }
+      }
+    },
+    "Photo of the car": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automobilio nuotrauka"
+          }
+        }
+      }
+    },
+    "Photo": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuotrauka"
+          }
+        }
+      }
+    },
+    "Licence plate": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valstybinis numeris"
+          }
+        }
+      }
+    },
+    "From photo": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iš nuotraukos"
+          }
+        }
+      }
+    },
+    "What's wrong?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kas negerai?"
+          }
+        }
+      }
+    },
+    "Details (optional)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detalės (nebūtina)"
+          }
+        }
+      }
+    },
+    "Not sure": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nežinau"
+          }
+        }
+      }
+    },
+    "Spot %lld, %@, %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta %1$lld, %2$@, %3$@"
+          }
+        }
+      }
+    },
+    "Reading the plate…": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuskaitomas numeris…"
+          }
+        }
+      }
+    },
+    "Plate read on your phone: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numeris nuskaitytas telefone: %@"
+          }
+        }
+      }
+    },
+    "No plate found. Type it below, or take a closer photo.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numerio nerasta. Įveskite jį žemiau arba nufotografuokite iš arčiau."
+          }
+        }
+      }
+    },
+    "Take photo": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fotografuoti"
+          }
+        }
+      }
+    },
+    "Retake": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iš naujo"
+          }
+        }
+      }
+    },
+    "Choose": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasirinkti"
+          }
+        }
+      }
+    },
+    "What backs your report": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kas pagrindžia jūsų pranešimą"
+          }
+        }
+      }
+    },
+    "Added": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pridėta"
+          }
+        }
+      }
+    },
+    "Not added": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nepridėta"
+          }
+        }
+      }
+    },
+    "Plate read from photo": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numeris nuskaitytas iš nuotraukos"
+          }
+        }
+      }
+    },
+    "No": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne"
+          }
+        }
+      }
+    },
+    "Doesn't match the plate entered": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nesutampa su įvestu numeriu"
+          }
+        }
+      }
+    },
+    "Charger data": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelės duomenys"
+          }
+        }
+      }
+    },
+    "Confirmed as soon as you send it": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bus patvirtintas iškart išsiuntus"
+          }
+        }
+      }
+    },
+    "Needs 1 more driver to confirm": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reikia dar 1 vairuotojo patvirtinimo"
+          }
+        }
+      }
+    },
+    "Needs %lld more drivers to confirm": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reikia dar %lld vairuotojų patvirtinimų"
+          }
+        }
+      }
+    },
+    "The charger shows a car charging there. Check the spot number.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelė rodo, kad ten kraunasi automobilis. Patikrinkite vietos numerį."
+          }
+        }
+      }
+    },
+    "%@ Plate read": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Numeris nuskaitytas"
+          }
+        }
+      }
+    },
+    "%@ Charger data": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Stotelės duomenys"
+          }
+        }
+      }
+    },
+    "Photo, plate %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuotrauka, numeris %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

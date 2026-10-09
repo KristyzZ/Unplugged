@@ -11,6 +11,11 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     /// Charging notifications carry an "I moved my car" button.
     static let moveCategory = "charging.move"
     static let movedAction = "moved"
+    static let holdReadyId = "hold-ready"
+    static let holdEndingId = "hold-ending"
+    /// Held-spot notifications carry a "Release spot" button.
+    static let holdCategory = "queue.hold"
+    static let releaseAction = "release"
 
     private let center = UNUserNotificationCenter.current()
     /// The notification center talks to a system service and some calls wait
@@ -33,7 +38,9 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         // the Lock Screen activity updates, and the phone stays locked.
         let moved = UNNotificationAction(identifier: Self.movedAction, title: tr("I moved my car"), options: [])
         let category = UNNotificationCategory(identifier: Self.moveCategory, actions: [moved], intentIdentifiers: [])
-        queue.async { [center] in center.setNotificationCategories([category]) }
+        let release = UNNotificationAction(identifier: Self.releaseAction, title: tr("Release spot"), options: [.destructive])
+        let hold = UNNotificationCategory(identifier: Self.holdCategory, actions: [release], intentIdentifiers: [])
+        queue.async { [center] in center.setNotificationCategories([category, hold]) }
     }
 
     func schedule(id: String, title: String, body: String, after seconds: TimeInterval, category: String? = nil) {
@@ -64,12 +71,17 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        guard response.actionIdentifier == Self.movedAction else {
+        let action: ChargingAction? = switch response.actionIdentifier {
+        case Self.movedAction: .moved
+        case Self.releaseAction: .releaseHold
+        default: nil
+        }
+        guard let action else {
             completionHandler()
             return
         }
         Task { @MainActor in
-            ChargingActionInbox.deliver(.moved)
+            ChargingActionInbox.deliver(action)
             completionHandler()
         }
     }

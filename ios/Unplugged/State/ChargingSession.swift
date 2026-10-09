@@ -18,6 +18,10 @@ struct ChargingSession: Codable, Equatable {
     var endedAt: Date?
     var idleFeeEur: Double?
     var pointsEarned: Int?
+    // Added later; optional so older saved sessions still decode.
+    var connectorId: String? = nil
+    /// Someone was waiting, so the spot was held for them when the car left.
+    var handedOver: Bool? = nil
 
     var scheduledDoneAt: Date { startedAt.addingTimeInterval(minutesToTarget * 60) }
 }

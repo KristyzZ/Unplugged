@@ -1,6 +1,12 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "NSCameraUsageDescription" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The camera is used to photograph a car blocking a charger, so its licence plate can be read on your phone." } },
+        "lt" : { "stringUnit" : { "state" : "translated", "value" : "Kamera naudojama nufotografuoti įkrovimo vietą užstojusį automobilį, kad jo numeris būtų nuskaitytas jūsų telefone." } }
+      }
+    },
     "NSLocationWhenInUseUsageDescription" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Your location is used to show the nearest charging stations." } },

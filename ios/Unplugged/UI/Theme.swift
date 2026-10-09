@@ -95,6 +95,7 @@ extension ConnectorStatus {
         case .idle: tr("Finished, still parked")
         case .blocked: tr("Occupied, not charging")
         case .offline: tr("Out of service")
+        case .reserved: tr("Held for the next driver")
         }
     }
 
@@ -105,6 +106,7 @@ extension ConnectorStatus {
         case .idle: Theme.warn
         case .blocked: Theme.bad
         case .offline: .gray
+        case .reserved: Theme.brand
         }
     }
 }

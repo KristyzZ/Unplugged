@@ -271,7 +271,11 @@ private struct PhaseBody: View {
 
             case .ended:
                 HStack {
-                    Text(live.t("Charged to \(Int(s.soc)) %", "Įkrauta iki \(Int(s.soc)) %"))
+                    if s.handedOver == true {
+                        Text(live.t("Next driver notified", "Kitas vairuotojas informuotas"))
+                    } else {
+                        Text(live.t("Charged to \(Int(s.soc)) %", "Įkrauta iki \(Int(s.soc)) %"))
+                    }
                     if s.idleFeeEur > 0 {
                         Text(live.t("· idle fee \(euros(s.idleFeeEur))", "· prastova \(euros(s.idleFeeEur))"))
                             .foregroundStyle(WTheme.red)

@@ -27,6 +27,7 @@ enum ConnectorStatus: String, Codable, Hashable {
     case idle        // charging finished, car still occupying the spot
     case blocked     // spot taken by a car that is not charging / not an EV
     case offline     // out of service
+    case reserved    // held for the next driver in the queue (Unplugged handoff)
 }
 
 struct Connector: Identifiable, Hashable {

@@ -50,14 +50,22 @@ struct StationDetailView: View {
 
                 statusCard(station)
 
-                if station.freeCount == 0 {
+                if let hold = model.myHold, hold.stationId == station.id {
+                    HoldCard(hold: hold) {
+                        pickedConnectorId = hold.connectorId
+                        target = max(target, min(100, model.soc + 5))
+                    } onRelease: {
+                        model.releaseHold()
+                    }
+                    .padding(.top, 12)
+                } else if station.freeCount == 0 || model.queue?.stationId == station.id {
                     queueCard(station).padding(.top, 12)
                 }
 
                 SectionHeader(title: "Connectors")
                 VStack(spacing: 8) {
                     ForEach(station.connectors) { c in
-                        connectorRow(c, vehicle: vehicle, selectable: !busy)
+                        connectorRow(c, station: station, vehicle: vehicle, selectable: !busy)
                     }
                 }
 
@@ -93,6 +101,12 @@ struct StationDetailView: View {
                 }
             }
             .padding(16)
+        }
+        .onAppear {
+            // Arriving at a spot held for you: it's already picked.
+            if let hold = model.myHold, hold.stationId == station.id, !busy {
+                pickedConnectorId = hold.connectorId
+            }
         }
         .sheet(isPresented: $showReport) {
             NavigationStack {
@@ -141,22 +155,32 @@ struct StationDetailView: View {
     }
 
     private func queueCard(_ station: Station) -> some View {
-        let soonest = station.connectors.compactMap(\.etaMinutes).min() ?? 60
-        let inQueue = model.queue?.stationId == station.id
+        let entry = model.queue?.stationId == station.id ? model.queue : nil
         return CardBox(stroke: Theme.warn) {
-            Text("All spots are taken").font(.headline)
-            Text("Join the virtual queue — we'll notify you when a spot frees up. The next free spot is expected in \(Fmt.minutes(Double(soonest)))")
-                .font(.subheadline)
-                .foregroundStyle(Theme.muted)
-                .padding(.top, 4)
-            if inQueue {
-                HStack {
-                    Text("You're in the queue: position **\(model.queue?.position ?? 1)**").font(.subheadline)
-                    Spacer()
-                    Button("Leave queue") { model.leaveQueue() }
+            if let entry {
+                Text("You're in the queue").font(.headline)
+                TimelineView(.periodic(from: .now, by: 1)) { _ in
+                    let wait = Fmt.minutes(max(1, (entry.nextEventAt ?? .now).timeIntervalSince(model.simNow()) / 60))
+                    Group {
+                        if entry.position == 1 {
+                            Text("You're next. When a car leaves, its charger is held for you for \(Int(SpotHold.minutes)) min. Expected in about \(wait).")
+                        } else {
+                            Text("\(entry.position) in line. The next car is expected to leave in about \(wait).")
+                        }
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.muted)
+                    .padding(.top, 4)
                 }
-                .padding(.top, 12)
+                Button("Leave queue") { model.leaveQueue() }
+                    .buttonStyle(SecondaryButtonStyle())
+                    .padding(.top, 12)
             } else {
+                Text("All spots are taken").font(.headline)
+                Text("Join the queue. When a car leaves, its charger is held for the next driver for \(Int(SpotHold.minutes)) min, so nobody can grab it first.")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.muted)
+                    .padding(.top, 4)
                 Button("Join queue") { model.joinQueue(station) }
                     .buttonStyle(PrimaryButtonStyle())
                     .padding(.top, 12)
@@ -164,9 +188,10 @@ struct StationDetailView: View {
         }
     }
 
-    private func connectorRow(_ c: Connector, vehicle: Vehicle, selectable: Bool) -> some View {
+    private func connectorRow(_ c: Connector, station: Station, vehicle: Vehicle, selectable: Bool) -> some View {
         let compatible = Charging.isCompatible(vehicle, c)
-        let enabled = selectable && compatible && c.status == .available
+        let heldForMe = model.myHold.map { $0.stationId == station.id && $0.connectorId == c.id } ?? false
+        let enabled = selectable && compatible && (c.status == .available || heldForMe)
         let selected = pickedConnectorId == c.id
         return Button {
             pickedConnectorId = c.id
@@ -176,7 +201,9 @@ struct StationDetailView: View {
                 Circle().fill(c.status.color).frame(width: 10, height: 10)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(c.type.rawValue) · \(Int(c.powerKw)) kW").font(.body.weight(.medium))
-                    Text(detail(c, compatible: compatible)).font(.caption).foregroundStyle(Theme.muted)
+                    Text(heldForMe ? tr("Held for you") : detail(c, compatible: compatible))
+                        .font(.caption)
+                        .foregroundStyle(heldForMe ? Theme.brand : Theme.muted)
                 }
                 Spacer()
                 if compatible {
@@ -245,6 +272,47 @@ struct StationDetailView: View {
             }
             .buttonStyle(PrimaryButtonStyle())
             .padding(.top, 12)
+        }
+    }
+}
+
+/// "This spot is held for you" with the time left to plug in.
+private struct HoldCard: View {
+    let hold: SpotHold
+    let onCharge: () -> Void
+    let onRelease: () -> Void
+
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 0.5)) { _ in
+            let left = max(0, hold.until.timeIntervalSince(model.simNow()))
+            CardBox(stroke: Theme.brand) {
+                HStack(spacing: 14) {
+                    ProgressRing(progress: left / max(1, hold.duration), color: Theme.brand, lineWidth: 5) {
+                        Text(Fmt.mmss(left))
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(Theme.text)
+                    }
+                    .frame(width: 60, height: 60)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("This spot is held for you").font(.headline).foregroundStyle(Theme.text)
+                        Text("\(hold.connectorLabel) · until \(Fmt.clock(model.realDate(hold.until)))")
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.muted)
+                    }
+                }
+                Text("A driver just left and you were next in line. Plug in before the time runs out, or it goes to the next person.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.muted)
+                    .padding(.top, 10)
+                HStack(spacing: 10) {
+                    Button("Release", action: onRelease).buttonStyle(SecondaryButtonStyle())
+                    Button("Charge here", action: onCharge).buttonStyle(PrimaryButtonStyle())
+                }
+                .padding(.top, 12)
+            }
         }
     }
 }

@@ -65,11 +65,22 @@ struct MapScreen: View {
             .navigationDestination(for: String.self) { id in
                 StationDetailView(stationId: id)
             }
-            .onAppear { location.request() }
+            .onAppear {
+                location.request()
+                openRequestedStation()
+            }
+            // The held-spot tile asks for a station page.
+            .onChange(of: model.openStationId) { openRequestedStation() }
             .onChange(of: query) { _, q in
                 if !q.isEmpty { listOpen = true }
             }
         }
+    }
+
+    private func openRequestedStation() {
+        guard let id = model.openStationId else { return }
+        model.openStationId = nil
+        path = [id]
     }
 
     // MARK: Map

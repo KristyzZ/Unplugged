@@ -8,6 +8,8 @@ import Foundation
 
 enum ChargingAction: String {
     case moved, stop
+    /// Give up a spot held for you (from the notification).
+    case releaseHold
 }
 
 /// Hands Live Activity button presses to the app. When the app's model is

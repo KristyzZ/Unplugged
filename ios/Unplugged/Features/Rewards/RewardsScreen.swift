@@ -124,6 +124,7 @@ struct RewardsScreen: View {
         case .offPeak: "moon.fill"
         case .reportConfirmed: "checkmark.shield.fill"
         case .confirmReport: "hand.thumbsup.fill"
+        case .handedOver: "arrow.left.arrow.right"
         case .redeem: "gift.fill"
         }
     }

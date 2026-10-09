@@ -127,7 +127,8 @@ final class LiveActivityManager {
             totalEur: cents(total),
             idleRateEurPerMin: IdleFee.currentRate(minutes: snap.idleMinutes),
             idleFeeEur: cents(snap.idleFee),
-            points: points
+            points: points,
+            handedOver: s.handedOver
         )
     }
 }

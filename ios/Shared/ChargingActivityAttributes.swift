@@ -30,6 +30,9 @@ struct ChargingActivityAttributes: ActivityAttributes {
         var idleFeeEur: Double
         /// Points earned (ended) or the most you can still earn (grace).
         var points: Int
+        /// Ended with the spot handed to the next driver. Optional so activities
+        /// started by an older build still decode.
+        var handedOver: Bool? = nil
     }
 
     /// Which session this activity belongs to (its start time), so a new

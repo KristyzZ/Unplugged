@@ -420,6 +420,15 @@ private struct FinishedMoment: View {
                 .padding(.top, 18)
                 .padding(.horizontal, 32)
 
+            if session.handedOver == true {
+                handOffLine
+                    .padding(.top, 14)
+                    .padding(.horizontal, 32)
+                    .opacity(shownPoints > 0 || points == 0 ? 1 : 0)
+                    .offset(y: shownPoints > 0 || points == 0 ? 0 : 8)
+                    .animation(Motion.pick(.spring(duration: 0.5).delay(0.25)), value: shownPoints)
+            }
+
             Spacer(minLength: 24)
 
             Button("Done") { model.finishSession() }
@@ -437,6 +446,24 @@ private struct FinishedMoment: View {
             guard await pause(0.5) else { return }
             withMotion(.spring(duration: 0.6, bounce: 0.45)) { shownPoints = points }
         }
+    }
+
+    /// Someone was waiting: the spot went straight to them.
+    private var handOffLine: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "arrow.left.arrow.right")
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(Theme.brand)
+                .frame(width: 30, height: 30)
+                .background(Theme.brand.opacity(0.16), in: Circle())
+            Text("Next driver notified. Your spot is held for them for \(Int(SpotHold.minutes)) min.")
+                .font(.footnote)
+                .foregroundStyle(Theme.text)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.card.opacity(0.8), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     @ViewBuilder

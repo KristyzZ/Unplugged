@@ -14,7 +14,11 @@ struct PointsEntry: Codable, Identifiable, Hashable {
 struct QueueEntry: Codable, Equatable {
     let stationId: String
     let joinedAt: Date
+    /// Your place in line; 1 = next.
     var position: Int
+    /// Simulated-clock time the next car is expected to leave. Optional so
+    /// older saved queues still decode.
+    var nextEventAt: Date? = nil
 }
 
 /// A full-screen moment shown over the app when a session changes state.
@@ -54,6 +58,8 @@ final class AppModel {
     private(set) var history: [PointsEntry] = AppModel.demoHistory
     private(set) var session: ChargingSession?
     private(set) var queue: QueueEntry?
+    /// Chargers held for a queued driver (you, or whoever is after you).
+    private(set) var holds: [SpotHold] = []
     private(set) var reports: [AbuseReport] = AppModel.demoReports
     private(set) var sessionHistory: [ChargingSession] = AppModel.demoSessionHistory
     private(set) var defaultPaymentId = "visa"
@@ -73,6 +79,8 @@ final class AppModel {
     var banners: [Banner] = []
     /// Full-screen animation currently shown, if any.
     private(set) var moment: ChargingMoment?
+    /// Station page to open on the Explore tab (from the held-spot tile).
+    var openStationId: String?
 
     @ObservationIgnored private var realAnchor = Date()
     @ObservationIgnored private var simAnchor = Date()
@@ -83,10 +91,12 @@ final class AppModel {
 
     var vehicle: Vehicle { DemoData.vehicle(vehicleId) }
     var hasActiveSession: Bool { session != nil && session?.endedAt == nil }
+    /// A spot held for you right now.
+    var myHold: SpotHold? { holds.first { $0.forMe } }
 
     init() {
         load()
-        stations = DemoData.stations(at: .now, tick: tick)
+        refreshStations()
         startLoops()
         rescheduleNotifications()
         // Buttons on the Lock Screen / Dynamic Island run in this process.
@@ -105,6 +115,7 @@ final class AppModel {
         switch action {
         case .moved: leaveSpot()
         case .stop: stopCharging()
+        case .releaseHold: releaseHold()
         }
     }
 
@@ -163,7 +174,7 @@ final class AppModel {
         L10n.set(value)
         lang = value
         NotificationManager.shared.registerCategories()
-        stations = DemoData.stations(at: .now, tick: tick)
+        refreshStations()
         banners.removeAll()
         rescheduleNotifications()
     }
@@ -197,7 +208,7 @@ final class AppModel {
                 try? await Task.sleep(for: .seconds(20))
                 guard let self else { return }
                 self.tick += 1
-                self.stations = DemoData.stations(at: .now, tick: self.tick)
+                self.refreshStations()
             }
         })
         // Session events (charging finished, grace over).
@@ -205,6 +216,7 @@ final class AppModel {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(500))
                 self?.checkSession()
+                self?.checkQueueAndHolds()
             }
         })
     }
@@ -273,8 +285,13 @@ final class AppModel {
             minutesToTarget: Double(max(1, estimate.minutes)),
             graceMinutes: IdleFee.graceMinutes(demand: station.demandLevel(hour: hour)),
             pricePerKwh: station.pricePerKwh,
-            batteryKwh: vehicle.batteryKwh
+            batteryKwh: vehicle.batteryKwh,
+            connectorId: connector.id
         )
+        if myHold?.stationId == station.id {
+            holds.removeAll { $0.forMe }
+            refreshStations()
+        }
         queue = nil
         graceAnnouncedFor = nil
         tileHiddenFor = nil
@@ -303,11 +320,19 @@ final class AppModel {
         s.endedAt = now
         s.idleFeeEur = IdleFee.fee(minutes: idle)
         let reason = Points.forMove(minutesAfterDone: minutesAfter, graceMinutes: s.graceMinutes)
-        s.pointsEarned = reason?.points ?? 0
+        let handOver = handOverSpot(s, at: now)
+        // The handover bonus is for moving on time; an overstay still hands the
+        // spot on, but earns nothing.
+        let handOverBonus = handOver && reason != nil
+        s.handedOver = handOver
+        s.pointsEarned = (reason?.points ?? 0) + (handOverBonus ? PointsReason.handedOver.points : 0)
         session = s
         soc = SessionSnapshot(s, now: now).soc.rounded()
         if let reason {
             addPoints(reason, note: s.stationName)
+        }
+        if handOverBonus {
+            addPoints(.handedOver, note: s.stationName)
         }
         // The receipt shows the points, so no banner here.
         moment = .finished
@@ -372,6 +397,7 @@ final class AppModel {
 
     private func rescheduleNotifications() {
         syncLiveActivity()
+        rescheduleQueueNotifications()
         let n = NotificationManager.shared
         n.cancel([NotificationManager.chargeDoneId, NotificationManager.graceOverId])
         guard let s = session, s.endedAt == nil else { return }
@@ -398,37 +424,175 @@ final class AppModel {
         }
     }
 
-    // MARK: Queue
+    // MARK: Queue and held spots
+
+    /// Station snapshot with the held chargers marked.
+    private func refreshStations() {
+        var fresh = DemoData.stations(at: .now, tick: tick)
+        for hold in holds {
+            guard let si = fresh.firstIndex(where: { $0.id == hold.stationId }),
+                  let ci = fresh[si].connectors.firstIndex(where: { $0.id == hold.connectorId }) else { continue }
+            fresh[si].connectors[ci].status = .reserved
+            fresh[si].connectors[ci].idleMinutes = nil
+            fresh[si].connectors[ci].etaMinutes = nil
+        }
+        stations = fresh
+    }
 
     func joinQueue(_ station: Station) {
-        queue = QueueEntry(stationId: station.id, joinedAt: .now, position: 2)
+        let hour = Calendar.current.component(.hour, from: .now)
+        // Busier station, more people ahead (1–3). The first car is due when the
+        // soonest charging session there is expected to end.
+        let position = 1 + min(2, Int(station.demandLevel(hour: hour) * 3))
+        let soonest = Double(station.connectors.compactMap(\.etaMinutes).min() ?? 8)
+        queue = QueueEntry(
+            stationId: station.id, joinedAt: .now, position: position,
+            nextEventAt: simNow().addingTimeInterval(min(15, max(3, soonest)) * 60)
+        )
         save()
-        showBanner(tr("You joined the queue"), tr("\(station.name): we'll notify you when a spot frees up."))
+        rescheduleQueueNotifications()
+        showBanner(tr("You joined the queue"), tr("\(station.name): we'll hold the next free spot for you."))
     }
 
     func leaveQueue() {
         queue = nil
         save()
+        rescheduleQueueNotifications()
+    }
+
+    /// Give up the spot held for you; it goes to the next driver.
+    func releaseHold() {
+        guard myHold != nil else { return }
+        holds.removeAll { $0.forMe }
+        refreshStations()
+        save()
+        rescheduleQueueNotifications()
+        showBanner(tr("Spot released"), tr("It goes to the next driver in line."))
+    }
+
+    func openStation(_ id: String) {
+        tab = .explore
+        openStationId = id
+    }
+
+    /// The car left: if someone is waiting here, keep this charger for them.
+    private func handOverSpot(_ s: ChargingSession, at now: Date) -> Bool {
+        guard let station = stations.first(where: { $0.id == s.stationId }) else { return false }
+        let hour = Calendar.current.component(.hour, from: .now)
+        let someoneWaiting = station.freeCount == 0 || station.demandLevel(hour: hour) >= 0.5
+        guard someoneWaiting else { return false }
+        let connector = station.connectors.first { $0.id == s.connectorId } ?? station.connectors[0]
+        holds.removeAll { $0.id == "\(station.id)|\(connector.id)" }
+        holds.append(SpotHold(
+            stationId: station.id, stationName: station.name, connectorId: connector.id,
+            connectorLabel: "\(connector.type.label) · \(Int(connector.powerKw)) kW",
+            startedAt: now, until: now.addingTimeInterval(SpotHold.minutes * 60), forMe: false
+        ))
+        refreshStations()
+        return true
+    }
+
+    /// Moves the queue along and lets holds run out. Runs with the session loop.
+    private func checkQueueAndHolds() {
+        let now = simNow()
+
+        let expired = holds.filter { $0.until <= now }
+        if !expired.isEmpty {
+            holds.removeAll { $0.until <= now }
+            refreshStations()
+            save()
+            if expired.contains(where: \.forMe) {
+                rescheduleQueueNotifications()
+                showBanner(tr("Your held spot was passed on"), tr("The \(Int(SpotHold.minutes)) minutes ran out, so it went to the next driver."))
+            }
+        }
+
+        guard var q = queue, myHold == nil, let next = q.nextEventAt, now >= next else { return }
+        guard let station = stations.first(where: { $0.id == q.stationId }) else {
+            queue = nil
+            return
+        }
+        if q.position > 1 {
+            // A car left, but someone ahead of you gets that spot.
+            q.position -= 1
+            q.nextEventAt = next.addingTimeInterval(Double(3 + 2 * q.position) * 60)
+            queue = q
+            save()
+            rescheduleQueueNotifications()
+            showBanner(tr("You moved up"), q.position == 1 ? tr("You're next at \(station.name).") : tr("\(q.position) in line at \(station.name)."))
+            return
+        }
+
+        // Your turn: the charger that just freed up is held for you.
+        let vehicle = self.vehicle
+        let usable = station.connectors.filter { Charging.isCompatible(vehicle, $0) && $0.status != .offline }
+        let connector = usable.first { [.charging, .idle, .blocked].contains($0.status) } ?? usable.first ?? station.connectors[0]
+        holds.removeAll { $0.connectorId == connector.id }
+        holds.append(SpotHold(
+            stationId: station.id, stationName: station.name, connectorId: connector.id,
+            connectorLabel: "\(connector.type.label) · \(Int(connector.powerKw)) kW",
+            startedAt: next, until: next.addingTimeInterval(SpotHold.minutes * 60), forMe: true
+        ))
+        queue = nil
+        refreshStations()
+        save()
+        rescheduleQueueNotifications()
+        showBanner(tr("A spot is held for you"), tr("\(station.name): it's yours for \(Int(SpotHold.minutes)) min."))
+    }
+
+    /// "Spot held for you" when your turn comes, and a reminder a minute
+    /// before a held spot is passed on. Both work with the app closed.
+    private func rescheduleQueueNotifications() {
+        let n = NotificationManager.shared
+        n.cancel([NotificationManager.holdReadyId, NotificationManager.holdEndingId])
+        let now = simNow()
+        if let q = queue, q.position == 1, let next = q.nextEventAt, next > now,
+           let station = stations.first(where: { $0.id == q.stationId }) {
+            n.schedule(
+                id: NotificationManager.holdReadyId,
+                title: tr("A spot is held for you"),
+                body: tr("\(station.name): it's yours for \(Int(SpotHold.minutes)) min."),
+                after: next.timeIntervalSince(now) / speed,
+                category: NotificationManager.holdCategory
+            )
+        }
+        if let hold = myHold, hold.until.timeIntervalSince(now) > 90 {
+            n.schedule(
+                id: NotificationManager.holdEndingId,
+                title: tr("1 min left on your spot"),
+                body: tr("\(hold.stationName): start charging or it goes to the next driver."),
+                after: (hold.until.timeIntervalSince(now) - 60) / speed,
+                category: NotificationManager.holdCategory
+            )
+        }
     }
 
     // MARK: Reports
 
-    func submitReport(station: Station, kind: ReportKind, connectorId: String?, plate: String, description: String, hasPhoto: Bool) {
-        // Station telemetry backs the report: a bay occupied without a session
-        // (wrong use), or a connector the station already shows as out of service.
+    func submitReport(station: Station, kind: ReportKind, connectorId: String?, plate: String, description: String,
+                      hasPhoto: Bool, plateFromPhoto: Bool = false) {
+        // The charger's own data backs the report, judged from its live state now:
+        // wrong use → is that spot occupied without a session? (all spots when
+        // the driver isn't sure); charger problem → does it show as out of service?
+        let evidence: StationEvidence?
         let telemetry: Bool
         switch kind {
         case .wrongUsage:
-            telemetry = station.connectors.contains { $0.status == .blocked }
+            let spot = station.connectors.first { $0.id == connectorId }
+            let found = spot.map { StationEvidence($0.status) } ?? StationEvidence(station: station)
+            evidence = found
+            telemetry = found == .occupiedNoSession
         case .chargerProblem:
             let scope = station.connectors.filter { connectorId == nil || $0.id == connectorId }
+            evidence = nil
             telemetry = scope.contains { $0.status == .offline }
         case .other:
+            evidence = nil
             telemetry = false
         }
         let report = AbuseReport(
             stationId: station.id,
-            plate: kind == .wrongUsage ? plate.uppercased() : "",
+            plate: kind == .wrongUsage ? Reports.formatPlate(plate) : "",
             description: description,
             hasPhoto: hasPhoto,
             telemetryMatches: telemetry,
@@ -436,7 +600,9 @@ final class AppModel {
             createdAt: .now,
             byMe: true,
             kind: kind,
-            connectorId: kind == .chargerProblem ? connectorId : nil
+            connectorId: kind == .other ? nil : connectorId,
+            plateFromPhoto: kind == .wrongUsage ? plateFromPhoto : nil,
+            evidence: evidence
         )
         reports.insert(report, at: 0)
         save()
@@ -444,7 +610,10 @@ final class AppModel {
             showBanner(tr("Report sent"), tr("Thanks — we'll pass it on to the operator."))
         } else if report.isConfirmed {
             addPoints(.reportConfirmed, note: station.name)
-            showBanner(tr("Report confirmed"), tr("Station data confirmed the violation. +\(PointsReason.reportConfirmed.points) pts"))
+            let why = report.stationEvidence == .occupiedNoSession
+                ? tr("The charger confirms the spot is blocked.")
+                : tr("Photo, plate and charger data agree.")
+            showBanner(tr("Report confirmed"), why + " " + tr("+\(PointsReason.reportConfirmed.points) pts"))
         } else {
             showBanner(tr("Report sent"), tr("Waiting for more confirmations."))
         }
@@ -491,6 +660,8 @@ final class AppModel {
         tileHiddenFor = nil
         moment = nil
         queue = nil
+        holds = []
+        refreshStations()
         reports = AppModel.demoReports
         sessionHistory = AppModel.demoSessionHistory
         defaultPaymentId = "visa"
@@ -520,6 +691,7 @@ final class AppModel {
         /// Simulated clock offset (sim − real) so a sped-up session survives relaunch.
         var simOffset: TimeInterval
         var lockScreen: Bool?
+        var holds: [SpotHold]?
     }
 
     private func save() {
@@ -528,7 +700,8 @@ final class AppModel {
             history: history, session: session, queue: queue, reports: reports,
             sessionHistory: sessionHistory, defaultPaymentId: defaultPaymentId, activePlanIds: Array(activePlanIds),
             simOffset: simNow().timeIntervalSinceNow,
-            lockScreen: lockScreenEnabled
+            lockScreen: lockScreenEnabled,
+            holds: holds
         )
         if let data = try? JSONEncoder().encode(state) {
             UserDefaults.standard.set(data, forKey: storageKey)
@@ -550,6 +723,7 @@ final class AppModel {
         defaultPaymentId = s.defaultPaymentId ?? "visa"
         activePlanIds = Set(s.activePlanIds ?? ["ignitis"])
         lockScreenEnabled = s.lockScreen ?? true
+        holds = s.holds ?? []
         realAnchor = Date()
         simAnchor = Date().addingTimeInterval(s.simOffset)
     }
