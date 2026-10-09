@@ -105,6 +105,11 @@ struct ProfileScreen: View {
             }
             .buttonStyle(.plain)
             RowDivider()
+            Button { model.showOnboardingAgain() } label: {
+                ListRow(systemImage: "sparkles", title: "Show the intro again", color: Theme.brand) { EmptyView() }
+            }
+            .buttonStyle(.plain)
+            RowDivider()
             Button { confirmReset = true } label: {
                 ListRow(systemImage: "arrow.counterclockwise", title: "Reset demo data", color: Theme.bad) { EmptyView() }
             }

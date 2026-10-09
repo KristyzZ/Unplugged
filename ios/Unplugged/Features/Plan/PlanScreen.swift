@@ -66,7 +66,8 @@ struct PlanScreen: View {
                 origin: origin.latLng,
                 destination: destination.latLng,
                 stations: model.stations,
-                departure: departure
+                departure: departure,
+                maxChargeSoc: model.chargeLimit
             ))
         }
     }

@@ -68,6 +68,8 @@ struct CarScreen: View {
                     .foregroundStyle(Theme.text)
             }
             Slider(value: socBinding, in: 1...100, step: 1).tint(Theme.brand)
+            ChargeLimitPicker()
+                .padding(.top, 14)
             StatRow {
                 StatView(label: "Range now", value: Fmt.km(v.rangeKm(soc: model.soc)))
                 StatView(label: "At 80 %", value: Fmt.km(v.rangeKm(soc: 80)))
@@ -346,5 +348,25 @@ private struct VehicleRow: View {
         if vehicle.dcKw > 0 { parts.append(tr("\(Fmt.kw(vehicle.dcKw)) DC")) }
         parts.append(tr("≈ \(Int(vehicle.rangeKm(soc: 100).rounded())) km"))
         return parts.joined(separator: " · ")
+    }
+}
+
+/// "Usually charge to": the default target for new charges and trip stops.
+struct ChargeLimitPicker: View {
+    @Environment(AppModel.self) private var model
+    private let options: [Double] = [70, 80, 90, 100]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Usually charge to").font(.subheadline).foregroundStyle(Theme.muted)
+            HStack(spacing: 8) {
+                ForEach(options, id: \.self) { value in
+                    Chip(title: "\(Int(value)) %", active: model.chargeLimit == value) { model.setChargeLimit(value) }
+                }
+            }
+            Text("80 % is kinder to the battery and faster: the last 20 % charges slowly.")
+                .font(.caption)
+                .foregroundStyle(Theme.muted)
+        }
     }
 }

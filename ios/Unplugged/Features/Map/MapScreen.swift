@@ -66,7 +66,8 @@ struct MapScreen: View {
                 StationDetailView(stationId: id)
             }
             .onAppear {
-                location.request()
+                // Before the intro has explained why, don't ask for location.
+                if model.onboarded { location.request() }
                 openRequestedStation()
             }
             // The held-spot tile asks for a station page.

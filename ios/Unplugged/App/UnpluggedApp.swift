@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct UnpluggedApp: App {
-    @State private var model = AppModel()
+    @State private var model = AppModel.shared
     @State private var location = LocationManager()
 
     init() {

@@ -6,6 +6,8 @@ import Observation
 final class LocationManager: NSObject, CLLocationManagerDelegate {
     private(set) var location: LatLng?
     private(set) var denied = false
+    /// Location allowed (for the intro's "Allowed" state).
+    private(set) var allowed = false
 
     @ObservationIgnored private let manager = CLLocationManager()
     /// Last status the delegate reported. Reading `manager.authorizationStatus`
@@ -33,6 +35,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         status = manager.authorizationStatus
+        allowed = status == .authorizedWhenInUse || status == .authorizedAlways
         switch status {
         case .authorizedWhenInUse, .authorizedAlways:
             denied = false

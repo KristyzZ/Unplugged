@@ -2,6 +2,7 @@ import Foundation
 import Observation
 import UIKit
 import SwiftUI
+import WidgetKit
 
 struct PointsEntry: Codable, Identifiable, Hashable {
     var id = UUID()
@@ -66,6 +67,10 @@ final class AppModel {
     private(set) var activePlanIds: Set<String> = ["ignitis"]
     /// Show the charging Live Activity on the Lock Screen / Dynamic Island.
     private(set) var lockScreenEnabled = true
+    /// The first-launch intro has been completed.
+    private(set) var onboarded = false
+    /// Usual charge limit (%): the default target when starting a charge and planning trips.
+    private(set) var chargeLimit: Double = 80
 
     // MARK: Live
     private(set) var lang: Lang = L10n.current
@@ -81,6 +86,8 @@ final class AppModel {
     private(set) var moment: ChargingMoment?
     /// Station page to open on the Explore tab (from the held-spot tile).
     var openStationId: String?
+    /// Where "nearby" is measured from: your location, else Vilnius centre.
+    private(set) var origin: LatLng = DemoData.vilniusCenter
 
     @ObservationIgnored private var realAnchor = Date()
     @ObservationIgnored private var simAnchor = Date()
@@ -88,6 +95,12 @@ final class AppModel {
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
     @ObservationIgnored private let storageKey = "unplugged.state.v1"
     @ObservationIgnored private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+    @ObservationIgnored private var lastWidgetSnapshot: NearbySnapshot?
+    @ObservationIgnored private var lastWidgetReload = Date.distantPast
+
+    /// The one model, shared by the phone UI and CarPlay (which can start the
+    /// app without any phone window).
+    static let shared = AppModel()
 
     var vehicle: Vehicle { DemoData.vehicle(vehicleId) }
     var hasActiveSession: Bool { session != nil && session?.endedAt == nil }
@@ -99,6 +112,8 @@ final class AppModel {
         refreshStations()
         startLoops()
         rescheduleNotifications()
+        // Ask for notifications at launch only once the intro has explained why.
+        if onboarded { NotificationManager.shared.requestPermission() }
         // Buttons on the Lock Screen / Dynamic Island run in this process.
         ChargingActionInbox.handler = { [weak self] action in self?.handle(action) }
         takePendingAction()
@@ -173,6 +188,7 @@ final class AppModel {
         guard value != lang else { return }
         L10n.set(value)
         lang = value
+        lastWidgetSnapshot = nil
         NotificationManager.shared.registerCategories()
         refreshStations()
         banners.removeAll()
@@ -244,6 +260,7 @@ final class AppModel {
     func setVehicle(_ id: String) {
         vehicleId = id
         save()
+        publishNearby()
     }
 
     func setSoc(_ value: Double) {
@@ -437,6 +454,74 @@ final class AppModel {
             fresh[si].connectors[ci].etaMinutes = nil
         }
         stations = fresh
+        publishNearby()
+    }
+
+    // MARK: Nearby (widget)
+
+    func setOrigin(_ value: LatLng) {
+        guard Geo.haversineKm(value, origin) > 0.05 else { return }
+        origin = value
+        publishNearby()
+    }
+
+    /// Nearest stations with a free fast connector for your car, for the
+    /// widget and CarPlay. Falls back to the nearest fast ones when all are full.
+    func nearbyFastChargers(limit: Int = 3) -> (stations: [(Station, Double)], anyFree: Bool) {
+        let vehicle = self.vehicle
+        let fast = stations.compactMap { s -> (Station, Double)? in
+            guard s.connectors.contains(where: { $0.powerKw >= 50 && Charging.isCompatible(vehicle, $0) && $0.status != .offline }) else { return nil }
+            return (s, Geo.haversineKm(origin, s.latLng))
+        }
+        .sorted { $0.1 < $1.1 }
+        let free = fast.filter { s, _ in s.connectors.contains { $0.powerKw >= 50 && Charging.isCompatible(vehicle, $0) && $0.status == .available } }
+        return free.isEmpty ? (Array(fast.prefix(limit)), false) : (Array(free.prefix(limit)), true)
+    }
+
+    /// Writes what the widget shows and asks WidgetKit to redraw, but only when
+    /// it changed in a way you'd notice (the reload budget is limited).
+    private func publishNearby() {
+        let (nearby, anyFree) = nearbyFastChargers()
+        let snapshot = NearbySnapshot(
+            generatedAt: .now,
+            chargers: nearby.map { s, km in
+                NearbySnapshot.Charger(
+                    id: s.id, name: s.name, address: s.address,
+                    freeCount: s.freeCount, workingCount: s.workingCount,
+                    maxKw: s.maxPower, pricePerKwh: s.pricePerKwh, distanceKm: km
+                )
+            },
+            anyFree: anyFree,
+            carName: vehicle.name,
+            lang: lang.rawValue
+        )
+        snapshot.save()
+        let changed = lastWidgetSnapshot.map {
+            $0.chargers.map(\.id) != snapshot.chargers.map(\.id)
+                || $0.chargers.map(\.freeCount) != snapshot.chargers.map(\.freeCount)
+                || $0.lang != snapshot.lang || $0.carName != snapshot.carName
+        } ?? true
+        lastWidgetSnapshot = snapshot
+        if changed || Date().timeIntervalSince(lastWidgetReload) > 15 * 60 {
+            lastWidgetReload = Date()
+            WidgetCenter.shared.reloadTimelines(ofKind: NearbySnapshot.widgetKind)
+        }
+    }
+
+    // MARK: Onboarding
+
+    func completeOnboarding() {
+        onboarded = true
+        save()
+    }
+
+    func showOnboardingAgain() {
+        onboarded = false
+    }
+
+    func setChargeLimit(_ value: Double) {
+        chargeLimit = min(100, max(50, value.rounded()))
+        save()
     }
 
     func joinQueue(_ station: Station) {
@@ -692,6 +777,8 @@ final class AppModel {
         var simOffset: TimeInterval
         var lockScreen: Bool?
         var holds: [SpotHold]?
+        var onboarded: Bool?
+        var chargeLimit: Double?
     }
 
     private func save() {
@@ -701,7 +788,9 @@ final class AppModel {
             sessionHistory: sessionHistory, defaultPaymentId: defaultPaymentId, activePlanIds: Array(activePlanIds),
             simOffset: simNow().timeIntervalSinceNow,
             lockScreen: lockScreenEnabled,
-            holds: holds
+            holds: holds,
+            onboarded: onboarded,
+            chargeLimit: chargeLimit
         )
         if let data = try? JSONEncoder().encode(state) {
             UserDefaults.standard.set(data, forKey: storageKey)
@@ -724,6 +813,8 @@ final class AppModel {
         activePlanIds = Set(s.activePlanIds ?? ["ignitis"])
         lockScreenEnabled = s.lockScreen ?? true
         holds = s.holds ?? []
+        onboarded = s.onboarded ?? false
+        chargeLimit = s.chargeLimit ?? 80
         realAnchor = Date()
         simAnchor = Date().addingTimeInterval(s.simOffset)
     }

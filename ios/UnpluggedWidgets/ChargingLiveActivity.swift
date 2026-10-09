@@ -7,6 +7,7 @@ import WidgetKit
 struct UnpluggedWidgetsBundle: WidgetBundle {
     var body: some Widget {
         ChargingLiveActivity()
+        NearbyChargerWidget()
     }
 }
 
@@ -104,6 +105,7 @@ struct ChargingLiveActivity: Widget {
             LockScreenView(live: Live(context))
                 .activityBackgroundTint(WTheme.background.opacity(0.92))
                 .activitySystemActionForegroundColor(WTheme.text)
+                .widgetURL(NearbySnapshot.chargingURL)
         } dynamicIsland: { context in
             let live = Live(context)
             return DynamicIsland {
@@ -140,6 +142,7 @@ struct ChargingLiveActivity: Widget {
                 CompactRing(live: live)
             }
             .keylineTint(live.color)
+            .widgetURL(NearbySnapshot.chargingURL)
         }
     }
 }

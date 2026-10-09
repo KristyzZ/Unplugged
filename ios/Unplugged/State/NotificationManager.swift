@@ -27,8 +27,13 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     func setUp() {
         center.delegate = self
         registerCategories()
+    }
+
+    /// Shows the system prompt the first time (the intro explains it first);
+    /// afterwards just reports the answer.
+    func requestPermission(_ done: (@Sendable (Bool) -> Void)? = nil) {
         queue.async { [center] in
-            center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+            center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in done?(granted) }
         }
     }
 

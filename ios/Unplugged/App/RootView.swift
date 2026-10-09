@@ -24,6 +24,7 @@ enum AppTab: Hashable, CaseIterable {
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @Environment(LocationManager.self) private var location
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -47,6 +48,24 @@ struct RootView: View {
         .onChange(of: model.session?.stationId) { _, newValue in
             // Jump to the session tab when charging starts.
             if newValue != nil { model.tab = .charging }
+        }
+        // First launch: car, charge limit, permissions.
+        .fullScreenCover(isPresented: Binding(get: { !model.onboarded }, set: { _ in })) {
+            OnboardingView()
+        }
+        // unplugged://station/<id> from the widget, unplugged://charging from the Lock Screen.
+        .onOpenURL { url in
+            switch url.host() {
+            case "station":
+                if let id = url.pathComponents.last, id != "/" { model.openStation(id) }
+            case "charging":
+                model.tab = .charging
+            default:
+                break
+            }
+        }
+        .onChange(of: location.location) { _, here in
+            if let here { model.setOrigin(here) }
         }
         .onChange(of: scenePhase) { _, phase in
             switch phase {

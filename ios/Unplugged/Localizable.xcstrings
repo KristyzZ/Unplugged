@@ -4210,6 +4210,396 @@
           }
         }
       }
+    },
+    "Navigate": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vesti"
+          }
+        }
+      }
+    },
+    "All taken": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visos užimtos"
+          }
+        }
+      }
+    },
+    "Time left": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liko laiko"
+          }
+        }
+      }
+    },
+    "Free time left": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liko nemokamo laiko"
+          }
+        }
+      }
+    },
+    "Spot held for you": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta laikoma jums"
+          }
+        }
+      }
+    },
+    "In the queue": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eilėje"
+          }
+        }
+      }
+    },
+    "Place in line": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta eilėje"
+          }
+        }
+      }
+    },
+    "Pick a charger in Nearby.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasirinkite stotelę skiltyje „Šalia“."
+          }
+        }
+      }
+    },
+    "Start using Unplugged": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradėti naudotis Unplugged"
+          }
+        }
+      }
+    },
+    "Continue": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tęsti"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atgal"
+          }
+        }
+      }
+    },
+    "Step %lld of %lld": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld žingsnis iš %2$lld"
+          }
+        }
+      }
+    },
+    "Skip": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Praleisti"
+          }
+        }
+      }
+    },
+    "Charge without the hassle": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kraukite be rūpesčių"
+          }
+        }
+      }
+    },
+    "Every charger in Lithuania in one app, kept free for the people who need them.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visos Lietuvos įkrovimo stotelės vienoje programėlėje – ir laisvos tiems, kam jų reikia."
+          }
+        }
+      }
+    },
+    "Every charger, one map": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visos stotelės viename žemėlapyje"
+          }
+        }
+      }
+    },
+    "Live availability, power and prices from every operator.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Realaus laiko užimtumas, galia ir kainos iš visų operatorių."
+          }
+        }
+      }
+    },
+    "Pay in one place": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mokėkite vienoje vietoje"
+          }
+        }
+      }
+    },
+    "Start and pay without switching between operator apps.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradėkite ir apmokėkite nešokinėdami tarp operatorių programėlių."
+          }
+        }
+      }
+    },
+    "Move on time, earn points": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patraukite laiku – gaukite taškų"
+          }
+        }
+      }
+    },
+    "Free the spot when you're done and get discounts for it.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atlaisvinkite vietą baigę krauti ir gaukite nuolaidų."
+          }
+        }
+      }
+    },
+    "What do you drive?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuo važinėjate?"
+          }
+        }
+      }
+    },
+    "We'll show only chargers that fit, and plan stops around its real charging speed.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodysime tik tinkančias stoteles ir planuosime sustojimus pagal tikrą įkrovimo greitį."
+          }
+        }
+      }
+    },
+    "Fast charging": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greitasis įkrovimas"
+          }
+        }
+      }
+    },
+    "Range": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rida"
+          }
+        }
+      }
+    },
+    "Your battery": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų baterija"
+          }
+        }
+      }
+    },
+    "Where you are now and where you usually stop. You can change both anytime.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiek turite dabar ir iki kiek paprastai kraunate. Abu galite bet kada pakeisti."
+          }
+        }
+      }
+    },
+    "Two quick permissions": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du greiti leidimai"
+          }
+        }
+      }
+    },
+    "Both are optional. Here's exactly what they're for.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abu nebūtini. Štai kam jie reikalingi."
+          }
+        }
+      }
+    },
+    "Chargers near you": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelės šalia jūsų"
+          }
+        }
+      }
+    },
+    "Sorts the map and the widget by distance. Your location stays on your phone.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Žemėlapis ir valdiklis rikiuojami pagal atstumą. Jūsų vieta lieka telefone."
+          }
+        }
+      }
+    },
+    "Know when to move": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Žinokite, kada patraukti"
+          }
+        }
+      }
+    },
+    "Charging done, free time running out, and a spot held for you in the queue.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimas baigtas, baigiasi nemokamas laikas, eilėje jums laikoma vieta."
+          }
+        }
+      }
+    },
+    "Allowed": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leista"
+          }
+        }
+      }
+    },
+    "Allow": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leisti"
+          }
+        }
+      }
+    },
+    "Usually charge to": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paprastai kraunu iki"
+          }
+        }
+      }
+    },
+    "80 % is kinder to the battery and faster: the last 20 % charges slowly.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "80 % tausoja bateriją ir kraunasi greičiau: paskutiniai 20 % kraunasi lėtai."
+          }
+        }
+      }
+    },
+    "Show the intro again": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti įvadą dar kartą"
+          }
+        }
+      }
+    },
+    "Usual occupancy by hour": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įprastas užimtumas pagal valandą"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

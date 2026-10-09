@@ -103,6 +103,7 @@ struct StationDetailView: View {
             .padding(16)
         }
         .onAppear {
+            target = model.chargeLimit
             // Arriving at a spot held for you: it's already picked.
             if let hold = model.myHold, hold.stationId == station.id, !busy {
                 pickedConnectorId = hold.connectorId
