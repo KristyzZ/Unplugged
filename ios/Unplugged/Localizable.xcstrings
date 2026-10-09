@@ -3160,6 +3160,196 @@
           }
         }
       }
+    },
+    "Charging started": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimas pradėtas"
+          }
+        }
+      }
+    },
+    "Connecting…": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jungiamasi…"
+          }
+        }
+      }
+    },
+    "Charging to %lld %% · full at %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kraunama iki %1$lld %% · bus pilna %2$@"
+          }
+        }
+      }
+    },
+    "Talking to the charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Susisiekiama su stotele"
+          }
+        }
+      }
+    },
+    "Got it": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supratau"
+          }
+        }
+      }
+    },
+    "Charged to %lld %%": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrauta iki %lld %%"
+          }
+        }
+      }
+    },
+    "The free time is over and the idle fee is running: %@ so far. Others are waiting for this spot.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemokamas laikas baigėsi ir skaičiuojamas prastovos mokestis: kol kas %@. Kiti laukia šios vietos."
+          }
+        }
+      }
+    },
+    "Move your car while it's free. Within 2 min: +%lld pts, within the free time: +%lld pts.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patraukite automobilį, kol nemokama. Per 2 min.: +%1$lld tšk., per nemokamą laiką: +%2$lld tšk."
+          }
+        }
+      }
+    },
+    "free time left": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "liko nemokamo laiko"
+          }
+        }
+      }
+    },
+    "Later": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vėliau"
+          }
+        }
+      }
+    },
+    "Spot freed. Thanks!": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta atlaisvinta. Ačiū!"
+          }
+        }
+      }
+    },
+    "No points this time. Move within the free minutes to earn them.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šį kartą taškų negavote. Patraukite automobilį per nemokamas minutes ir juos gausite."
+          }
+        }
+      }
+    },
+    "Charging to %lld %% · full at %@. We'll tell you when it's done.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kraunama iki %1$lld %% · bus pilna %2$@. Pranešime, kai baigsis."
+          }
+        }
+      }
+    },
+    "Range added": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pridėta ridos"
+          }
+        }
+      }
+    },
+    "Power": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Galia"
+          }
+        }
+      }
+    },
+    "So far": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kol kas"
+          }
+        }
+      }
+    },
+    "Frees the charging spot and ends the session.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atlaisvina įkrovimo vietą ir užbaigia sesiją."
+          }
+        }
+      }
+    },
+    "Stops charging at the current battery level.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sustabdo įkrovimą esamu baterijos lygiu."
+          }
+        }
+      }
+    },
+    "Almost done": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beveik baigta"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

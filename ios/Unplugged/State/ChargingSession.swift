@@ -59,3 +59,14 @@ struct SessionSnapshot {
         else { phase = .idle }
     }
 }
+
+extension ChargingSession {
+    /// Energy put in by the time the target is reached (kWh, incl. ~8 % losses).
+    var plannedKwh: Double { max(0, targetSoc - startSoc) / 100 * batteryKwh / 0.92 }
+
+    /// Average charging power over the session (kW).
+    var averageKw: Double { minutesToTarget > 0 ? plannedKwh / (minutesToTarget / 60) : 0 }
+
+    /// What charging to the target will cost (€).
+    var plannedCost: Double { plannedKwh * pricePerKwh }
+}

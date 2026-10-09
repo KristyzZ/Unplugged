@@ -24,6 +24,7 @@ enum AppTab: Hashable, CaseIterable {
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         @Bindable var model = model
@@ -41,9 +42,15 @@ struct RootView: View {
                 .ignoresSafeArea(.keyboard)
         }
         .overlay(alignment: .top) { BannerStack() }
+        // Plug-in, charging done and receipt animations, above everything.
+        .overlay { ChargingMomentLayer() }
         .onChange(of: model.session?.stationId) { _, newValue in
             // Jump to the session tab when charging starts.
             if newValue != nil { model.tab = .charging }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // "I moved my car" pressed on the Lock Screen before the app was running.
+            if phase == .active { model.takePendingAction() }
         }
     }
 

@@ -59,7 +59,7 @@ struct PlanScreen: View {
         departure = Date()
         plannedFrom = origin
         plannedTo = destination
-        withAnimation(.spring(duration: 0.4)) {
+        withMotion(.spring(duration: 0.4)) {
             plan = TripPlanner.plan(TripInput(
                 vehicle: model.vehicle,
                 startSoc: model.soc,
@@ -88,7 +88,7 @@ struct PlanScreen: View {
                     placeMenu(label: "To", selection: $destinationId)
                 }
                 Button {
-                    withAnimation { (originId, destinationId) = (destinationId, originId) }
+                    withMotion { (originId, destinationId) = (destinationId, originId) }
                 } label: {
                     Image(systemName: "arrow.up.arrow.down")
                         .font(.system(size: 15, weight: .semibold))
@@ -131,7 +131,7 @@ struct PlanScreen: View {
                 Text("Battery now").font(.subheadline).foregroundStyle(Theme.muted)
                 Spacer()
                 Text("\(Int(model.soc)) %")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .scaledFont(22, weight: .bold, design: .rounded, relativeTo: .title2)
                     .monospacedDigit()
                     .foregroundStyle(Theme.text)
             }
@@ -161,7 +161,7 @@ struct PlanScreen: View {
         // Summary first: how long, how far, what you arrive with.
         CardBox {
             Text(Fmt.minutes(Double(plan.driveMinutes + plan.chargeMinutes)))
-                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .scaledFont(34, weight: .bold, design: .rounded, relativeTo: .largeTitle)
                 .foregroundStyle(Theme.text)
             Text(summaryLine(plan))
                 .font(.subheadline)

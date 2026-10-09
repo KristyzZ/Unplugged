@@ -57,7 +57,8 @@ struct SessionScreen: View {
     // MARK: Charging
 
     private func activeCard(_ s: ChargingSession, _ snap: SessionSnapshot) -> some View {
-        let look = PhaseLook(s, snap)
+        let look = PhaseLook(s, snap, fullAt: Fmt.clock(model.realDate(s.scheduledDoneAt)))
+        let charging = snap.phase == .charging
         return CardBox {
             VStack(spacing: 14) {
                 VStack(spacing: 2) {
@@ -65,10 +66,16 @@ struct SessionScreen: View {
                     Text(s.connectorLabel).font(.caption).foregroundStyle(Theme.muted)
                 }
 
-                ProgressRing(progress: look.progress, color: look.color, lineWidth: 12) {
+                ChargeRing(
+                    progress: look.progress,
+                    limit: charging ? s.targetSoc / 100 : nil,
+                    color: look.color,
+                    lineWidth: 14,
+                    flowing: charging
+                ) {
                     VStack(spacing: 2) {
                         Text(look.value)
-                            .font(.system(size: 40, weight: .bold, design: .rounded))
+                            .scaledFont(40, weight: .bold, design: .rounded, relativeTo: .largeTitle)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                             .foregroundStyle(Theme.text)
@@ -77,7 +84,7 @@ struct SessionScreen: View {
                             .foregroundStyle(look.color)
                     }
                 }
-                .frame(width: 190, height: 190)
+                .frame(width: 200, height: 200)
                 .padding(.vertical, 4)
 
                 Text(look.explanation)
@@ -86,12 +93,20 @@ struct SessionScreen: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
-                HStack {
-                    StatView(label: "Energy", value: String(format: "%.1f kWh", snap.kwh))
-                    StatView(label: "Charging", value: Fmt.eur(snap.energyCost))
-                    // Only once it matters, so it doesn't read as a cost while charging.
-                    if snap.idleFee > 0 {
-                        StatView(label: "Idle fee", value: Fmt.eur(snap.idleFee))
+                StatRow {
+                    if charging {
+                        // What the driver feels: range gained, speed, cost so far.
+                        let added = model.vehicle.rangeKm(soc: snap.soc) - model.vehicle.rangeKm(soc: s.startSoc)
+                        StatView(label: "Range added", value: "+\(Fmt.km(max(0, added)))")
+                        StatView(label: "Power", value: "\(Int(s.averageKw.rounded())) kW")
+                        StatView(label: "So far", value: Fmt.eur(snap.energyCost))
+                    } else {
+                        StatView(label: "Energy", value: String(format: "%.1f kWh", snap.kwh))
+                        StatView(label: "Charging", value: Fmt.eur(snap.energyCost))
+                        // Only once it matters, so it doesn't read as a cost while charging.
+                        if snap.idleFee > 0 {
+                            StatView(label: "Idle fee", value: Fmt.eur(snap.idleFee))
+                        }
                     }
                 }
                 .padding(.top, 4)
@@ -182,12 +197,12 @@ private struct PhaseLook {
     let color: Color
     let progress: Double
 
-    init(_ s: ChargingSession, _ snap: SessionSnapshot) {
+    init(_ s: ChargingSession, _ snap: SessionSnapshot, fullAt: String) {
         switch snap.phase {
         case .charging:
             value = "\(Int(snap.soc.rounded())) %"
-            caption = tr("\(Fmt.minutes(snap.minutesLeft)) left")
-            explanation = tr("Charging to \(Int(s.targetSoc)) %. We'll tell you when it's done.")
+            caption = snap.minutesLeft < 1 ? tr("Almost done") : tr("\(Fmt.minutes(snap.minutesLeft)) left")
+            explanation = tr("Charging to \(Int(s.targetSoc)) % · full at \(fullAt). We'll tell you when it's done.")
             color = Theme.brand
             progress = snap.soc / 100
         case .grace:

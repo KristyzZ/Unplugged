@@ -36,7 +36,7 @@ struct RewardsScreen: View {
         return CardBox {
             HStack(alignment: .firstTextBaseline) {
                 Text("\(model.points)")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .scaledFont(48, weight: .bold, design: .rounded, relativeTo: .largeTitle)
                     .monospacedDigit()
                     .contentTransition(.numericText())
                     .foregroundStyle(Theme.text)

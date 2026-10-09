@@ -128,12 +128,12 @@ private struct CarScreen: View {
                         Text("Battery now").font(.subheadline).foregroundStyle(Theme.muted)
                         Spacer()
                         Text("\(Int(model.soc)) %")
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .scaledFont(22, weight: .bold, design: .rounded, relativeTo: .title2)
                             .monospacedDigit()
                             .foregroundStyle(Theme.text)
                     }
                     Slider(value: socBinding, in: 1...100, step: 1).tint(Theme.brand)
-                    HStack {
+                    StatRow {
                         StatView(label: "Range now", value: Fmt.km(vehicle.rangeKm(soc: model.soc)))
                         StatView(label: "At 80 %", value: Fmt.km(vehicle.rangeKm(soc: 80)))
                         StatView(label: "Full", value: Fmt.km(vehicle.rangeKm(soc: 100)))

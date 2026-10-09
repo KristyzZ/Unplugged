@@ -16,6 +16,24 @@ struct QueueEntry: Codable, Equatable {
     var position: Int
 }
 
+/// A full-screen moment shown over the app when a session changes state.
+enum ChargingMoment: Equatable, Identifiable {
+    /// Charging just started (plug-in animation).
+    case started
+    /// Charging reached the target, or was stopped early.
+    case completed(stopped: Bool)
+    /// The car left the spot: receipt and points.
+    case finished
+
+    var id: String {
+        switch self {
+        case .started: "started"
+        case .completed: "completed"
+        case .finished: "finished"
+        }
+    }
+}
+
 struct Banner: Identifiable, Equatable {
     let id = UUID()
     let title: String
@@ -52,6 +70,8 @@ final class AppModel {
     /// Demo time multiplier for the charging simulation (1 = real time).
     private(set) var speed: Double = 1
     var banners: [Banner] = []
+    /// Full-screen animation currently shown, if any.
+    private(set) var moment: ChargingMoment?
 
     @ObservationIgnored private var realAnchor = Date()
     @ObservationIgnored private var simAnchor = Date()
@@ -67,6 +87,29 @@ final class AppModel {
         stations = DemoData.stations(at: .now, tick: tick)
         startLoops()
         rescheduleNotifications()
+        // Buttons on the Lock Screen / Dynamic Island run in this process.
+        ChargingActionInbox.handler = { [weak self] action in self?.handle(action) }
+        takePendingAction()
+    }
+
+    // MARK: Lock Screen buttons
+
+    /// An action pressed on the Live Activity while the app wasn't running.
+    func takePendingAction() {
+        if let action = ChargingActionInbox.take() { handle(action) }
+    }
+
+    private func handle(_ action: ChargingAction) {
+        switch action {
+        case .moved: leaveSpot()
+        case .stop: stopCharging()
+        }
+    }
+
+    // MARK: Moments
+
+    func dismissMoment() {
+        moment = nil
     }
 
     // MARK: Language
@@ -84,6 +127,11 @@ final class AppModel {
 
     func simNow() -> Date {
         simAnchor.addingTimeInterval(Date().timeIntervalSince(realAnchor) * speed)
+    }
+
+    /// The wall-clock time a simulated-clock moment will happen (demo speed-up aware).
+    func realDate(_ sim: Date) -> Date {
+        Date().addingTimeInterval(sim.timeIntervalSince(simNow()) / max(speed, 1))
     }
 
     func setSpeed(_ value: Double) {
@@ -124,7 +172,7 @@ final class AppModel {
             session = s
             save()
             syncLiveActivity()
-            showBanner(tr("Charging complete"), tr("You have \(s.graceMinutes) min to move your car. After that an idle fee applies."))
+            moment = .completed(stopped: false)
         }
         if let done = s.doneAt, graceAnnouncedFor != done, now >= done.addingTimeInterval(Double(s.graceMinutes) * 60) {
             graceAnnouncedFor = done
@@ -184,6 +232,7 @@ final class AppModel {
         queue = nil
         graceAnnouncedFor = nil
         tileHiddenFor = nil
+        moment = .started
         rescheduleNotifications()
         save()
     }
@@ -194,7 +243,7 @@ final class AppModel {
         session = s
         rescheduleNotifications()
         save()
-        showBanner(tr("Charging stopped"), tr("You have \(s.graceMinutes) min to move your car."))
+        moment = .completed(stopped: true)
     }
 
     /// The driver has moved the car: settle the idle fee and award points.
@@ -213,8 +262,9 @@ final class AppModel {
         soc = SessionSnapshot(s, now: now).soc.rounded()
         if let reason {
             addPoints(reason, note: s.stationName)
-            showBanner(tr("+\(reason.points) pts"), reason.label)
         }
+        // The receipt shows the points, so no banner here.
+        moment = .finished
         NotificationManager.shared.cancel([NotificationManager.chargeDoneId, NotificationManager.graceOverId])
         save()
         syncLiveActivity()
@@ -227,6 +277,7 @@ final class AppModel {
         }
         session = nil
         tileHiddenFor = nil
+        moment = nil
         save()
         syncLiveActivity()
     }
@@ -390,6 +441,7 @@ final class AppModel {
         history = AppModel.demoHistory
         session = nil
         tileHiddenFor = nil
+        moment = nil
         queue = nil
         reports = AppModel.demoReports
         sessionHistory = AppModel.demoSessionHistory
