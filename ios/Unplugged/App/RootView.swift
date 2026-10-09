@@ -49,8 +49,11 @@ struct RootView: View {
             if newValue != nil { model.tab = .charging }
         }
         .onChange(of: scenePhase) { _, phase in
-            // "I moved my car" pressed on the Lock Screen before the app was running.
-            if phase == .active { model.takePendingAction() }
+            switch phase {
+            case .active: model.becameActive()
+            case .background: model.enteredBackground()
+            default: break
+            }
         }
     }
 

@@ -18,8 +18,9 @@ enum Charging {
         return min(carLimit, connector.powerKw)
     }
 
-    /// Minutes and kWh to charge from `fromSoc` to `toSoc` (percent), integrating
-    /// the taper curve in 1 % steps. AC charging is flat (no taper).
+    /// Minutes and kWh to charge from `fromSoc` to `toSoc` (percent), in 1 %
+    /// steps. DC follows the car's own charging curve, capped by the charger;
+    /// AC is flat.
     static func chargeTime(_ vehicle: Vehicle, _ connector: Connector, from fromSoc: Double, to toSoc: Double) -> (minutes: Int, kwh: Double) {
         guard toSoc > fromSoc else { return (0, 0) }
         let peak = effectivePeakKw(vehicle, connector)
@@ -27,7 +28,7 @@ enum Charging {
         var hours = 0.0
         var s = Int(fromSoc.rounded(.down))
         while s < Int(toSoc.rounded(.up)) {
-            let kw = connector.type.isDC ? peak * taper(Double(s)) : peak
+            let kw = connector.type.isDC ? min(connector.powerKw, vehicle.dcPower(atSoc: Double(s))) : peak
             hours += kwhPerPct / max(kw, 1)
             s += 1
         }

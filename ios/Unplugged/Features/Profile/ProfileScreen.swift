@@ -113,65 +113,6 @@ struct ProfileScreen: View {
     }
 }
 
-// MARK: - Car
-
-private struct CarScreen: View {
-    @Environment(AppModel.self) private var model
-
-    var body: some View {
-        let vehicle = model.vehicle
-        let socBinding = Binding(get: { model.soc }, set: { model.setSoc($0) })
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                CardBox {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text("Battery now").font(.subheadline).foregroundStyle(Theme.muted)
-                        Spacer()
-                        Text("\(Int(model.soc)) %")
-                            .scaledFont(22, weight: .bold, design: .rounded, relativeTo: .title2)
-                            .monospacedDigit()
-                            .foregroundStyle(Theme.text)
-                    }
-                    Slider(value: socBinding, in: 1...100, step: 1).tint(Theme.brand)
-                    StatRow {
-                        StatView(label: "Range now", value: Fmt.km(vehicle.rangeKm(soc: model.soc)))
-                        StatView(label: "At 80 %", value: Fmt.km(vehicle.rangeKm(soc: 80)))
-                        StatView(label: "Full", value: Fmt.km(vehicle.rangeKm(soc: 100)))
-                    }
-                    .padding(.top, 8)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Your car").font(.headline).foregroundStyle(Theme.text)
-                    ListCard {
-                        ForEach(Array(DemoData.vehicles.enumerated()), id: \.element.id) { item in
-                            let v = item.element
-                            if item.offset > 0 { RowDivider() }
-                            Button { model.setVehicle(v.id) } label: {
-                                ListRow(systemImage: "car.fill", title: LocalizedStringKey(v.name), color: v.id == vehicle.id ? Theme.brand : Theme.muted) {
-                                    Text("\(Int(v.batteryKwh)) kWh").font(.subheadline).foregroundStyle(Theme.muted)
-                                    if v.id == vehicle.id {
-                                        Image(systemName: "checkmark").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.brand)
-                                    }
-                                }
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    Text("Max charging \(Int(vehicle.maxDcKw)) kW DC / \(Int(vehicle.maxAcKw)) kW AC · \(vehicle.connectors.map(\.rawValue).joined(separator: ", ")). Used to show only chargers that fit and to plan trips.")
-                        .font(.caption)
-                        .foregroundStyle(Theme.muted)
-                }
-            }
-            .padding(16)
-        }
-        .tabBarClearance()
-        .screenBackdrop()
-        .navigationTitle("Car")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
 // MARK: - Payment
 
 private struct PaymentScreen: View {

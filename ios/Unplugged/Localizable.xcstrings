@@ -3350,6 +3350,226 @@
           }
         }
       }
+    },
+    "%lld kWh usable": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld kWh naudojamos talpos"
+          }
+        }
+      }
+    },
+    "Change car": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keisti automobilį"
+          }
+        }
+      }
+    },
+    "Fast charging (DC)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greitasis įkrovimas (DC)"
+          }
+        }
+      }
+    },
+    "AC charging": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AC įkrovimas"
+          }
+        }
+      }
+    },
+    "Plugs": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jungtys"
+          }
+        }
+      }
+    },
+    "Not supported": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nepalaikoma"
+          }
+        }
+      }
+    },
+    "%@ · %lld-phase": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$lld fazės"
+          }
+        }
+      }
+    },
+    "Car data: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automobilių duomenys: %@"
+          }
+        }
+      }
+    },
+    "Fast-charging speed": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greitojo įkrovimo galia"
+          }
+        }
+      }
+    },
+    "Measured": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išmatuota"
+          }
+        }
+      }
+    },
+    "Typical": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tipinė"
+          }
+        }
+      }
+    },
+    "now": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dabar"
+          }
+        }
+      }
+    },
+    "kW by battery level. 10 → 80 %% takes about %@ on a fast charger.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kW pagal baterijos lygį. Nuo 10 iki 80 %% greitojoje stotelėje – apie %@."
+          }
+        }
+      }
+    },
+    "Charging speed: up to %lld kW": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimo galia: iki %lld kW"
+          }
+        }
+      }
+    },
+    "Brands": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markės"
+          }
+        }
+      }
+    },
+    "No cars match “%@”.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pagal „%@“ automobilių nerasta."
+          }
+        }
+      }
+    },
+    "%lld models. Car data: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modelių: %1$lld. Automobilių duomenys: %2$@"
+          }
+        }
+      }
+    },
+    "Choose your car": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasirinkite automobilį"
+          }
+        }
+      }
+    },
+    "Brand, model or year": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markė, modelis ar metai"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atšaukti"
+          }
+        }
+      }
+    },
+    "%@ DC": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ DC"
+          }
+        }
+      }
+    },
+    "≈ %lld km": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %lld km"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

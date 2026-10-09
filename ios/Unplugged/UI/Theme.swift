@@ -163,6 +163,10 @@ enum Fmt {
         v < 10 ? String(format: "%.1f km", v) : "\(Int(v.rounded())) km"
     }
 
+    static func kw(_ v: Double) -> String {
+        v == v.rounded() ? "\(Int(v)) kW" : String(format: "%.1f kW", v)
+    }
+
     static func pct(_ v: Double) -> String { "\(Int((v * 100).rounded())) %" }
 
     static func price(_ v: Double) -> String { String(format: "%.2f €/kWh", v) }

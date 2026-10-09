@@ -11,11 +11,14 @@ from .ocpi import crawl
 from .registry import read_registry
 from .report import build_report
 from .export import write_snapshot
+from .vehicles import import_vehicles
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DB = str(ROOT / "pipeline/data/ev.sqlite")
 DEFAULT_XLSX = str(ROOT / "EV_IS_2026-10-09.xlsx")
 DEFAULT_SNAPSHOT = str(ROOT / "pipeline/data/stations.json")
+# Bundled with the iOS app, so it's committed (unlike pipeline/data/).
+DEFAULT_VEHICLES = str(ROOT / "ios/Unplugged/Data/vehicles.json")
 
 
 def log(msg: str) -> None:
@@ -62,7 +65,15 @@ def main(argv: list[str] | None = None) -> int:
     exp = sub.add_parser("export", help="write a JSON snapshot for the app")
     exp.add_argument("--out", default=DEFAULT_SNAPSHOT)
     exp.add_argument("--city", default=None, help="e.g. Vilnius")
+    veh = sub.add_parser("vehicles", help="import electric car models and specs for the app")
+    veh.add_argument("--out", default=DEFAULT_VEHICLES)
+    veh.add_argument("--src", default=None, help="Open EV Data JSON (URL or file; default: GitHub)")
     args = p.parse_args(argv)
+
+    if args.cmd == "vehicles":  # no database needed
+        catalog = import_vehicles(args.out, args.src)
+        log(f"wrote {catalog['count']} vehicles from {len({v['brand'] for v in catalog['vehicles']})} brands to {args.out}")
+        return 0
 
     db = store.connect(args.db)
     if args.cmd == "crawl":

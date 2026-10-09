@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import UIKit
 import SwiftUI
 
 struct PointsEntry: Codable, Identifiable, Hashable {
@@ -78,6 +79,7 @@ final class AppModel {
     @ObservationIgnored private var graceAnnouncedFor: Date?
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
     @ObservationIgnored private let storageKey = "unplugged.state.v1"
+    @ObservationIgnored private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
     var vehicle: Vehicle { DemoData.vehicle(vehicleId) }
     var hasActiveSession: Bool { session != nil && session?.endedAt == nil }
@@ -106,6 +108,48 @@ final class AppModel {
         }
     }
 
+    // MARK: App in the background
+
+    /// Live Activities can't change by themselves at an exact time, so when the
+    /// app is sent away mid-session it asks for the usual ~30 s of background
+    /// time. A phase change inside that window (charging done, free time over)
+    /// still updates the Lock Screen right on time.
+    func enteredBackground() {
+        guard hasActiveSession, backgroundTask == .invalid else { return }
+        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "charging-session") { [weak self] in
+            self?.endBackgroundTime()
+        }
+        checkBackgroundTime()
+    }
+
+    func becameActive() {
+        endBackgroundTime()
+        takePendingAction()
+        // Back while the car is due to move: show the session first.
+        if let s = session, s.endedAt == nil, s.doneAt != nil {
+            tab = .charging
+        }
+    }
+
+    private func endBackgroundTime() {
+        guard backgroundTask != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(backgroundTask)
+        backgroundTask = .invalid
+    }
+
+    /// Gives the background time back as soon as nothing will happen within it.
+    private func checkBackgroundTime() {
+        guard backgroundTask != .invalid else { return }
+        guard let s = session, s.endedAt == nil else { return endBackgroundTime() }
+        let done = s.doneAt ?? s.scheduledDoneAt
+        let graceEnd = done.addingTimeInterval(Double(s.graceMinutes) * 60)
+        let next = [done, graceEnd].map(realDate).filter { $0 > Date() }.min()
+        let remaining = UIApplication.shared.backgroundTimeRemaining
+        if next == nil || next!.timeIntervalSinceNow > remaining - 2 {
+            endBackgroundTime()
+        }
+    }
+
     // MARK: Moments
 
     func dismissMoment() {
@@ -118,6 +162,7 @@ final class AppModel {
         guard value != lang else { return }
         L10n.set(value)
         lang = value
+        NotificationManager.shared.registerCategories()
         stations = DemoData.stations(at: .now, tick: tick)
         banners.removeAll()
         rescheduleNotifications()
@@ -165,6 +210,7 @@ final class AppModel {
     }
 
     private func checkSession() {
+        defer { checkBackgroundTime() }
         guard var s = session, s.endedAt == nil else { return }
         let now = simNow()
         if s.doneAt == nil && now >= s.scheduledDoneAt {
@@ -336,7 +382,8 @@ final class AppModel {
                 id: NotificationManager.chargeDoneId,
                 title: tr("Charging complete"),
                 body: tr("\(s.stationName): you have \(s.graceMinutes) min to move your car."),
-                after: done.timeIntervalSince(now) / speed
+                after: done.timeIntervalSince(now) / speed,
+                category: NotificationManager.moveCategory
             )
         }
         let graceEnd = done.addingTimeInterval(Double(s.graceMinutes) * 60)
@@ -345,7 +392,8 @@ final class AppModel {
                 id: NotificationManager.graceOverId,
                 title: tr("Idle fee has started"),
                 body: tr("Move your car from \(s.stationName) — the rate is increasing."),
-                after: graceEnd.timeIntervalSince(now) / speed
+                after: graceEnd.timeIntervalSince(now) / speed,
+                category: NotificationManager.moveCategory
             )
         }
     }

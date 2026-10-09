@@ -8,6 +8,9 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
     static let chargeDoneId = "charge-done"
     static let graceOverId = "grace-over"
+    /// Charging notifications carry an "I moved my car" button.
+    static let moveCategory = "charging.move"
+    static let movedAction = "moved"
 
     private let center = UNUserNotificationCenter.current()
     /// The notification center talks to a system service and some calls wait
@@ -18,16 +21,27 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
     func setUp() {
         center.delegate = self
+        registerCategories()
         queue.async { [center] in
             center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
         }
     }
 
-    func schedule(id: String, title: String, body: String, after seconds: TimeInterval) {
+    /// Call again after the language changes so the button title follows it.
+    func registerCategories() {
+        // No `.foreground` option: the press is handled in the background,
+        // the Lock Screen activity updates, and the phone stays locked.
+        let moved = UNNotificationAction(identifier: Self.movedAction, title: tr("I moved my car"), options: [])
+        let category = UNNotificationCategory(identifier: Self.moveCategory, actions: [moved], intentIdentifiers: [])
+        queue.async { [center] in center.setNotificationCategories([category]) }
+    }
+
+    func schedule(id: String, title: String, body: String, after seconds: TimeInterval, category: String? = nil) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
+        if let category { content.categoryIdentifier = category }
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(1, seconds), repeats: false)
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
         queue.async { [center] in center.add(request) }
@@ -43,5 +57,20 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         completionHandler([.list, .sound])
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        guard response.actionIdentifier == Self.movedAction else {
+            completionHandler()
+            return
+        }
+        Task { @MainActor in
+            ChargingActionInbox.deliver(.moved)
+            completionHandler()
+        }
     }
 }
