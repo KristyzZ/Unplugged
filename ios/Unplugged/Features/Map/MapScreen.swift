@@ -80,7 +80,7 @@ struct MapScreen: View {
                 Annotation(item.station.name, coordinate: item.station.coordinate, anchor: .bottom) {
                     StationPin(station: item.station, emphasized: item.id == selectedId)
                         .onTapGesture {
-                            withAnimation(.spring(duration: 0.3)) {
+                            withMotion(.spring(duration: 0.3)) {
                                 selectedId = item.id
                                 listOpen = false
                             }
@@ -105,6 +105,8 @@ struct MapScreen: View {
             }
         }
         .padding(.top, 4)
+        // Search and filters float over the map; keep them from eating it at huge text sizes.
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private var searchField: some View {
@@ -123,6 +125,8 @@ struct MapScreen: View {
                     query = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill").foregroundStyle(Theme.muted)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Clear search"))
@@ -155,7 +159,7 @@ struct MapScreen: View {
             Spacer()
             Button {
                 location.request()
-                withAnimation {
+                withMotion {
                     camera = .userLocation(fallback: .region(MKCoordinateRegion(
                         center: origin.coordinate,
                         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
@@ -185,11 +189,11 @@ struct MapScreen: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 8)
                 .padding(.bottom, 2)
-                .contentShape(Rectangle())
-                .onTapGesture { withAnimation(.spring(duration: 0.35)) { listOpen.toggle() } }
+                .contentShape(Rectangle().inset(by: -14))
+                .onTapGesture { withMotion(.spring(duration: 0.35)) { listOpen.toggle() } }
                 .gesture(
                     DragGesture(minimumDistance: 8).onEnded { value in
-                        withAnimation(.spring(duration: 0.35)) {
+                        withMotion(.spring(duration: 0.35)) {
                             if value.translation.height < -24 { listOpen = true }
                             if value.translation.height > 24 { listOpen = false }
                         }
@@ -248,7 +252,7 @@ struct StationPin: View {
         let color = station.availability.color
         VStack(spacing: -1) {
             Text("\(Int(station.maxPower))")
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .scaledFont(13, weight: .bold, design: .rounded, relativeTo: .footnote)
                 .foregroundStyle(Theme.ink)
                 .padding(.horizontal, 6)
                 .frame(minWidth: 34, minHeight: 34)
@@ -258,9 +262,11 @@ struct StationPin: View {
                 .fill(color)
                 .frame(width: 12, height: 8)
         }
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+        .minimumTouchTarget()
         .scaleEffect(emphasized ? 1.18 : 1, anchor: .bottom)
         .shadow(color: .black.opacity(0.35), radius: 3, y: 2)
-        .animation(.spring(duration: 0.3), value: emphasized)
+        .animation(Motion.pick(.spring(duration: 0.3)), value: emphasized)
         .accessibilityElement()
         .accessibilityLabel(Text("\(station.name), \(Int(station.maxPower)) kW, \(station.availability.label)"))
         .accessibilityAddTraits(.isButton)
@@ -283,31 +289,55 @@ struct StationSummaryCard: View {
     let station: Station
     let distance: Double
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     var body: some View {
         let op = DemoData.chargeOperator(station.operatorId)
-        HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("\(station.name) · \(op.name)")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(Theme.text)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                Text("\(station.freeCount)/\(station.workingCount) free")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(station.availability.color)
-            }
-            Spacer(minLength: 8)
-            VStack(alignment: .trailing, spacing: 4) {
-                Text(Fmt.price(station.pricePerKwh))
-                    .font(.body)
-                    .foregroundStyle(Theme.text)
-                Text(Fmt.km(distance))
-                    .font(.body)
-                    .foregroundStyle(Theme.text)
-                Text(station.address)
-                    .font(.caption)
-                    .foregroundStyle(Theme.muted)
-                    .lineLimit(1)
+        Group {
+            if typeSize.isAccessibilitySize {
+                // Large text: stack everything and let it wrap instead of truncating.
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("\(station.name) · \(op.name)")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Theme.text)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text("\(station.freeCount)/\(station.workingCount) free")
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(station.availability.color)
+                    Text("\(Fmt.price(station.pricePerKwh)) · \(Fmt.km(distance))")
+                        .font(.body)
+                        .foregroundStyle(Theme.text)
+                    Text(station.address)
+                        .font(.caption)
+                        .foregroundStyle(Theme.muted)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                HStack(alignment: .top, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("\(station.name) · \(op.name)")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(Theme.text)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                        Text("\(station.freeCount)/\(station.workingCount) free")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(station.availability.color)
+                    }
+                    Spacer(minLength: 8)
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(Fmt.price(station.pricePerKwh))
+                            .font(.body)
+                            .foregroundStyle(Theme.text)
+                        Text(Fmt.km(distance))
+                            .font(.body)
+                            .foregroundStyle(Theme.text)
+                        Text(station.address)
+                            .font(.caption)
+                            .foregroundStyle(Theme.muted)
+                            .lineLimit(1)
+                    }
+                }
             }
         }
         .padding(16)
@@ -319,6 +349,9 @@ struct StationRow: View {
     let station: Station
     var distance: Double?
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @ScaledMetric(relativeTo: .title3) private var powerWidth: CGFloat = 48
+
     var body: some View {
         let op = DemoData.chargeOperator(station.operatorId)
         HStack(spacing: 12) {
@@ -326,13 +359,13 @@ struct StationRow: View {
                 Text("\(Int(station.maxPower))").font(.title3.bold()).foregroundStyle(Theme.text)
                 Text("kW").font(.caption2).foregroundStyle(Theme.muted)
             }
-            .frame(width: 48)
+            .frame(width: powerWidth)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(station.name).font(.headline).foregroundStyle(Theme.text).lineLimit(1)
+                Text(station.name).font(.headline).foregroundStyle(Theme.text).lineLimit(typeSize.isAccessibilitySize ? 3 : 1)
                 HStack(spacing: 5) {
                     Circle().fill(op.color).frame(width: 7, height: 7)
-                    Text("\(op.name) · \(station.address)").lineLimit(1)
+                    Text("\(op.name) · \(station.address)").lineLimit(typeSize.isAccessibilitySize ? 3 : 1)
                 }
                 .font(.caption)
                 .foregroundStyle(Theme.muted)

@@ -29,14 +29,24 @@ enum Layout {
 
 // MARK: Glass
 
-extension View {
-    /// Liquid Glass on iOS 26+, frosted material before that.
+/// Liquid Glass on iOS 26+, frosted material before that, and an opaque
+/// surface when Reduce Transparency is on (so text keeps its contrast).
+struct GlassSurface<S: Shape>: ViewModifier {
+    let shape: S
+    let tint: Color?
+    let interactive: Bool
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     @ViewBuilder
-    func glass<S: Shape>(in shape: S, tint: Color? = nil, interactive: Bool = true) -> some View {
-        if #available(iOS 26.0, *) {
-            self.glassEffect(makeGlass(tint: tint, interactive: interactive), in: shape)
+    func body(content: Content) -> some View {
+        if reduceTransparency {
+            content
+                .background(Theme.card, in: shape)
+                .overlay(shape.stroke(Theme.line, lineWidth: 1))
+        } else if #available(iOS 26.0, *) {
+            content.glassEffect(makeGlass(), in: shape)
         } else {
-            self
+            content
                 .background(.ultraThinMaterial, in: shape)
                 .background((tint ?? Color.clear).opacity(0.25), in: shape)
                 .overlay(shape.stroke(Color.white.opacity(0.14), lineWidth: 0.8))
@@ -44,11 +54,17 @@ extension View {
     }
 
     @available(iOS 26.0, *)
-    private func makeGlass(tint: Color?, interactive: Bool) -> Glass {
+    private func makeGlass() -> Glass {
         var glass = Glass.regular
         if let tint { glass = glass.tint(tint) }
         if interactive { glass = glass.interactive() }
         return glass
+    }
+}
+
+extension View {
+    func glass<S: Shape>(in shape: S, tint: Color? = nil, interactive: Bool = true) -> some View {
+        modifier(GlassSurface(shape: shape, tint: tint, interactive: interactive))
     }
 
     /// Leaves room for the floating tab bar under scrolling content.
@@ -241,8 +257,10 @@ struct Chip: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .glass(in: Capsule(), tint: active ? Theme.brand.opacity(0.55) : nil)
+                .minimumTouchTarget()
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(active ? .isSelected : [])
     }
 }
 
@@ -266,7 +284,7 @@ struct SocBar: View {
             }
         }
         .frame(height: height)
-        .animation(.easeOut(duration: 0.4), value: value)
+        .animation(Motion.pick(.easeOut(duration: 0.4)), value: value)
     }
 }
 
@@ -284,7 +302,7 @@ struct ProgressRing<Center: View>: View {
                 .trim(from: 0, to: min(1, max(0.001, progress)))
                 .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-                .animation(.easeOut(duration: 0.4), value: progress)
+                .animation(Motion.pick(.easeOut(duration: 0.4)), value: progress)
             center
         }
     }
@@ -382,6 +400,8 @@ struct DropdownField<Value: Hashable>: View {
     let selection: Binding<Value>
     let options: [(value: Value, title: String)]
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     private var currentTitle: String {
         options.first { $0.value == selection.wrappedValue }?.title ?? ""
     }
@@ -397,8 +417,9 @@ struct DropdownField<Value: Hashable>: View {
             HStack(spacing: 8) {
                 Text(currentTitle)
                     .foregroundStyle(Theme.text)
-                    .lineLimit(1)
+                    .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
                     .truncationMode(.tail)
+                    .multilineTextAlignment(.leading)
                 Spacer(minLength: 4)
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.footnote.weight(.semibold))
@@ -413,5 +434,21 @@ struct DropdownField<Value: Hashable>: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// Columns of stats that stack vertically at accessibility text sizes, so
+/// labels and values wrap whole instead of breaking mid-word.
+struct StatRow<Content: View>: View {
+    var spacing: CGFloat? = nil
+    @ViewBuilder var content: Content
+
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: spacing ?? 12))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: spacing))
+        layout { content }
     }
 }

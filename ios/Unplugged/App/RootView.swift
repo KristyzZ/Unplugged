@@ -70,7 +70,7 @@ struct GlassTabBar: View {
                 } label: {
                     VStack(spacing: 3) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 19, weight: .semibold))
+                            .scaledFont(19, weight: .semibold, relativeTo: .body)
                             .frame(height: 24)
                             .overlay(alignment: .topTrailing) {
                                 if tab == .charging && chargingActive {
@@ -88,9 +88,11 @@ struct GlassTabBar: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(tab == .charging && chargingActive ? Text("Charging, session in progress") : Text(tab.title))
                 .accessibilityAddTraits(active ? .isSelected : [])
             }
         }
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         .padding(.horizontal, 6)
         .glass(in: Capsule())
         .padding(.horizontal, 20)
@@ -119,11 +121,14 @@ struct BannerStack: View {
                 .glass(in: RoundedRectangle(cornerRadius: 20, style: .continuous), interactive: false)
                 .shadow(color: .black.opacity(0.3), radius: 10, y: 4)
                 .onTapGesture { model.banners.removeAll { $0.id == banner.id } }
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isButton)
+                .accessibilityHint(Text("Double-tap to dismiss"))
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
         .padding(.horizontal, 16)
         .padding(.top, 4)
-        .animation(.spring(duration: 0.35), value: model.banners)
+        .animation(Motion.pick(.spring(duration: 0.35)), value: model.banners)
     }
 }

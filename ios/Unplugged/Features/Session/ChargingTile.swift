@@ -35,13 +35,13 @@ struct ChargingTile: View {
             VStack(spacing: 6) {
                 ProgressRing(progress: c.progress, color: c.color, lineWidth: 4) {
                     Image(systemName: c.symbol)
-                        .font(.system(size: 17, weight: .bold))
+                        .scaledFont(17, weight: .bold, relativeTo: .body)
                         .foregroundStyle(c.color)
                 }
                 .frame(width: 44, height: 44)
                 VStack(spacing: 0) {
                     Text(c.title)
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .scaledFont(20, weight: .bold, design: .rounded, relativeTo: .title3)
                         .foregroundStyle(Theme.text)
                         .monospacedDigit()
                         .contentTransition(.numericText())
@@ -56,10 +56,10 @@ struct ChargingTile: View {
             .glass(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .buttonStyle(.plain)
-        .overlay(alignment: .topTrailing) { closeButton.offset(x: -6, y: 6) }
-        .accessibilityElement(children: .combine)
         .accessibilityLabel(Text("Charging status: \(c.title), \(c.subtitle)"))
         .accessibilityHint(Text("Opens charging details"))
+        .overlay(alignment: .topTrailing) { closeButton.offset(x: -6, y: 6) }
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private func compact(_ c: TileContent) -> some View {
@@ -88,22 +88,23 @@ struct ChargingTile: View {
             .glass(in: Capsule())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text("Charging status: \(c.title), \(c.subtitle)"))
+        .accessibilityHint(Text("Opens charging details"))
         .overlay(alignment: .trailing) { closeButton.padding(.trailing, 6) }
         .fixedSize()
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("Charging status: \(c.title), \(c.subtitle)"))
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private var closeButton: some View {
         Button {
-            withAnimation(.spring(duration: 0.3)) { model.hideTile() }
+            withMotion(.spring(duration: 0.3)) { model.hideTile() }
         } label: {
             Image(systemName: "xmark")
                 .font(.system(size: 9, weight: .bold))
                 .foregroundStyle(Theme.muted)
                 .frame(width: 20, height: 20)
                 .background(Color.white.opacity(0.12), in: Circle())
-                .contentShape(Circle().inset(by: -8))
+                .contentShape(Circle().inset(by: -12))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text("Hide charging status"))

@@ -42,7 +42,7 @@ struct RewardsScreen: View {
         return CardBox {
             Text("Your points").font(.subheadline).foregroundStyle(Theme.muted)
             Text("\(model.points)")
-                .font(.system(size: 52, weight: .bold, design: .rounded))
+                .scaledFont(52, weight: .bold, design: .rounded, relativeTo: .largeTitle)
                 .contentTransition(.numericText())
             HStack {
                 Text(tier.current.name).font(.subheadline.weight(.semibold))

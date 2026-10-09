@@ -58,12 +58,12 @@ struct OperatorScreen: View {
     }
 
     private func kpis(_ sum: NetworkSummary) -> some View {
-        Grid(horizontalSpacing: 10, verticalSpacing: 10) {
-            GridRow {
+        VStack(spacing: 10) {
+            StatRow(spacing: 10) {
                 CardBox { StatView(label: "Sessions per day", value: "\(sum.sessionsPerDay)", sub: tr("\(filtered.count) stations")) }
                 CardBox { StatView(label: "Avg. idle time", value: Fmt.minutes(sum.avgIdleMin), sub: tr("\(Int(sum.idleHoursPerDay)) h per day")) }
             }
-            GridRow {
+            StatRow(spacing: 10) {
                 CardBox { StatView(label: "Abuse cases", value: "\(sum.abuseCases7d)", sub: "in 7 days") }
                 CardBox(stroke: Theme.brand) { StatView(label: "Additional drivers served", value: tr("+\(sum.extraSessionsPerDay)/day"), sub: "without new stations") }
             }
@@ -106,7 +106,7 @@ struct OperatorScreen: View {
                         Spacer()
                         Text(DemoData.chargeOperator(st.station.operatorId).name).font(.caption).foregroundStyle(Theme.muted)
                     }
-                    HStack(alignment: .top) {
+                    StatRow {
                         StatView(label: "Occupancy", value: Fmt.pct(st.utilization))
                         StatView(label: "Sessions/day", value: "\(st.sessionsPerDay)")
                         StatView(label: "Avg. idle", value: tr("\(st.avgIdleMin) min"), sub: Fmt.pct(st.idleShare))

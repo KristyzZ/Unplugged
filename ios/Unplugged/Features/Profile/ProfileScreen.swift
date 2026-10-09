@@ -47,12 +47,12 @@ struct ProfileScreen: View {
             DropdownField(selection: vehicleBinding, options: DemoData.vehicles.map { ($0.id, $0.name) })
                 .padding(.top, 4)
             Divider().padding(.vertical, 12)
-            HStack(alignment: .top) {
+            StatRow {
                 StatView(label: "Battery", value: "\(Int(vehicle.batteryKwh)) kWh")
                 StatView(label: "Max DC", value: "\(Int(vehicle.maxDcKw)) kW")
                 StatView(label: "Max AC", value: "\(Int(vehicle.maxAcKw)) kW")
             }
-            HStack(alignment: .top) {
+            StatRow {
                 StatView(label: "Consumption", value: String(format: "%.0f kWh/100 km", vehicle.consumptionKwhPer100))
                 StatView(label: "Connectors", value: vehicle.connectors.map(\.rawValue).joined(separator: ", "))
             }
@@ -61,7 +61,7 @@ struct ProfileScreen: View {
             Text("Current battery level: \(Int(model.soc)) %").font(.subheadline.weight(.medium))
             Slider(value: socBinding, in: 1...100, step: 1)
             SocBar(value: model.soc)
-            HStack(alignment: .top) {
+            StatRow {
                 StatView(label: "Range now", value: Fmt.km(vehicle.rangeKm(soc: model.soc)))
                 StatView(label: "Range at 80 %", value: Fmt.km(vehicle.rangeKm(soc: 80)))
                 StatView(label: "Range at 100 %", value: Fmt.km(vehicle.rangeKm(soc: 100)))
