@@ -32,7 +32,7 @@ struct RewardsScreen: View {
             .padding(16)
         }
         .tabBarClearance()
-        .background(Theme.background)
+        .screenBackdrop()
         .navigationTitle("Points")
         .navigationBarTitleDisplayMode(.inline)
     }

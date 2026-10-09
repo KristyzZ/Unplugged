@@ -44,7 +44,7 @@ struct OperatorScreen: View {
             .padding(16)
         }
         .tabBarClearance()
-        .background(Theme.background)
+        .screenBackdrop()
         .navigationTitle("For operators")
         .navigationBarTitleDisplayMode(.inline)
     }

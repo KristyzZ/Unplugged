@@ -18,9 +18,9 @@ struct StationDetailView: View {
             }
         }
         .tabBarClearance()
-        .background(Theme.background)
+        .screenBackdrop()
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Theme.background, for: .navigationBar)
+        .toolbarBackground(.hidden, for: .navigationBar)
     }
 
     @ViewBuilder

@@ -29,7 +29,7 @@ struct PlanScreen: View {
                 .padding(16)
             }
             .tabBarClearance()
-            .background(Theme.background)
+            .screenBackdrop()
             .navigationTitle("Plan")
             .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top, spacing: 0) { ScreenHeader(title: "Plan") }

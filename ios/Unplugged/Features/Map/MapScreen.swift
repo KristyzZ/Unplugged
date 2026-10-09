@@ -90,7 +90,7 @@ struct MapScreen: View {
             }
             UserAnnotation()
         }
-        .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
+        .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll))
         .onTapGesture { searchFocused = false }
     }
 

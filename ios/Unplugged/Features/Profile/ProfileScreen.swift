@@ -26,7 +26,7 @@ struct ProfileScreen: View {
                 .padding(16)
             }
             .tabBarClearance()
-            .background(Theme.background)
+            .screenBackdrop()
             .navigationTitle("Profile")
             .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top, spacing: 0) { ScreenHeader(title: "Profile") }

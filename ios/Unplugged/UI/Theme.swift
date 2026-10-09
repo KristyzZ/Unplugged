@@ -171,13 +171,16 @@ struct CardBox<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
+        // Frosted dark card, the same surface as the station card on Explore,
+        // so the map backdrop shows through faintly.
+        let shape = RoundedRectangle(cornerRadius: 22, style: .continuous)
         VStack(alignment: .leading, spacing: 0) { content }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.card, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .background(Theme.card.opacity(0.72), in: shape)
+            .background(.ultraThinMaterial, in: shape)
             .overlay {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .strokeBorder(stroke ?? Color.white.opacity(0.05), lineWidth: stroke == nil ? 1 : 1.5)
+                shape.strokeBorder(stroke ?? Color.white.opacity(0.08), lineWidth: stroke == nil ? 1 : 1.5)
             }
     }
 }
@@ -350,8 +353,20 @@ struct ScreenHeader<Trailing: View>: View {
         }
         .padding(.horizontal, 16)
         .padding(.top, 6)
-        .padding(.bottom, 10)
-        .background(Theme.background)
+        .padding(.bottom, 14)
+        .background {
+            // Fades into the map backdrop instead of a hard edge.
+            LinearGradient(
+                stops: [
+                    .init(color: Theme.background.opacity(0.92), location: 0),
+                    .init(color: Theme.background.opacity(0.75), location: 0.7),
+                    .init(color: Theme.background.opacity(0), location: 1),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea(edges: .top)
+        }
     }
 }
 
