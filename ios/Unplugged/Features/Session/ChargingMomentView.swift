@@ -180,8 +180,10 @@ private struct StartedMoment: View {
     private func run() async {
         guard await pause(Motion.reduced ? 0.3 : 1.2) else { return }
         withMotion(.spring(duration: 0.5, bounce: 0.3)) { connected = true }
-        pulse = true
         withMotion(.easeOut(duration: 1.1)) { shownSoc = session.startSoc.rounded() }
+        // The pulse rings appear with `connected`; flip `pulse` a frame later so they animate.
+        guard await pause(0.05) else { return }
+        pulse = true
         guard await pause(3.4) else { return }
         if model.moment == .started { model.dismissMoment() }
     }
@@ -194,11 +196,13 @@ private struct EnergyCable: View {
 
     var body: some View {
         TimelineView(.animation(paused: !active || Motion.reduced)) { context in
-            let t = context.date.timeIntervalSinceReferenceDate
+            // Wrap to one dash period (5 + 7): a phase built from the raw
+            // reference-date seconds is ~1e10 and stalls rendering while it's drawn.
+            let phase = (context.date.timeIntervalSinceReferenceDate * 28).truncatingRemainder(dividingBy: 12)
             CableLine()
                 .stroke(
                     active ? Theme.brand : Theme.muted.opacity(0.6),
-                    style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [5, 7], dashPhase: active ? -t * 28 : 0)
+                    style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [5, 7], dashPhase: active ? -phase : 0)
                 )
         }
         .animation(Motion.pick(.easeInOut(duration: 0.4)), value: active)
