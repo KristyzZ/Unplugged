@@ -429,8 +429,8 @@ private struct EvidenceRow: View {
     }
 }
 
-/// The system camera, for a photo of the blocking car.
-private struct CameraPicker: UIViewControllerRepresentable {
+/// The system camera (a blocking car in reports, a charger in host listings).
+struct CameraPicker: UIViewControllerRepresentable {
     let onImage: (UIImage) -> Void
     @Environment(\.dismiss) private var dismiss
 

@@ -4710,6 +4710,1428 @@
           }
         }
       }
+    },
+    "Homeowner": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Namo savininkas"
+          }
+        }
+      }
+    },
+    "Charging station owner": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimo stotelės savininkas"
+          }
+        }
+      }
+    },
+    "A wallbox at your house or in your own parking space.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sieninis įkroviklis prie jūsų namo ar jūsų parkavimo vietoje."
+          }
+        }
+      }
+    },
+    "Chargers your business owns: a hotel, shop, office or car park.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų verslui priklausantys įkrovikliai: viešbutyje, parduotuvėje, biure ar automobilių stovėjimo aikštelėje."
+          }
+        }
+      }
+    },
+    "Covered parking": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stogine dengta vieta"
+          }
+        }
+      }
+    },
+    "Cable provided": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kabelis yra"
+          }
+        }
+      }
+    },
+    "Well lit": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerai apšviesta"
+          }
+        }
+      }
+    },
+    "CCTV": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaizdo stebėjimas"
+          }
+        }
+      }
+    },
+    "Wi-Fi": {
+      "shouldTranslate": false
+    },
+    "WC": {
+      "shouldTranslate": false
+    },
+    "Every day": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kasdien"
+          }
+        }
+      }
+    },
+    "Weekends": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Savaitgaliais"
+          }
+        }
+      }
+    },
+    "No days": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nė vienos dienos"
+          }
+        }
+      }
+    },
+    "all day": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "visą parą"
+          }
+        }
+      }
+    },
+    "Listing updated": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skelbimas atnaujintas"
+          }
+        }
+      }
+    },
+    "Your charger is live": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų įkroviklis paskelbtas"
+          }
+        }
+      }
+    },
+    "Drivers nearby can now find and book %@.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Netoliese esantys vairuotojai jau gali rasti ir užsisakyti „%@“."
+          }
+        }
+      }
+    },
+    "Private host": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privatus savininkas"
+          }
+        }
+      }
+    },
+    "Edit listing": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redaguoti skelbimą"
+          }
+        }
+      }
+    },
+    "List your charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paskelbti įkroviklį"
+          }
+        }
+      }
+    },
+    "Discard your changes?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atmesti pakeitimus?"
+          }
+        }
+      }
+    },
+    "Discard this listing?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atmesti šį skelbimą?"
+          }
+        }
+      }
+    },
+    "Discard": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atmesti"
+          }
+        }
+      }
+    },
+    "Save changes": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išsaugoti pakeitimus"
+          }
+        }
+      }
+    },
+    "Publish listing": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paskelbti"
+          }
+        }
+      }
+    },
+    "Next": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toliau"
+          }
+        }
+      }
+    },
+    "Who's listing this charger?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kas skelbia šį įkroviklį?"
+          }
+        }
+      }
+    },
+    "Only owners can rent out a charger on Unplugged: homeowners and owners of charging stations.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unplugged nuomoti įkroviklį gali tik savininkai: namų ir įkrovimo stotelių savininkai."
+          }
+        }
+      }
+    },
+    "I own this home and its charger, or the owner has given me written permission to rent it out.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šis namas ir įkroviklis priklauso man arba savininkas raštu leido man jį nuomoti."
+          }
+        }
+      }
+    },
+    "I own these chargers, or I'm authorized to rent them out for the business that does.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šie įkrovikliai priklauso man arba esu įgaliotas juos nuomoti jiems priklausančios įmonės vardu."
+          }
+        }
+      }
+    },
+    "We may ask for proof, like the charger's purchase receipt or a property document, before your first payout.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prieš pirmąją išmoką galime paprašyti įrodymo, pavyzdžiui, įkroviklio pirkimo čekio ar nuosavybės dokumento."
+          }
+        }
+      }
+    },
+    "Take a photo of your charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nufotografuokite savo įkroviklį"
+          }
+        }
+      }
+    },
+    "Drivers use it to find the charger when they arrive. Daylight works best.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pagal nuotrauką vairuotojai atvykę ras įkroviklį. Geriausia fotografuoti dienos šviesoje."
+          }
+        }
+      }
+    },
+    "Photo of your charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų įkroviklio nuotrauka"
+          }
+        }
+      }
+    },
+    "Add a photo": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pridėkite nuotrauką"
+          }
+        }
+      }
+    },
+    "The whole charger and its plug or cable": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visas įkroviklis ir jo kištukas ar kabelis"
+          }
+        }
+      }
+    },
+    "The parking space in front of it": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stovėjimo vieta priešais jį"
+          }
+        }
+      }
+    },
+    "No people, licence plates or house numbers": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Be žmonių, valstybinių numerių ir namų numerių"
+          }
+        }
+      }
+    },
+    "Where is your charger?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kur yra jūsų įkroviklis?"
+          }
+        }
+      }
+    },
+    "Move the map so the pin sits on the parking spot. Drivers see this pin on the map.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pastumkite žemėlapį, kad smeigtukas būtų ant stovėjimo vietos. Šį smeigtuką vairuotojai matys žemėlapyje."
+          }
+        }
+      }
+    },
+    "Use my location": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mano vieta"
+          }
+        }
+      }
+    },
+    "Address": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresas"
+          }
+        }
+      }
+    },
+    "Street and number": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gatvė ir numeris"
+          }
+        }
+      }
+    },
+    "Tell drivers about your charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Papasakokite vairuotojams apie įkroviklį"
+          }
+        }
+      }
+    },
+    "We only show it to drivers whose car can use it.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jį rodysime tik tiems vairuotojams, kurių automobilis gali juo krautis."
+          }
+        }
+      }
+    },
+    "Plug": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kištukas"
+          }
+        }
+      }
+    },
+    "DC fast charging. Most cars add 200 km in about 30 minutes.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greitasis DC įkrovimas. Dauguma automobilių per maždaug 30 minučių papildo 200 km."
+          }
+        }
+      }
+    },
+    "AC charging. Most cars take up to 11 kW, so 11 kW and 22 kW charge at the same speed for them.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AC įkrovimas. Dauguma automobilių priima iki 11 kW, todėl 11 kW ir 22 kW jiems krauna vienodai greitai."
+          }
+        }
+      }
+    },
+    "Chargers at this place": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkroviklių šioje vietoje"
+          }
+        }
+      }
+    },
+    "When can drivers book it?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kada vairuotojai gali jį užsisakyti?"
+          }
+        }
+      }
+    },
+    "Pick the times you don't need the charger yourself. You can pause bookings any time.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasirinkite laiką, kai įkroviklio jums pačiam nereikia. Užsakymus galite bet kada sustabdyti."
+          }
+        }
+      }
+    },
+    "Days": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dienos"
+          }
+        }
+      }
+    },
+    "All day": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visą parą"
+          }
+        }
+      }
+    },
+    "Until": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iki"
+          }
+        }
+      }
+    },
+    "%@ · %lld h a week": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld val. per savaitę"
+          }
+        }
+      }
+    },
+    "Instant booking": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iškart užsakoma"
+          }
+        }
+      }
+    },
+    "Drivers book straight away. Off: you accept each request within 30 minutes.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vairuotojai užsisako iškart. Išjungus: kiekvieną prašymą patvirtinate per 30 minučių."
+          }
+        }
+      }
+    },
+    "Evenings and nights": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vakarais ir naktimis"
+          }
+        }
+      }
+    },
+    "Working hours": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Darbo valandomis"
+          }
+        }
+      }
+    },
+    "Always": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visada"
+          }
+        }
+      }
+    },
+    "Set your price": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nustatykite kainą"
+          }
+        }
+      }
+    },
+    "We compare it with public chargers around yours, using today's prices.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palyginame ją su šalia esančiais viešaisiais įkrovikliais pagal šiandienos kainas."
+          }
+        }
+      }
+    },
+    "Price per kWh": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaina už kWh"
+          }
+        }
+      }
+    },
+    "Estimated monthly earnings": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numatomos mėnesio pajamos"
+          }
+        }
+      }
+    },
+    "Bookings": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Užsakymai"
+          }
+        }
+      }
+    },
+    "Energy sold": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parduota energijos"
+          }
+        }
+      }
+    },
+    "After electricity": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atėmus elektrą"
+          }
+        }
+      }
+    },
+    "After the %lld %% Unplugged service fee. \"After electricity\" assumes you pay %@ €/kWh. Estimate only.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atskaičius %lld %% Unplugged paslaugos mokestį. „Atėmus elektrą“ skaičiuojama, kad mokate %@ €/kWh. Tik apytikslis įvertis."
+          }
+        }
+      }
+    },
+    "Lower price": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mažinti kainą"
+          }
+        }
+      }
+    },
+    "Raise price": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Didinti kainą"
+          }
+        }
+      }
+    },
+    "Below the market: you'll get booked more often.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pigiau nei rinkoje: užsakymų bus daugiau."
+          }
+        }
+      }
+    },
+    "In line with the market.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atitinka rinkos kainą."
+          }
+        }
+      }
+    },
+    "Above the market: expect fewer bookings.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brangiau nei rinkoje: užsakymų bus mažiau."
+          }
+        }
+      }
+    },
+    "Market price nearby": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rinkos kaina netoliese"
+          }
+        }
+      }
+    },
+    "DC fast": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greitasis DC"
+          }
+        }
+      }
+    },
+    "AC": {
+      "shouldTranslate": false
+    },
+    "Lowest": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mažiausia"
+          }
+        }
+      }
+    },
+    "Highest": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Didžiausia"
+          }
+        }
+      }
+    },
+    "No public chargers to compare with yet; using a typical Lithuanian price.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kol kas nėra su kuo palyginti, todėl naudojame įprastą kainą Lietuvoje."
+          }
+        }
+      }
+    },
+    "From %lld public chargers within %@, updated live.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pagal %lld viešuosius įkroviklius %@ spinduliu, atnaujinama realiu laiku."
+          }
+        }
+      }
+    },
+    "Suggested": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siūloma"
+          }
+        }
+      }
+    },
+    "Use suggested": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naudoti siūlomą"
+          }
+        }
+      }
+    },
+    "A little under the typical price, so drivers pick you over a public charger.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šiek tiek pigiau nei įprasta, kad vairuotojai rinktųsi jus, o ne viešąjį įkroviklį."
+          }
+        }
+      }
+    },
+    "A tenth under the typical price: home chargers book best when they're the cheaper choice.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dešimtadaliu pigiau nei įprasta: namų įkrovikliai užsakomi dažniausiai, kai jie pigesni."
+          }
+        }
+      }
+    },
+    "Your price %@, typical %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų kaina %@, įprasta %@"
+          }
+        }
+      }
+    },
+    "Finish your listing": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Užbaikite skelbimą"
+          }
+        }
+      }
+    },
+    "A clear name and directions mean fewer calls from drivers.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aiškus pavadinimas ir nuorodos – mažiau vairuotojų skambučių."
+          }
+        }
+      }
+    },
+    "Listing name": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skelbimo pavadinimas"
+          }
+        }
+      }
+    },
+    "Driveway wallbox in Žvėrynas": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkroviklis kieme Žvėryne"
+          }
+        }
+      }
+    },
+    "Hotel car park, level -1": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viešbučio aikštelė, -1 aukštas"
+          }
+        }
+      }
+    },
+    "How to find it (optional)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaip rasti (nebūtina)"
+          }
+        }
+      }
+    },
+    "Gate code is sent after booking. Park on the left.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vartų kodą atsiųsime po užsakymo. Statykite kairėje."
+          }
+        }
+      }
+    },
+    "What's there": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kas yra vietoje"
+          }
+        }
+      }
+    },
+    "Check and publish": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patikrinkite ir paskelbkite"
+          }
+        }
+      }
+    },
+    "This is how drivers will see your charger.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taip jūsų įkroviklį matys vairuotojai."
+          }
+        }
+      }
+    },
+    "Listed by": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skelbia"
+          }
+        }
+      }
+    },
+    "Missing": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trūksta"
+          }
+        }
+      }
+    },
+    "Location": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta"
+          }
+        }
+      }
+    },
+    "Charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkroviklis"
+          }
+        }
+      }
+    },
+    "Price": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaina"
+          }
+        }
+      }
+    },
+    "Details": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informacija"
+          }
+        }
+      }
+    },
+    "No extras": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Be papildomų patogumų"
+          }
+        }
+      }
+    },
+    "Request to book": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Užsakymas su patvirtinimu"
+          }
+        }
+      }
+    },
+    "By publishing you confirm you own this charger or may rent it out. Demo only: no real bookings or payouts are made.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skelbdami patvirtinate, kad įkroviklis priklauso jums arba galite jį nuomoti. Tik demonstracija: tikrų užsakymų ir išmokų nėra."
+          }
+        }
+      }
+    },
+    "Edit": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keisti"
+          }
+        }
+      }
+    },
+    "Your charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų įkroviklis"
+          }
+        }
+      }
+    },
+    "Add another charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pridėti dar vieną įkroviklį"
+          }
+        }
+      }
+    },
+    "Host your charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuomokite savo įkroviklį"
+          }
+        }
+      }
+    },
+    "Earn from your charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uždirbkite iš savo įkroviklio"
+          }
+        }
+      }
+    },
+    "Rent out your home wallbox or your business's chargers to drivers nearby, at the times that suit you.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuomokite namų ar savo verslo įkroviklius netoliese esantiems vairuotojams jums patogiu laiku."
+          }
+        }
+      }
+    },
+    "How it works": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaip tai veikia"
+          }
+        }
+      }
+    },
+    "Photo and location": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuotrauka ir vieta"
+          }
+        }
+      }
+    },
+    "Take a picture of the charger and drop a pin on the spot.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nufotografuokite įkroviklį ir pažymėkite vietą žemėlapyje."
+          }
+        }
+      }
+    },
+    "A price from the market": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaina pagal rinką"
+          }
+        }
+      }
+    },
+    "We suggest one from public chargers around you. You decide.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasiūlome kainą pagal netoliese esančius viešuosius įkroviklius. Sprendžiate jūs."
+          }
+        }
+      }
+    },
+    "Get booked": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaukite užsakymų"
+          }
+        }
+      }
+    },
+    "Drivers find it on the map and book when it's free. Pause any time.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vairuotojai randa jį žemėlapyje ir užsisako, kai jis laisvas. Sustabdyti galite bet kada."
+          }
+        }
+      }
+    },
+    "Only homeowners and charging station owners can list a charger.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkroviklį paskelbti gali tik namų ir įkrovimo stotelių savininkai."
+          }
+        }
+      }
+    },
+    "Listed": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paskelbta"
+          }
+        }
+      }
+    },
+    "Taking bookings": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priima užsakymus"
+          }
+        }
+      }
+    },
+    "Paused": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sustabdyta"
+          }
+        }
+      }
+    },
+    "Live now": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veikia dabar"
+          }
+        }
+      }
+    },
+    "Live · opens later": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paskelbta · atsidarys vėliau"
+          }
+        }
+      }
+    },
+    "Listing not found": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skelbimas nerastas"
+          }
+        }
+      }
+    },
+    "Your listing": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų skelbimas"
+          }
+        }
+      }
+    },
+    "See it on the map": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti žemėlapyje"
+          }
+        }
+      }
+    },
+    "This month (estimate)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šį mėnesį (apytiksliai)"
+          }
+        }
+      }
+    },
+    "Your price": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų kaina"
+          }
+        }
+      }
+    },
+    "Typical nearby": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įprasta netoliese"
+          }
+        }
+      }
+    },
+    "The market moved: we'd now suggest %@.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rinka pasikeitė: dabar siūlytume %@."
+          }
+        }
+      }
+    },
+    "Booking": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Užsakymas"
+          }
+        }
+      }
+    },
+    "How to find it": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaip rasti"
+          }
+        }
+      }
+    },
+    "Remove listing": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pašalinti skelbimą"
+          }
+        }
+      }
+    },
+    "Remove this listing?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pašalinti šį skelbimą?"
+          }
+        }
+      }
+    },
+    "Remove": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pašalinti"
+          }
+        }
+      }
+    },
+    "Drivers will no longer see it. You can list it again any time.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vairuotojai jo nebematys. Vėl paskelbti galite bet kada."
+          }
+        }
+      }
+    },
+    "Rent it out to drivers nearby": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuomokite jį netoliese esantiems vairuotojams"
+          }
+        }
+      }
+    },
+    "Bookings, prices and earnings": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Užsakymai, kainos ir pajamos"
+          }
+        }
+      }
+    },
+    "%lld listed": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paskelbta: %lld"
+          }
+        }
+      }
+    },
+    "Photo of the charger": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkroviklio nuotrauka"
+          }
+        }
+      }
+    },
+    "Shared by a homeowner": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuomoja namo savininkas"
+          }
+        }
+      }
+    },
+    "Shared by the station owner": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuomoja stotelės savininkas"
+          }
+        }
+      }
+    },
+    "Vilnius": {
+      "shouldTranslate": false
+    },
+    "Starts": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradžia"
+          }
+        }
+      }
+    },
+    "Ends": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pabaiga"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
