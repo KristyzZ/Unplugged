@@ -14,6 +14,8 @@ enum StationQuery {
         var fastOnly = false
         var myCarOnly = false
         var operatorId: String?
+        /// Only chargers that private hosts share.
+        var privateOnly = false
         var text = ""
     }
 
@@ -26,6 +28,7 @@ enum StationQuery {
             vehicle: filter.myCarOnly ? vehicle : nil)
         return stations
             .filter { filter.operatorId == nil || $0.operatorId == filter.operatorId }
+            .filter { !filter.privateOnly || $0.operatorId == HostListing.operatorId }
             .filter { $0.hasConnector(matching: connectorFilter, at: now) }
             .filter { query.isEmpty || "\($0.name) \($0.address) \($0.city)".lowercased().contains(query) }
             .map { Item(station: $0, distance: Geo.haversineKm(origin, $0.latLng)) }
@@ -84,5 +87,58 @@ enum StationQuery {
     /// Which station wins a crowded spot on the map: one with a free connector, then the faster one.
     private static func rank(_ station: Station, now: Date) -> Double {
         (station.freeCount(at: now) > 0 ? 1000 : 0) + station.maxPower
+    }
+
+    // MARK: Clusters
+
+    /// A map marker: one station, or several close together shown as a count.
+    struct Cluster: Identifiable, Equatable {
+        let items: [Item]
+        let center: LatLng
+        /// Stable while the same stations are grouped, so markers don't flicker.
+        var id: String { items.count == 1 ? items[0].id : "c:" + items.map(\.id).sorted().joined(separator: ",") }
+        var single: Item? { items.count == 1 ? items[0] : nil }
+        func freeCount(at now: Date = .now) -> Int { items.reduce(0) { $0 + $1.station.freeCount(at: now) } }
+        /// Bounding span of the grouped stations (degrees).
+        var latSpan: Double { (items.map(\.station.lat).max() ?? 0) - (items.map(\.station.lat).min() ?? 0) }
+        var lngSpan: Double { (items.map(\.station.lng).max() ?? 0) - (items.map(\.station.lng).min() ?? 0) }
+    }
+
+    /// Below this visible height (degrees, ~1.3 km) every station gets its own pin.
+    static let expandSpan = 0.012
+
+    /// Groups the visible stations into a coarse screen grid (about 5 across and
+    /// 8 down a portrait phone), so a crowded city shows a few count bubbles
+    /// that split up as you zoom in. Zoomed in past `expandSpan`, or for the
+    /// selected station, nothing is grouped.
+    static func clusters(_ items: [Item], region: Region?, selectedId: String?, columns: Double = 5, rows: Double = 8) -> [Cluster] {
+        guard let region else { return items.prefix(150).map { Cluster(items: [$0], center: $0.station.latLng) } }
+        let visible = items.filter { region.contains($0.station.latLng) || $0.id == selectedId }
+        if region.latSpan <= expandSpan || region.latSpan <= 0 || region.lngSpan <= 0 {
+            return visible.map { Cluster(items: [$0], center: $0.station.latLng) }
+        }
+        let latCell = region.latSpan / rows, lngCell = region.lngSpan / columns
+        var cells: [Int64: [Item]] = [:]
+        var order: [Int64] = []
+        var result: [Cluster] = []
+        for item in visible {
+            if item.id == selectedId {
+                result.append(Cluster(items: [item], center: item.station.latLng))
+                continue
+            }
+            // Anchored to the world grid, not the camera, so cells don't reshuffle on every small pan.
+            let row = Int64((item.station.lat / latCell).rounded(.down))
+            let col = Int64((item.station.lng / lngCell).rounded(.down))
+            let key = row &* 1_000_003 &+ col
+            if cells[key] == nil { order.append(key) }
+            cells[key, default: []].append(item)
+        }
+        for key in order {
+            let group = cells[key]!
+            let lat = group.reduce(0) { $0 + $1.station.lat } / Double(group.count)
+            let lng = group.reduce(0) { $0 + $1.station.lng } / Double(group.count)
+            result.append(Cluster(items: group, center: group.count == 1 ? group[0].station.latLng : LatLng(lat: lat, lng: lng)))
+        }
+        return result
     }
 }

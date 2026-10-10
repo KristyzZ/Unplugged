@@ -6702,6 +6702,66 @@
           }
         }
       }
+    },
+    "Private": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privatūs"
+          }
+        }
+      }
+    },
+    "%lld free": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld laisvi"
+          }
+        }
+      }
+    },
+    "%lld stations, %lld free connectors": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelių: %lld, laisvų jungčių: %lld"
+          }
+        }
+      }
+    },
+    "Zooms in": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priartina"
+          }
+        }
+      }
+    },
+    "Home charger · %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Namų įkroviklis · %@"
+          }
+        }
+      }
+    },
+    "Business charger · %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verslo įkroviklis · %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
