@@ -30,7 +30,7 @@ final class SessionLifecycleTests: XCTestCase {
             let s = try XCTUnwrap(model.session)
             XCTAssertEqual(s.connectorId, connector.id)
             XCTAssertNotNil(s.sessionId)
-            func status() -> ConnectorStatus? {
+            @MainActor func status() -> ConnectorStatus? {
                 model.stations.first { $0.id == station.id }?.connectors.first { $0.id == connector.id }?.status
             }
             XCTAssertEqual(status(), .charging)
