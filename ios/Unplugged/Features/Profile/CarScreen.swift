@@ -364,7 +364,7 @@ struct ChargeLimitPicker: View {
                     Chip(title: "\(Int(value)) %", active: model.chargeLimit == value) { model.setChargeLimit(value) }
                 }
             }
-            Text("80 % is kinder to the battery and faster: the last 20 % charges slowly.")
+            Text("\(80) % is kinder to the battery and faster: the last \(20) % charges slowly.")
                 .font(.caption)
                 .foregroundStyle(Theme.muted)
         }

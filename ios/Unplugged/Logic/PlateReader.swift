@@ -1,6 +1,10 @@
+import CoreGraphics
+import Foundation
+#if canImport(UIKit)
 import ImageIO
 import UIKit
 import Vision
+#endif
 
 /// A licence plate found in a photo.
 struct PlateReading: Equatable {
@@ -20,6 +24,7 @@ struct PlateReading: Equatable {
 /// Text recognition mixes up look-alike characters (O/0, I/1, B/8, S/5), so
 /// for the standard format each position is corrected to a letter or digit.
 enum PlateReader {
+    #if canImport(UIKit)
     static func read(_ image: UIImage) async -> PlateReading? {
         guard let cgImage = image.cgImage else { return nil }
         let orientation = CGImagePropertyOrientation(image.imageOrientation)
@@ -52,6 +57,7 @@ enum PlateReader {
         }
         return best?.reading
     }
+    #endif
 
     /// Recognised text → a plate, or nil when it doesn't look like one.
     static func match(_ raw: String) -> (plate: String, lithuanian: Bool)? {
@@ -106,6 +112,7 @@ enum PlateReader {
     }
 }
 
+#if canImport(UIKit)
 private extension CGImagePropertyOrientation {
     init(_ orientation: UIImage.Orientation) {
         switch orientation {
@@ -121,3 +128,4 @@ private extension CGImagePropertyOrientation {
         }
     }
 }
+#endif

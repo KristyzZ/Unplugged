@@ -67,6 +67,10 @@ struct RootView: View {
         .onChange(of: location.location) { _, here in
             if let here { model.setOrigin(here) }
         }
+        // Ask for notifications at launch only once the intro has explained why.
+        .task {
+            if model.onboarded { NotificationManager.shared.requestPermission() }
+        }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active: model.becameActive()

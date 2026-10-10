@@ -4211,82 +4211,12 @@
         }
       }
     },
-    "Navigate": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vesti"
-          }
-        }
-      }
-    },
-    "All taken": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Visos užimtos"
-          }
-        }
-      }
-    },
-    "Time left": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Liko laiko"
-          }
-        }
-      }
-    },
-    "Free time left": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Liko nemokamo laiko"
-          }
-        }
-      }
-    },
     "Spot held for you": {
       "localizations": {
         "lt": {
           "stringUnit": {
             "state": "translated",
             "value": "Vieta laikoma jums"
-          }
-        }
-      }
-    },
-    "In the queue": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eilėje"
-          }
-        }
-      }
-    },
-    "Place in line": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vieta eilėje"
-          }
-        }
-      }
-    },
-    "Pick a charger in Nearby.": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pasirinkite stotelę skiltyje „Šalia“."
           }
         }
       }
@@ -4571,12 +4501,12 @@
         }
       }
     },
-    "80 % is kinder to the battery and faster: the last 20 % charges slowly.": {
+    "%lld %% is kinder to the battery and faster: the last %lld %% charges slowly.": {
       "localizations": {
         "lt": {
           "stringUnit": {
             "state": "translated",
-            "value": "80 % tausoja bateriją ir kraunasi greičiau: paskutiniai 20 % kraunasi lėtai."
+            "value": "%lld %% tausoja bateriją ir kraunasi greičiau: paskutiniai %lld %% kraunasi lėtai."
           }
         }
       }

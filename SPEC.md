@@ -1,6 +1,6 @@
 # Unplugged — Product Specification
 
-Hack4Vilnius · Challenge #13 · Updated 2026-10-08.
+Hack4Vilnius · Challenge #13 · Updated 2026-10-10.
 
 This specification is based on our discussion of the challenge and product direction. It is not a copy of the official challenge brief. The current product is a native iOS prototype (Swift / SwiftUI); `web/` contains an earlier Next.js prototype.
 
@@ -42,6 +42,14 @@ The MVP must demonstrate one complete scenario: **occupied station → better al
 | P2 | Trip planning | Vehicle, battery level, and destination → compatible charging stations, time, cost, and battery level on arrival |
 
 P0 defines the core demonstration scope. P1 is added after P0 is complete; P2 and other existing prototype features remain part of the broader product vision.
+
+### Implementation status (2026-10-10)
+
+The table above is an acceptance target, not a declaration that every criterion is complete. `main` includes the dark-glass Explore / Plan / Charging / Profile UI, EN/LT switching, simulated charging and local notifications, reports, rewards, profile controls, charging tile and Lock Screen / Dynamic Island Live Activity. AppModel is split into feature extensions; native tests and app/widget CI are present (see [build instructions](ios/BUILD.md)).
+
+The separate `pipeline/` collects Via Lietuva open OCPI data, reads the untouched `EV_IS_2026-10-09.xlsx` registry, stores sampled status history and exports snapshots. The iOS app still uses fictional stations, prices and occupancy; connecting these real inputs remains [#35](https://github.com/KristyzZ/Unplugged/issues/35). Payments and operator plans remain simulated.
+
+Explainable recommendations, plan-aware pricing, session-to-map release, real queue notifications, report review/reward integrity and event-derived analytics are still tracked in [epic #17](https://github.com/KristyzZ/Unplugged/issues/17). The deterministic end-to-end scenario and its validated runbook remain [#22](https://github.com/KristyzZ/Unplugged/issues/22). Existing screens and timers do not establish that those issues are complete.
 
 ## Recommendations and Data
 
@@ -91,15 +99,18 @@ A referred session is recorded separately from an incremental session: whether i
 
 ## Technical Foundation and Boundaries
 
-- Primary platform: SwiftUI, MapKit, Swift Charts, and iOS notifications. Domain rules remain in `ios/Unplugged/Logic/`, state in `State/`, and demo data in `Models/DemoData.swift`.
+- Primary platform: SwiftUI, MapKit, Swift Charts, local iOS notifications and ActivityKit. Domain rules remain in `ios/Unplugged/Logic/`, state and feature extensions in `ios/Unplugged/State/`, and demo data in `ios/Unplugged/Models/DemoData.swift`. Liquid Glass requires the iOS 26+ SDK to compile; supported older runtimes use the frosted fallback. See [ios/BUILD.md](ios/BUILD.md) for the verified toolchain and build/test commands.
 - Existing areas: map, station details, session, trip planning, points, abuse reports, and operator analytics.
 - New priorities: recommendation explanations, a network load redistribution scenario, a linked-plan model, and displaying integration capabilities. This specification does not itself implement these features.
 - Data models: operator and integration capabilities, station, connector and status timestamp, tariff, linked plan, session, reward event, queue entry, report, and referral event.
-- Real operator APIs / OCPI, a backend, authorization, and payments are planned after the hackathon. Integration availability has not been confirmed.
-- The demo runs without operator accounts, real payments, or a server. State can be reset, time accelerated, and results reproduced.
-- Reservations with a 10–15-minute arrival window, real charging credits, Live Activity, and advanced prediction are later-stage features. Reservations require operator confirmation.
+- The public Via Lietuva OCPI feed is already consumed by `pipeline/`; its registry loader reads `EV_IS_2026-10-09.xlsx` without changing it. Data is attributed to Via Lietuva under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); normalized/joined exports are derived data. See [README Data](README.md#data) and [pipeline/README.md](pipeline/README.md). This collector does not provide operator account access, remote session control, payment authority or an app-facing HTTP server on `main`. Authorized operator integrations, a hosted backend, authorization and real payments remain later work.
+- The current app can run with demo data without operator accounts, real payments or a server; saved demo state can be reset and simulated time accelerated. Reproducibility of the full cross-screen scenario is an acceptance requirement still owned by #22, not a verified property of the current timer-generated station data.
+- The shipped Live Activity extension displays the simulated charging session on the Lock Screen and, on supported devices, the Dynamic Island. It mirrors charging, grace, idle-fee and ended phases. Its countdowns use system-rendered wall-clock dates, so they keep ticking while the app is closed; state transitions and fee values are updated locally while the app runs. It requests no push token (`pushType: nil`). APNs push updates and real operator control are out of scope; background/lifecycle hardening remains [#20](https://github.com/KristyzZ/Unplugged/issues/20).
+- Reservations with a 10–15-minute arrival window, real charging credits and advanced prediction are later-stage features. Reservations require operator confirmation.
 
 ## Demonstration Scenario
+
+**Runbook placeholder — pending [#22](https://github.com/KristyzZ/Unplugged/issues/22).** The sequence below describes the intended integrated demonstration. A fixed fixture, exact presentation actions and expected outcomes will be documented after its dependencies land; the current map refresh, queue and seeded dashboard do not yet implement this complete reproducible sequence. Verify both languages, relaunch, denied notifications and repeated reset before treating it as ready to present.
 
 1. A driver in Vilnius searches for a suitable station. The nearest station is occupied; one charging session has ended, but the vehicle remains parked.
 2. Unplugged offers an available alternative and explains the differences in travel time, waiting time, and price. If P1 is implemented, enabling a demo operator plan recalculates personal pricing.

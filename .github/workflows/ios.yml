@@ -1,0 +1,52 @@
+name: iOS
+
+# Builds the app and widget and runs the unit tests on a macOS runner.
+# NOTE: macOS minutes on GitHub-hosted runners cost 10x Linux minutes on private repos,
+# so runs are limited to iOS-related paths and superseded runs are cancelled.
+on:
+  pull_request:
+    paths:
+      - "ios/**"
+      - "scripts/ios.sh"
+      - ".github/workflows/ios.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - "scripts/ios.sh"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    # The code uses iOS 26 APIs (Liquid Glass), so it needs the Xcode 26+ toolchain.
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          xcrun simctl list devices available | head -20
+
+      - name: Build app and widget
+        run: scripts/ios.sh build
+
+      - name: Unit tests
+        run: scripts/ios.sh test
+
+      - name: Upload logs and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-logs
+          path: |
+            ios/build/*.log
+            ios/build/Unplugged.xcresult
+          if-no-files-found: ignore
+          retention-days: 7
