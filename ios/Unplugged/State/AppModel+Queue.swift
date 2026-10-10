@@ -17,6 +17,7 @@ extension AppModel {
     /// Station snapshot with the held chargers marked.
     func refreshStations() {
         var fresh = DemoData.stations(at: .now, tick: tick)
+        fresh += hostListings.compactMap { Hosting.station(for: $0) }
         for hold in holds {
             guard let si = fresh.firstIndex(where: { $0.id == hold.stationId }),
                   let ci = fresh[si].connectors.firstIndex(where: { $0.id == hold.connectorId }) else { continue }

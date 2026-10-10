@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct StationDetailView: View {
     let stationId: String
@@ -47,6 +48,10 @@ struct StationDetailView: View {
                     .foregroundStyle(Theme.muted)
                 }
                 .padding(.bottom, 16)
+
+                if let listing = model.hostListing(forStation: station.id) {
+                    HostedStationCard(listing: listing).padding(.bottom, 12)
+                }
 
                 statusCard(station)
 
@@ -313,6 +318,41 @@ private struct HoldCard: View {
                     Button("Charge here", action: onCharge).buttonStyle(PrimaryButtonStyle())
                 }
                 .padding(.top, 12)
+            }
+        }
+    }
+}
+
+/// A charger rented out by its owner: their photo, when it's free and how to find it.
+private struct HostedStationCard: View {
+    let listing: HostListing
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let photo = HostPhotoStore.load(listing.photoFile) {
+                Color.clear
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 190)
+                    .overlay { Image(uiImage: photo).resizable().scaledToFill() }
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .accessibilityElement()
+                    .accessibilityLabel(Text("Photo of the charger"))
+            }
+            CardBox {
+                HStack(spacing: 12) {
+                    IconBadge(systemImage: listing.kind.systemImage, color: Color(hex: "DB2777"))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(listing.kind == .homeowner ? "Shared by a homeowner" : "Shared by the station owner")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Theme.text)
+                        Text(listing.schedule.summary).font(.caption).foregroundStyle(Theme.muted)
+                    }
+                    Spacer(minLength: 0)
+                    Pill(text: listing.instantBook ? tr("Instant booking") : tr("Request to book"), color: Theme.info)
+                }
+                if !listing.accessNotes.isEmpty {
+                    Text(listing.accessNotes).font(.subheadline).foregroundStyle(Theme.text).padding(.top, 10)
+                }
             }
         }
     }
