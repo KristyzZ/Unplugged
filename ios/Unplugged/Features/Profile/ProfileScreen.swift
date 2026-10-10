@@ -3,7 +3,6 @@ import SwiftUI
 /// Your car at a glance, then a short list. Each detail lives on its own page.
 struct ProfileScreen: View {
     @Environment(AppModel.self) private var model
-    @State private var confirmReset = false
 
     var body: some View {
         NavigationStack {
@@ -22,9 +21,6 @@ struct ProfileScreen: View {
             .navigationTitle("Profile")
             .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top, spacing: 0) { ScreenHeader(title: "Profile") }
-            .confirmationDialog("Reset all demo data?", isPresented: $confirmReset, titleVisibility: .visible) {
-                Button("Reset", role: .destructive) { model.resetDemo() }
-            }
         }
     }
 
@@ -114,37 +110,6 @@ struct ProfileScreen: View {
                 }
             }
             RowDivider()
-            ListRow(systemImage: "bolt.horizontal.circle", title: "Use demo stations") {
-                Toggle("", isOn: Binding(get: { model.stationSource == .demo },
-                                         set: { model.setStationSource($0 ? .demo : .real) }))
-                    .labelsHidden().tint(Theme.brand)
-            }
-            Text("Show invented stations instead of the live ones, for offline demos.")
-                .font(.caption)
-                .foregroundStyle(Theme.muted)
-                .padding(.horizontal, 14)
-                .padding(.bottom, 4)
-            RowDivider()
-            ListRow(systemImage: "speedometer", title: "Demo: speed up time") {
-                Menu {
-                    Picker("Demo: speed up time", selection: Binding(get: { model.speed }, set: { model.setSpeed($0) })) {
-                        ForEach([1.0, 10, 60, 300], id: \.self) { Text("\(Int($0))×").tag($0) }
-                    }
-                } label: {
-                    HStack(spacing: 4) {
-                        Text("\(Int(model.speed))×")
-                        Image(systemName: "chevron.up.chevron.down").font(.caption2.weight(.semibold))
-                    }
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.muted)
-                }
-            }
-            Text("Speeds up time so you can see the finished notice, the free minutes and the idle fee.")
-                .font(.caption)
-                .foregroundStyle(Theme.muted)
-                .padding(.horizontal, 14)
-                .padding(.bottom, 4)
-            RowDivider()
             Text("Contains data from Via Lietuva (ev.vialietuva.lt), CC BY 4.0.")
                 .font(.caption)
                 .foregroundStyle(Theme.muted)
@@ -174,13 +139,13 @@ struct ProfileScreen: View {
             }
             .buttonStyle(.plain)
             RowDivider()
-            Button { model.showOnboardingAgain() } label: {
-                ListRow(systemImage: "sparkles", title: "Show the intro again", color: Theme.brand) { EmptyView() }
+            NavigationLink { DemoScreen() } label: {
+                ListRow(systemImage: "play.rectangle.fill", title: "Demo", value: "\(Int(model.speed))×")
             }
             .buttonStyle(.plain)
             RowDivider()
-            Button { confirmReset = true } label: {
-                ListRow(systemImage: "arrow.counterclockwise", title: "Reset demo data", color: Theme.bad) { EmptyView() }
+            Button { model.showOnboardingAgain() } label: {
+                ListRow(systemImage: "sparkles", title: "Show the intro again", color: Theme.brand) { EmptyView() }
             }
             .buttonStyle(.plain)
           }
