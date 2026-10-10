@@ -95,6 +95,9 @@ final class RewardHistoryTests: XCTestCase {
             model.setLang(.lt)
             let lithuanian = record.title
             XCTAssertNotEqual(english, lithuanian)
+            XCTAssertEqual(lithuanian, "−5 % kitam įkrovimui")
+            XCTAssertEqual(Points.rewards[3].title, "−50 % automobilio plovimui")
+            XCTAssertEqual(Points.rewards[4].title, "−20 % visiems įkrovimams savaitę")
             XCTAssertEqual(lithuanian, Points.rewards[1].title)
             XCTAssertEqual(model.rewardRedemptions.first, record)
             XCTAssertEqual(model.points, 20)
