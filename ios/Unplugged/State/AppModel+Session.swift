@@ -160,6 +160,8 @@ extension AppModel {
     func refreshStations(at date: Date = .now) {
         var fresh = stationSource == .demo ? DemoData.stations(at: date, tick: tick) : baseStations
         fresh += hostListings.compactMap { Hosting.station(for: $0) }
+        // Demo community of private chargers; there is no hosting backend yet.
+        fresh += PrivateChargers.stations(at: date)
         stations = fresh
         applySessionStatus(at: date)
         publishNearby()

@@ -10,6 +10,7 @@ struct MapScreen: View {
     @State private var onlyFree = false
     @State private var fastOnly = false
     @State private var myCarOnly = true
+    @State private var privateOnly = false
     @State private var operatorId: String?
     @State private var selectedId: String?
     @State private var listOpen = false
@@ -36,7 +37,7 @@ struct MapScreen: View {
         StationQuery.items(
             model.stations, origin: origin, vehicle: model.vehicle,
             filter: .init(onlyAvailable: onlyFree, fastOnly: fastOnly, myCarOnly: myCarOnly,
-                          operatorId: operatorId, text: query))
+                          operatorId: operatorId, privateOnly: privateOnly, text: query))
     }
 
     private func priceText(_ station: Station) -> String {
@@ -100,19 +101,27 @@ struct MapScreen: View {
     // MARK: Map
 
     private func map(_ items: [Item]) -> some View {
-        let pins = StationQuery.pins(items, region: region, selectedId: selectedId).shown
+        let clusters = StationQuery.clusters(items, region: region, selectedId: selectedId)
         return Map(position: $camera) {
-            ForEach(pins) { item in
-                Annotation(item.station.name, coordinate: item.station.coordinate, anchor: .bottom) {
-                    StationPin(station: item.station, emphasized: item.id == selectedId)
-                        .onTapGesture {
-                            withMotion(.spring(duration: 0.3)) {
-                                selectedId = item.id
-                                listOpen = false
+            ForEach(clusters) { cluster in
+                if let item = cluster.single {
+                    Annotation(item.station.name, coordinate: item.station.coordinate, anchor: .bottom) {
+                        StationPin(station: item.station, emphasized: item.id == selectedId)
+                            .onTapGesture {
+                                withMotion(.spring(duration: 0.3)) {
+                                    selectedId = item.id
+                                    listOpen = false
+                                }
                             }
-                        }
+                    }
+                    .annotationTitles(.hidden)
+                } else {
+                    Annotation("", coordinate: cluster.center.coordinate, anchor: .center) {
+                        ClusterPin(count: cluster.items.count, free: cluster.freeCount())
+                            .onTapGesture { zoom(into: cluster) }
+                    }
+                    .annotationTitles(.hidden)
                 }
-                .annotationTitles(.hidden)
             }
             UserAnnotation()
         }
@@ -130,6 +139,16 @@ struct MapScreen: View {
                                                 span: MKCoordinateSpan(latitudeDelta: 0.06, longitudeDelta: 0.06)))
         }
         .onTapGesture { searchFocused = false }
+    }
+
+    /// Zooms so the grouped stations spread out; past `expandSpan` they split into pins.
+    private func zoom(into cluster: StationQuery.Cluster) {
+        let current = region?.latSpan ?? 0.11
+        let span = max(StationQuery.expandSpan * 0.8, min(current / 2.5, max(cluster.latSpan, cluster.lngSpan) * 1.6))
+        withMotion(.spring(duration: 0.45)) {
+            camera = .region(MKCoordinateRegion(center: cluster.center.coordinate,
+                                                span: MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)))
+        }
     }
 
     // MARK: Top bar
@@ -181,6 +200,7 @@ struct MapScreen: View {
                 Chip(title: "Available only", active: onlyFree) { onlyFree.toggle() }
                 Chip(title: "Fast ≥ 50 kW", active: fastOnly) { fastOnly.toggle() }
                 Chip(title: "Fits my car", active: myCarOnly) { myCarOnly.toggle() }
+                Chip(title: "Private", active: privateOnly) { privateOnly.toggle() }
                 ForEach(DemoData.operators) { op in
                     Chip(title: op.name, active: operatorId == op.id) {
                         operatorId = operatorId == op.id ? nil : op.id
@@ -324,6 +344,38 @@ struct StationPin: View {
     /// What the pin shows: free connectors, or "?" when availability is unknown.
     static func label(free: Int, availability: AvailabilityLevel) -> String {
         availability == .unknown && free == 0 ? "?" : "\(free)"
+    }
+}
+
+/// Several stations close together: how many, and how many plugs are free.
+/// Tap to zoom in until they split into pins.
+struct ClusterPin: View {
+    let count: Int
+    let free: Int
+
+    var body: some View {
+        let color = free > 0 ? Theme.ok : Theme.muted
+        VStack(spacing: 0) {
+            Text("\(count)")
+                .scaledFont(15, weight: .bold, design: .rounded, relativeTo: .subheadline)
+                .foregroundStyle(Theme.text)
+            Text("\(free) free")
+                .scaledFont(9, weight: .semibold, relativeTo: .caption2)
+                .foregroundStyle(color)
+        }
+        .monospacedDigit()
+        .lineLimit(1)
+        .fixedSize()
+        .frame(minWidth: 46, minHeight: 46)
+        .padding(.horizontal, 4)
+        .background(Theme.card.opacity(0.9), in: Circle())
+        .overlay(Circle().strokeBorder(color, lineWidth: 2.5))
+        .shadow(color: .black.opacity(0.35), radius: 3, y: 2)
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("\(count) stations, \(free) free connectors"))
+        .accessibilityHint(Text("Zooms in"))
+        .accessibilityAddTraits(.isButton)
     }
 }
 

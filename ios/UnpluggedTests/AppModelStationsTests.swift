@@ -32,7 +32,7 @@ final class AppModelStationsTests: XCTestCase {
         let bundled = model.stations.count
         XCTAssertGreaterThan(bundled, 1500, "the bundled snapshot is on screen immediately, before the first fetch")
         await model.refreshLiveStations()
-        XCTAssertEqual(model.stations.count, 1)
+        XCTAssertEqual(model.publicStations.count, 1)
         XCTAssertEqual(model.stations[0].id, "ocpi-9")
         XCTAssertEqual(model.feedStatus, .live(at: date))
         XCTAssertTrue(model.stations[0].connectors[0].isConfirmedAvailable())
@@ -75,7 +75,7 @@ final class AppModelStationsTests: XCTestCase {
         let model = AppModel(runLoops: false, stationSource: .demo, feed: Boom())
         await model.refreshLiveStations()
         XCTAssertEqual(model.feedStatus, .demo)
-        XCTAssertEqual(model.stations.count, DemoData.seeds.count)
+        XCTAssertEqual(model.publicStations.count, DemoData.seeds.count)
     }
 
     func testSwitchingSourceChangesTheStationsAndIsRemembered() async throws {
@@ -84,7 +84,7 @@ final class AppModelStationsTests: XCTestCase {
         let model = AppModel(runLoops: false, stationSource: .real, feed: StubFeed(result: .success(try snapshot())))
         await model.refreshLiveStations()
         model.setStationSource(.demo)
-        XCTAssertEqual(model.stations.count, DemoData.seeds.count)
+        XCTAssertEqual(model.publicStations.count, DemoData.seeds.count)
         XCTAssertEqual(model.feedStatus, .demo)
         XCTAssertEqual(AppModel.savedStationSource, .demo)
         model.setStationSource(.real)
@@ -98,8 +98,8 @@ final class AppModelStationsTests: XCTestCase {
         var hosted = HostListing(); hosted.title = "Home charger"; hosted.pricePerKwh = 0.30; hosted.schedule = .always
         model.hostListings = [hosted]
         model.refreshStations()
-        XCTAssertEqual(model.stations.count, 2)
-        XCTAssertTrue(model.stations.contains { $0.operatorId == HostListing.operatorId })
+        XCTAssertEqual(model.stations.filter { !$0.id.hasPrefix("host-demo-") }.count, 2)
+        XCTAssertTrue(model.stations.contains { $0.id == hosted.id })
         XCTAssertTrue(model.stations.contains { $0.id == "ocpi-9" })
     }
 

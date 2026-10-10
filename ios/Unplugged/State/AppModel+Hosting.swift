@@ -37,7 +37,7 @@ extension AppModel {
 
     /// The listing behind a station on the map, if a host offers it.
     func hostListing(forStation id: String) -> HostListing? {
-        hostListings.first { $0.id == id }
+        hostListings.first { $0.id == id } ?? PrivateChargers.listings.first { $0.id == id }
     }
 
     /// Public stations only: the market a host's price is compared with.
