@@ -75,7 +75,6 @@ final class AppModel {
     @ObservationIgnored var simAnchor = Date()
     @ObservationIgnored var graceAnnouncedFor: Date?
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
-    #if os(iOS)
     /// Is another driver waiting for a spot at this station? A demo heuristic (a busy station); tests
     /// inject a fixed answer so results do not depend on the hour they run.
     @ObservationIgnored var someoneWaitingAt: (Station) -> Bool = { station in
@@ -83,6 +82,7 @@ final class AppModel {
         return station.freeCount == 0 || station.demandLevel(hour: hour) >= 0.5
     }
 
+    #if os(iOS)
     @ObservationIgnored var lastWidgetSnapshot: NearbySnapshot?
     @ObservationIgnored var lastWidgetReload = Date.distantPast
     #endif
