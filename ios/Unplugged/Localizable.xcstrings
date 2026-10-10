@@ -7002,6 +7002,16 @@
           }
         }
       }
+    },
+    "Start charging": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradėti krauti"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
