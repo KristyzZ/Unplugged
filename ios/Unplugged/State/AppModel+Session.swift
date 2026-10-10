@@ -23,6 +23,7 @@ extension AppModel {
     // MARK: Charging
 
     func startCharging(at station: Station, connector: Connector, targetSoc: Double) {
+        let terms = pricingTerms(at: station, connector: connector)
         let estimate = Charging.chargeTime(vehicle, connector, from: soc, to: targetSoc)
         let hour = Calendar.current.component(.hour, from: .now)
         session = ChargingSession(
@@ -34,8 +35,9 @@ extension AppModel {
             targetSoc: targetSoc,
             minutesToTarget: Double(max(1, estimate.minutes)),
             graceMinutes: IdleFee.graceMinutes(demand: station.demandLevel(hour: hour)),
-            pricePerKwh: station.pricePerKwh,
-            batteryKwh: vehicle.batteryKwh
+            pricePerKwh: terms.energyEurPerKwh,
+            batteryKwh: vehicle.batteryKwh,
+            pricingTerms: terms
         )
         queue = nil
         graceAnnouncedFor = nil

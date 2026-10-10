@@ -85,7 +85,7 @@ final class LiveActivityManager {
             chargeStart: chargeStart.roundedToSecond,
             chargeEnd: chargeEnd.roundedToSecond,
             graceEnd: graceEnd.roundedToSecond,
-            energyCostEur: (snap.energyCost * 100).rounded() / 100,
+            energyCostEur: (snap.chargingCost * 100).rounded() / 100,
             idleRateEurPerMin: IdleFee.currentRate(minutes: snap.idleMinutes)
         )
     }

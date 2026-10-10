@@ -67,13 +67,17 @@ struct SessionScreen: View {
             Divider().padding(.vertical, 12)
             StatRow {
                 StatView(label: "Energy", value: String(format: "%.1f kWh", snap.kwh))
-                StatView(label: "Cost", value: Fmt.eur(snap.energyCost))
+                StatView(label: "Cost", value: Fmt.eur(snap.chargingCost))
                 if snap.phase == .charging {
                     StatView(label: "Left", value: Fmt.minutes(snap.minutesLeft))
                 } else {
                     StatView(label: "Idle fee", value: Fmt.eur(snap.idleFee))
                 }
             }
+        }
+
+        if let terms = s.pricingTerms, snap.phase != .ended, let charges = snap.pricingCharges {
+            CardBox { PricingBreakdownView(terms: terms, charges: charges) }.padding(.top, 12)
         }
 
         switch snap.phase {
@@ -156,10 +160,14 @@ struct SessionScreen: View {
     private func receipt(_ s: ChargingSession, _ snap: SessionSnapshot) -> some View {
         CardBox {
             Text("Receipt").font(.headline).padding(.bottom, 8)
-            row(String(format: trKey("Charging (%.1f kWh × %.2f €)"), snap.kwh, s.pricePerKwh), Fmt.eur(snap.energyCost))
+            if let terms = s.pricingTerms, let charges = snap.pricingCharges {
+                PricingBreakdownView(terms: terms, charges: charges).padding(.bottom, 8)
+            } else {
+                row(String(format: trKey("Charging (%.1f kWh × %.2f €)"), snap.kwh, s.pricePerKwh), Fmt.eur(snap.chargingCost))
+            }
             row("Idle fee", Fmt.eur(snap.idleFee))
             Divider().padding(.vertical, 6)
-            row("Total", Fmt.eur(snap.energyCost + snap.idleFee), bold: true)
+            row("Total", Fmt.eur(snap.chargingCost + snap.idleFee), bold: true)
             if let pts = s.pointsEarned, pts > 0 {
                 row("Points earned", "+\(pts)")
             }
@@ -193,13 +201,17 @@ struct SessionScreen: View {
                             Text("\(s.startedAt.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(L10n.locale))) · \(String(format: "%.1f kWh", snap.kwh))")
                                 .font(.caption)
                                 .foregroundStyle(Theme.muted)
+                            if let terms = s.pricingTerms {
+                                Text("Demo contract: \(terms.plan?.name ?? tr("Public tariff"))")
+                                    .font(.caption).foregroundStyle(Theme.muted)
+                            }
                             if snap.idleFee > 0 {
                                 Text("Includes idle fee \(Fmt.eur(snap.idleFee))").font(.caption).foregroundStyle(Theme.warn)
                             }
                         }
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
-                            Text(Fmt.eur(snap.energyCost + snap.idleFee)).font(.subheadline.weight(.semibold))
+                            Text(Fmt.eur(snap.chargingCost + snap.idleFee)).font(.subheadline.weight(.semibold))
                             if let pts = s.pointsEarned, pts > 0 {
                                 Text("+\(pts) pts").font(.caption).foregroundStyle(Theme.ok)
                             }

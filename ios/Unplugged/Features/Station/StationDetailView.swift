@@ -209,6 +209,7 @@ struct StationDetailView: View {
 
     private func chargeCard(_ station: Station, connector: Connector, vehicle: Vehicle, grace: Int, demand: Double) -> some View {
         let estimate = Charging.chargeTime(vehicle, connector, from: model.soc, to: target)
+        let price = model.chargingEstimate(at: station, connector: connector, targetSoc: target)
         let minTarget = min(100, model.soc + 5)
         let tiersText = IdleFee.tiers.map { String(format: "%.2f €", $0.eurPerMin) }.joined(separator: " → ")
         let finishText = Fmt.clock(Date().addingTimeInterval(Double(estimate.minutes) * 60))
@@ -228,9 +229,11 @@ struct StationDetailView: View {
             StatRow {
                 StatView(label: "Duration", value: Fmt.minutes(Double(estimate.minutes)), sub: tr("ends ~\(finishText)"))
                 StatView(label: "Energy", value: String(format: "%.1f kWh", estimate.kwh))
-                StatView(label: "Cost", value: Fmt.eur(estimate.kwh * station.pricePerKwh))
+                StatView(label: "Cost", value: Fmt.eur(price.charges.total))
             }
             .padding(.top, 10)
+            PricingBreakdownView(terms: price.terms, charges: price.charges)
+                .padding(.top, 12)
             Text("Once charging ends you'll have **\(grace) min** to move your car (current demand \(Fmt.pct(demand))). After that the idle fee grows: \(tiersText) per min. Move on time to earn points.")
                 .font(.caption)
                 .foregroundStyle(Theme.muted)
