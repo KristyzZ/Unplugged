@@ -1,8 +1,8 @@
 import Foundation
 
 // Abuse reports: a car occupying a charging spot without charging.
-// Evidence from several sources builds a confidence score; once it is high
-// enough the report is confirmed and a sanction from the ladder applies.
+// Confidence is a demo signal, separate from explicit simulated review.
+// No real operator moderation, fines or account restrictions are performed.
 
 enum ReportKind: String, Codable, CaseIterable, Identifiable {
     case wrongUsage, chargerProblem, other
@@ -33,6 +33,19 @@ enum ReportKind: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+enum ReportReviewState: String, Codable, CaseIterable {
+    case submitted, pendingReview, reviewedAccepted, reviewedRejected
+    var isReviewed: Bool { self == .reviewedAccepted || self == .reviewedRejected }
+    var title: String {
+        switch self {
+        case .submitted: tr("Submitted locally")
+        case .pendingReview: tr("Pending demo review")
+        case .reviewedAccepted: tr("Demo review: accepted")
+        case .reviewedRejected: tr("Demo review: rejected")
+        }
+    }
+}
+
 struct AbuseReport: Identifiable, Codable, Hashable {
     var id: String = UUID().uuidString
     let stationId: String
@@ -47,10 +60,16 @@ struct AbuseReport: Identifiable, Codable, Hashable {
     // Added later; optional so older saved reports still decode (they are wrong-use reports).
     var kind: ReportKind? = nil
     var connectorId: String? = nil
+    var reviewState: ReportReviewState? = nil
+    var confirmedByMe: Bool? = nil
+    var reportRewardGranted: Bool? = nil
+    var reviewedAt: Date? = nil
+    var reviewStatus: ReportReviewState { reviewState ?? .pendingReview }
+    var canConfirm: Bool { !byMe && confirmedByMe != true && !reviewStatus.isReviewed }
 
     var category: ReportKind { kind ?? .wrongUsage }
     var confidence: Double { Reports.confidence(hasPhoto: hasPhoto, telemetryMatches: telemetryMatches, confirmations: confirmations) }
-    var isConfirmed: Bool { confidence >= Reports.confirmThreshold }
+    var isConfirmed: Bool { reviewStatus == .reviewedAccepted }
 }
 
 enum Reports {
@@ -60,16 +79,16 @@ enum Reports {
         var score = 0.1 // the report itself
         if hasPhoto { score += 0.3 }
         if telemetryMatches { score += 0.4 }
-        score += Double(min(3, confirmations)) * 0.15
+        score += Double(max(0, min(3, confirmations))) * 0.15
         return min(1, score)
     }
 
     /// Sanction for the n-th confirmed offence of the same plate.
     static func sanction(forOffence n: Int) -> String {
         switch n {
-        case ...1: tr("Warning")
-        case 2: tr("€20 fine")
-        default: tr("Temporary account restriction (7 days)")
+        case ...1: tr("Demo warning (not applied)")
+        case 2: tr("Demo €20 fine (not applied)")
+        default: tr("Demo account restriction for 7 days (not applied)")
         }
     }
 

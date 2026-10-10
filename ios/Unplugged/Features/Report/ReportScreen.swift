@@ -28,7 +28,7 @@ struct ReportContent: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                Text("Report a problem at this station. Confirmed reports of wrong use help enforce warnings and fines.")
+                Text("Reports are stored on this device for a demo. They are not published or sent to an operator.")
                     .font(.subheadline)
                     .foregroundStyle(Theme.muted)
                     .padding(.bottom, 12)
@@ -97,7 +97,7 @@ struct ReportContent: View {
                 Label(photo == nil ? tr("Add photo") : tr("Change photo"), systemImage: "camera")
             }
             .buttonStyle(SecondaryButtonStyle())
-            Text(kind.photoHint)
+            Text("Photos are previewed only. Images are not retained or sent; the demo saves only whether a photo was added.")
                 .font(.caption)
                 .foregroundStyle(Theme.muted)
                 .padding(.top, 4)
@@ -134,41 +134,53 @@ struct ReportContent: View {
         return CardBox {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(r.category == .wrongUsage ? r.plate : r.category.title).font(.headline)
+                    Text(r.category.title).font(.headline)
                     Text(stationName + (r.byMe ? tr(" · your report") : "")).font(.caption).foregroundStyle(Theme.muted)
                 }
                 Spacer()
-                if r.category == .wrongUsage {
-                    Pill(text: r.isConfirmed ? "Confirmed" : "Awaiting confirmation", color: r.isConfirmed ? Theme.ok : Theme.warn)
-                } else {
-                    Pill(text: "Sent to operator", color: Theme.info)
-                }
+                Pill(text: r.reviewStatus.title, color: r.isConfirmed ? Theme.ok : Theme.warn)
             }
             if !r.description.isEmpty {
                 Text(trKey(r.description)).font(.subheadline).padding(.top, 8)
             }
             HStack(spacing: 6) {
-                Pill(text: tr("\(r.hasPhoto ? "✓" : "–") Photo"), color: r.hasPhoto ? Theme.ok : nil)
+                Pill(text: tr("\(r.hasPhoto ? "✓" : "–") Photo previewed (not saved)"), color: r.hasPhoto ? Theme.ok : nil)
                 Pill(text: tr("\(r.telemetryMatches ? "✓" : "–") Station data"), color: r.telemetryMatches ? Theme.ok : nil)
                 Pill(text: tr("\(r.confirmations) confirmed"), color: r.confirmations > 0 ? Theme.ok : nil)
             }
             .padding(.top, 10)
             if r.category == .wrongUsage {
                 HStack(spacing: 8) {
-                    Text("Confidence").font(.caption).foregroundStyle(Theme.muted)
+                    Text("Demo confidence").font(.caption).foregroundStyle(Theme.muted)
                     SocBar(value: r.confidence * 100, target: Reports.confirmThreshold * 100, height: 8)
                 }
                 .padding(.top, 10)
             }
             if r.category == .wrongUsage && r.isConfirmed {
-                Text("Offence no. \(offences) for this plate · applied: \(Reports.sanction(forOffence: offences))")
+                Text("Simulated escalation example: \(Reports.sanction(forOffence: offences))")
                     .font(.caption)
                     .foregroundStyle(Theme.muted)
                     .padding(.top, 8)
-            } else if !r.byMe {
+            }
+            if r.canConfirm {
                 Button(r.category == .wrongUsage ? "I see it too — confirm" : "Same here") { model.confirmReport(r.id) }
                     .buttonStyle(SecondaryButtonStyle())
                     .padding(.top, 10)
+            }
+            if r.confirmedByMe == true {
+                Text("You already confirmed this report.").font(.caption).foregroundStyle(Theme.muted)
+            }
+            if r.reviewStatus == .submitted {
+                Button("Queue demo review") { model.queueReportForReview(r.id) }
+                    .buttonStyle(SecondaryButtonStyle()).padding(.top, 8)
+            }
+            if !r.reviewStatus.isReviewed {
+                Text("Simulated review controls. No real moderation action is taken.")
+                    .font(.caption).foregroundStyle(Theme.muted).padding(.top, 8)
+                HStack {
+                    Button("Demo review: accept") { model.reviewReport(r.id, accepted: true) }
+                    Button("Demo review: reject") { model.reviewReport(r.id, accepted: false) }
+                }.buttonStyle(SecondaryButtonStyle())
             }
         }
     }

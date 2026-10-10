@@ -2920,6 +2920,236 @@
           }
         }
       }
+    },
+    "Submitted locally": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pateikta vietoje"
+          }
+        }
+      }
+    },
+    "Pending demo review": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laukiama demonstracinės peržiūros"
+          }
+        }
+      }
+    },
+    "Demo review: accepted": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė peržiūra: patvirtinta"
+          }
+        }
+      }
+    },
+    "Demo review: rejected": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė peržiūra: atmesta"
+          }
+        }
+      }
+    },
+    "Demo warning (not applied)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinis įspėjimas (nepritaikytas)"
+          }
+        }
+      }
+    },
+    "Demo €20 fine (not applied)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė 20 € bauda (nepritaikyta)"
+          }
+        }
+      }
+    },
+    "Demo account restriction for 7 days (not applied)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinis paskyros apribojimas 7 dienoms (nepritaikytas)"
+          }
+        }
+      }
+    },
+    "Report saved locally": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pranešimas išsaugotas įrenginyje"
+          }
+        }
+      }
+    },
+    "Demo only. It has not been sent to an operator.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tik demonstracija. Pranešimas operatoriui neišsiųstas."
+          }
+        }
+      }
+    },
+    "Confirmation saved": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patvirtinimas išsaugotas"
+          }
+        }
+      }
+    },
+    "This is a local demo confirmation.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tai vietinis demonstracinis patvirtinimas."
+          }
+        }
+      }
+    },
+    "Demo review recorded": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė peržiūra įrašyta"
+          }
+        }
+      }
+    },
+    "No real fine or account restriction has been applied.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tikra bauda ar paskyros apribojimas nepritaikytas."
+          }
+        }
+      }
+    },
+    "Reports are stored on this device for a demo. They are not published or sent to an operator.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pranešimai demonstracijai saugomi šiame įrenginyje. Jie neviešinami ir operatoriui nesiunčiami."
+          }
+        }
+      }
+    },
+    "Photos are previewed only. Images are not retained or sent; the demo saves only whether a photo was added.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuotraukos tik peržiūrimos. Vaizdai neišsaugomi ir nesiunčiami; demonstracija išsaugo tik žymą, ar nuotrauka buvo pridėta."
+          }
+        }
+      }
+    },
+    "%@ Photo previewed (not saved)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Nuotrauka peržiūrėta (neišsaugota)"
+          }
+        }
+      }
+    },
+    "Demo confidence": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinis patikimumas"
+          }
+        }
+      }
+    },
+    "Simulated escalation example: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinio eskalavimo pavyzdys: %@"
+          }
+        }
+      }
+    },
+    "You already confirmed this report.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šį pranešimą jau patvirtinote."
+          }
+        }
+      }
+    },
+    "Queue demo review": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įtraukti į demonstracinę peržiūrą"
+          }
+        }
+      }
+    },
+    "Simulated review controls. No real moderation action is taken.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinės peržiūros valdymas. Tikri moderavimo veiksmai neatliekami."
+          }
+        }
+      }
+    },
+    "Demo review: accept": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė peržiūra: patvirtinti"
+          }
+        }
+      }
+    },
+    "Demo review: reject": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė peržiūra: atmesti"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
