@@ -101,7 +101,7 @@ enum DemoData {
 
     static let basePrice: [String: Double] = ["ignitis": 0.49, "eleport": 0.45, "enefit": 0.47, "inbalance": 0.42]
 
-    private static func buildConnectors(_ seed: Seed, rand: inout SeededRandom, occupancyNow: Double) -> [Connector] {
+    private static func buildConnectors(_ seed: Seed, rand: inout SeededRandom, occupancyNow: Double, provenance: Provenance) -> [Connector] {
         var out: [Connector] = []
         for (type, power, count) in seed.connectors {
             for _ in 0..<count {
@@ -113,13 +113,13 @@ enum DemoData {
                 if rand.next() < 0.04 { status = .offline }
                 let idle = status == .idle ? Int(3 + rand.next() * 40) : nil
                 let eta = status == .charging ? Int(5 + rand.next() * (power >= 50 ? 35 : 150)) : nil
-                out.append(Connector(id: "\(seed.id)-\(out.count + 1)", type: type, powerKw: power, status: status, idleMinutes: idle, etaMinutes: eta))
+                out.append(Connector(id: "\(seed.id)-\(out.count + 1)", type: type, powerKw: power, status: status, idleMinutes: idle, etaMinutes: eta, provenance: provenance))
             }
         }
         return out
     }
 
-    private static func buildStation(_ seed: Seed, hour: Int, tick: Int) -> Station {
+    private static func buildStation(_ seed: Seed, hour: Int, tick: Int, observedAt: Date) -> Station {
         var rand = SeededRandom(seed.id)
         let base = profiles[seed.profile] ?? Array(repeating: 0.5, count: 24)
         let hourly = base.map { v in min(1, max(0, v + (rand.next() - 0.5) * 0.2)) }
@@ -131,8 +131,12 @@ enum DemoData {
         return Station(
             id: seed.id, name: trKey(seed.name), address: seed.address, city: seed.city,
             lat: seed.lat, lng: seed.lng, operatorId: seed.operatorId, pricePerKwh: price,
-            connectors: buildConnectors(seed, rand: &live, occupancyNow: hourly[hour]),
-            hourlyOccupancy: hourly, amenities: seed.amenities.map(trKey)
+            connectors: buildConnectors(seed, rand: &live, occupancyNow: hourly[hour], provenance: .demo(at: observedAt)),
+            hourlyOccupancy: hourly, amenities: seed.amenities.map(trKey),
+            priceProvenance: .demo(at: observedAt, source: "Demo tariff"),
+            // Every demo station is simulated as fully integrated, so the whole demo story works.
+            // Real stations (#35) get their real level and are never marked simulated.
+            capabilities: .demo(.fullCharging)
         )
     }
 
@@ -140,7 +144,7 @@ enum DemoData {
     /// (increment it every ~20 s to reshuffle statuses).
     static func stations(at date: Date = .now, tick: Int = 0) -> [Station] {
         let hour = Calendar.current.component(.hour, from: date)
-        return seeds.map { buildStation($0, hour: hour, tick: tick) }
+        return seeds.map { buildStation($0, hour: hour, tick: tick, observedAt: date) }
     }
 
     // MARK: Vehicles & places

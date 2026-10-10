@@ -50,6 +50,13 @@ struct StationDetailView: View {
 
                 statusCard(station)
 
+                // Where the status and price come from, and a clear warning when it is stale.
+                Text(station.provenanceSummary())
+                    .font(.caption)
+                    .foregroundStyle(Theme.muted)
+                    .padding(.top, 8)
+                    .accessibilityLabel(Text(station.provenanceSummary()))
+
                 if station.freeCount == 0 {
                     queueCard(station).padding(.top, 12)
                 }
@@ -76,11 +83,11 @@ struct StationDetailView: View {
                     OccupancyChart(values: station.hourlyOccupancy, currentHour: hour, highlight: best != hour ? best : nil)
                     Divider().padding(.vertical, 12)
                     StatRow {
-                        StatView(label: "Usual chance of a free spot now", value: Fmt.pct(station.probabilityFree(atHour: hour)))
+                        StatView(label: "Usual chance of a free spot now", value: station.probabilityFree(atHour: hour).map(Fmt.pct) ?? "–")
                         StatView(
                             label: "Best time in the next 6 h",
                             value: Fmt.hour(best),
-                            sub: tr("chance \(Fmt.pct(station.probabilityFree(atHour: best)))")
+                            sub: station.probabilityFree(atHour: best).map { tr("chance \(Fmt.pct($0))") }
                         )
                     }
                 }
@@ -166,17 +173,18 @@ struct StationDetailView: View {
 
     private func connectorRow(_ c: Connector, vehicle: Vehicle, selectable: Bool) -> some View {
         let compatible = Charging.isCompatible(vehicle, c)
-        let enabled = selectable && compatible && c.status == .available
+        let status = c.effectiveStatus()
+        let enabled = selectable && compatible && c.isConfirmedAvailable()
         let selected = pickedConnectorId == c.id
         return Button {
             pickedConnectorId = c.id
             target = max(target, min(100, model.soc + 5))
         } label: {
             HStack(spacing: 12) {
-                Circle().fill(c.status.color).frame(width: 10, height: 10)
+                Circle().fill(status.color).frame(width: 10, height: 10)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(c.type.rawValue) · \(Int(c.powerKw)) kW").font(.body.weight(.medium))
-                    Text(detail(c, compatible: compatible)).font(.caption).foregroundStyle(Theme.muted)
+                    Text(detail(c, status: status, compatible: compatible)).font(.caption).foregroundStyle(Theme.muted)
                 }
                 Spacer()
                 if compatible {
@@ -195,12 +203,12 @@ struct StationDetailView: View {
         .disabled(!enabled)
     }
 
-    private func detail(_ c: Connector, compatible: Bool) -> String {
-        var text = c.status.label
-        if c.status == .charging, let eta = c.etaMinutes {
+    private func detail(_ c: Connector, status: ConnectorStatus, compatible: Bool) -> String {
+        var text = status.label
+        if status == .charging, let eta = c.etaMinutes {
             text += tr(" · frees up ~\(Fmt.clock(Date().addingTimeInterval(Double(eta) * 60)))")
         }
-        if c.status == .idle, let idle = c.idleMinutes {
+        if status == .idle, let idle = c.idleMinutes {
             text += tr(" · parked for \(idle) min")
         }
         if !compatible { text += tr(" · not compatible with your car") }

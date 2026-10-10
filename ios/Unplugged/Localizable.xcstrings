@@ -2720,6 +2720,76 @@
           }
         }
       }
+    },
+    "Status unknown": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Būsena nežinoma"
+          }
+        }
+      }
+    },
+    "Demo data": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstraciniai duomenys"
+          }
+        }
+      }
+    },
+    "Observed data": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stebėti duomenys"
+          }
+        }
+      }
+    },
+    "Predicted data": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prognozuojami duomenys"
+          }
+        }
+      }
+    },
+    "Status outdated (updated %@)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Būsena pasenusi (atnaujinta %@)"
+          }
+        }
+      }
+    },
+    "Status: %@, updated %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Būsena: %@, atnaujinta %@"
+          }
+        }
+      }
+    },
+    "Price: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaina: %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
