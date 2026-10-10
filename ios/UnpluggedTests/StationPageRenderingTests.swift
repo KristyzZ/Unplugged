@@ -60,7 +60,7 @@ final class StationPageRenderingTests: XCTestCase {
     }
 
     @MainActor private func settle() async {
-        try? await Task.sleep(for: .milliseconds(400))
+        try? await Task.sleep(for: .milliseconds(1000))
     }
 
     @MainActor private func capture(_ view: UIView, name: String) {

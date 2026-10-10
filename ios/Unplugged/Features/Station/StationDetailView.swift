@@ -45,114 +45,116 @@ struct StationDetailView: View {
         let picked = StationConnectorSelection.visibleID(pickedConnectorId, selectableIDs: selectableIds, busy: busy)
 
         ScrollViewReader { scroll in
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                // Header
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(station.name).font(.largeTitle.bold())
-                    HStack(spacing: 6) {
-                        Circle().fill(op.color).frame(width: 8, height: 8)
-                        Text("\(op.name) · \(station.address), \(station.city)")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    // Header
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(station.name).font(.largeTitle.bold())
+                        HStack(spacing: 6) {
+                            Circle().fill(op.color).frame(width: 8, height: 8)
+                            Text("\(op.name) · \(station.address), \(station.city)")
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.muted)
                     }
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.muted)
-                }
-                .padding(.bottom, 16)
+                    .padding(.bottom, 16)
 
-                if let listing = model.hostListing(forStation: station.id) {
-                    HostedStationCard(listing: listing).padding(.bottom, 12)
-                }
-
-                statusCard(station)
-
-                // Where the status and price come from, and a clear warning when it is stale.
-                Text(station.provenanceSummary())
-                    .font(.caption)
-                    .foregroundStyle(Theme.muted)
-                    .padding(.top, 8)
-                    .accessibilityLabel(Text(station.provenanceSummary()))
-
-                if let hold = model.myHold, hold.stationId == station.id {
-                    HoldCard(hold: hold) {
-                        selectConnector(hold.connectorId, selectableIDs: selectableIds, toggle: false)
-                    } onRelease: {
-                        model.releaseHold()
+                    if let listing = model.hostListing(forStation: station.id) {
+                        HostedStationCard(listing: listing).padding(.bottom, 12)
                     }
-                    .padding(.top, 12)
-                } else if station.freeCount == 0 || model.queue?.stationId == station.id {
-                    queueCard(station).padding(.top, 12)
-                }
 
-                SectionHeader(title: "Connectors")
-                VStack(spacing: 8) {
-                    ForEach(station.connectors) { c in
-                        VStack(spacing: 8) {
-                            connectorRow(c, station: station, vehicle: vehicle,
-                                         enabled: !busy && selectableIds.contains(c.id),
-                                         selected: picked == c.id, heldForMe: heldId == c.id) {
-                                selectConnector(c.id, selectableIDs: selectableIds)
-                            }
-                            if picked == c.id {
-                                chargeCard(station, connector: c, vehicle: vehicle, grace: grace)
-                                    .id("charge-card")
-                            } else if busy && pickedConnectorId == c.id {
-                                viewSessionButton
+                    statusCard(station)
+
+                    // Where the status and price come from, and a clear warning when it is stale.
+                    Text(station.provenanceSummary())
+                        .font(.caption)
+                        .foregroundStyle(Theme.muted)
+                        .padding(.top, 8)
+                        .accessibilityLabel(Text(station.provenanceSummary()))
+
+                    if let hold = model.myHold, hold.stationId == station.id {
+                        HoldCard(hold: hold) {
+                            selectConnector(hold.connectorId, selectableIDs: selectableIds, toggle: false)
+                        } onRelease: {
+                            model.releaseHold()
+                        }
+                        .padding(.top, 12)
+                    } else if station.freeCount == 0 || model.queue?.stationId == station.id {
+                        queueCard(station).padding(.top, 12)
+                    }
+
+                    SectionHeader(title: "Connectors")
+                    VStack(spacing: 8) {
+                        ForEach(station.connectors) { c in
+                            VStack(spacing: 8) {
+                                connectorRow(c, station: station, vehicle: vehicle,
+                                             enabled: !busy && selectableIds.contains(c.id),
+                                             selected: picked == c.id, heldForMe: heldId == c.id) {
+                                    selectConnector(c.id, selectableIDs: selectableIds)
+                                }
+                                if picked == c.id {
+                                    chargeCard(station, connector: c, vehicle: vehicle, grace: grace)
+                                        .id("charge-card")
+                                } else if busy && pickedConnectorId == c.id {
+                                    viewSessionButton
+                                }
                             }
                         }
                     }
-                }
 
-                if busy && !station.connectors.contains(where: { $0.id == pickedConnectorId }) {
-                    viewSessionButton.padding(.top, 10)
-                }
+                    if busy && !station.connectors.contains(where: { $0.id == pickedConnectorId }) {
+                        viewSessionButton.padding(.top, 10)
+                    }
 
-                SectionHeader(title: "Occupancy by hour")
-                CardBox {
-                    OccupancyChart(values: station.hourlyOccupancy, currentHour: hour, highlight: best != hour ? best : nil)
-                    Divider().padding(.vertical, 12)
-                    StatRow {
-                        StatView(label: "Usual chance of a free spot now", value: station.probabilityFree(atHour: hour).map(Fmt.estimatePct) ?? "–")
-                        StatView(
-                            label: "Best time in the next 6 h",
-                            value: Fmt.hour(best),
-                            sub: station.probabilityFree(atHour: best).map { tr("chance \(Fmt.estimatePct($0))") }
-                        )
+                    SectionHeader(title: "Occupancy by hour")
+                    CardBox {
+                        OccupancyChart(values: station.hourlyOccupancy, currentHour: hour, highlight: best != hour ? best : nil)
+                        Divider().padding(.vertical, 12)
+                        StatRow {
+                            StatView(label: "Usual chance of a free spot now", value: station.probabilityFree(atHour: hour).map(Fmt.estimatePct) ?? "–")
+                            StatView(
+                                label: "Best time in the next 6 h",
+                                value: Fmt.hour(best),
+                                sub: station.probabilityFree(atHour: best).map { tr("chance \(Fmt.estimatePct($0))") }
+                            )
+                        }
+                    }
+
+                    if !station.amenities.isEmpty {
+                        SectionHeader(title: "Nearby")
+                        HStack {
+                            ForEach(station.amenities, id: \.self) { Pill(text: $0) }
+                        }
                     }
                 }
-
-                if !station.amenities.isEmpty {
-                    SectionHeader(title: "Nearby")
-                    HStack {
-                        ForEach(station.amenities, id: \.self) { Pill(text: $0) }
-                    }
+                .padding(16)
+            }
+            .onAppear {
+                guard !initialized else { return }
+                initialized = true
+                target = max(model.chargeLimit, min(100, model.soc + 5))
+                if let heldId, !busy {
+                    selectConnector(heldId, selectableIDs: selectableIds, toggle: false)
                 }
             }
-            .padding(16)
-        }
-        .onAppear {
-            guard !initialized else { return }
-            initialized = true
-            target = max(model.chargeLimit, min(100, model.soc + 5))
-            if let heldId, !busy {
-                selectConnector(heldId, selectableIDs: selectableIds, toggle: false)
+            .task(id: picked) {
+                guard picked != nil else { return }
+                // Wait for the expanded row to finish layout before resolving its
+                // scroll anchor. Cancellation prevents a re-tap scrolling a stale card.
+                do { try await Task.sleep(for: .milliseconds(150)) }
+                catch { return }
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    scroll.scrollTo("charge-card", anchor: .bottom)
+                }
             }
-        }
-        .onChange(of: picked) { _, selected in
-            guard selected != nil else { return }
-            // Scroll the entire compact card into view; at accessibility sizes
-            // the footer remains reachable without shrinking or clipping text.
-            Task { @MainActor in
-                await Task.yield()
-                withAnimation { scroll.scrollTo("charge-card", anchor: .bottom) }
+            .onChange(of: selectableIds) { _, ids in
+                guard !busy else { return }
+                pickedConnectorId = StationConnectorSelection.visibleID(pickedConnectorId, selectableIDs: ids, busy: false)
             }
-        }
-        .onChange(of: selectableIds) { _, ids in
-            guard !busy else { return }
-            pickedConnectorId = StationConnectorSelection.visibleID(pickedConnectorId, selectableIDs: ids, busy: false)
-        }
-        .onChange(of: heldId) { _, id in
-            if let id, !busy { selectConnector(id, selectableIDs: selectableIds, toggle: false) }
-        }
+            .onChange(of: heldId) { _, id in
+                if let id, !busy { selectConnector(id, selectableIDs: selectableIds, toggle: false) }
+            }
         } // ScrollViewReader
         .sheet(isPresented: $showReport) {
             NavigationStack {
@@ -168,16 +170,24 @@ struct StationDetailView: View {
 
     private func statusCard(_ station: Station) -> some View {
         CardBox {
-            HStack(alignment: .top) {
+            let summaryLayout = typeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+                : AnyLayout(HStackLayout(alignment: .top))
+            summaryLayout {
                 VStack(alignment: .leading, spacing: 6) {
                     Pill(text: station.availability.label, color: station.availability.color)
-                    HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text("\(station.freeCount)").scaledFont(34, weight: .bold, relativeTo: .largeTitle)
-                        Text("/\(station.workingCount) available").font(.headline).foregroundStyle(Theme.muted)
+                    if typeSize.isAccessibilitySize {
+                        (Text("\(station.freeCount)") + Text("/\(station.workingCount) available"))
+                            .font(.headline).fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        HStack(alignment: .firstTextBaseline, spacing: 2) {
+                            Text("\(station.freeCount)").scaledFont(34, weight: .bold, relativeTo: .largeTitle)
+                            Text("/\(station.workingCount) available").font(.headline).foregroundStyle(Theme.muted)
+                        }
                     }
                 }
-                Spacer()
-                VStack(alignment: .trailing) {
+                if !typeSize.isAccessibilitySize { Spacer() }
+                VStack(alignment: typeSize.isAccessibilitySize ? .leading : .trailing) {
                     Text(Fmt.euros(station.pricePerKwh)).font(.title2.bold())
                     Text("per kWh").font(.caption).foregroundStyle(Theme.muted)
                 }
@@ -188,7 +198,9 @@ struct StationDetailView: View {
                 StatView(label: "Finished, parked", value: "\(station.count(.idle))")
                 StatView(label: "Occupied, no charge", value: "\(station.count(.blocked))")
             }
-            HStack(spacing: 8) {
+            let actionLayout = typeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(spacing: 8)) : AnyLayout(HStackLayout(spacing: 8))
+            actionLayout {
                 if let url = URL(string: "http://maps.apple.com/?daddr=\(station.lat),\(station.lng)") {
                     Link(destination: url) { Label("Route", systemImage: "arrow.triangle.turn.up.right.diamond") }
                         .buttonStyle(SecondaryButtonStyle())
@@ -373,6 +385,7 @@ private struct HoldCard: View {
     let onRelease: () -> Void
 
     @Environment(AppModel.self) private var model
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 0.5)) { _ in
@@ -397,7 +410,9 @@ private struct HoldCard: View {
                     .font(.caption)
                     .foregroundStyle(Theme.muted)
                     .padding(.top, 10)
-                HStack(spacing: 10) {
+                let actionLayout = typeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(spacing: 10)) : AnyLayout(HStackLayout(spacing: 10))
+                actionLayout {
                     Button("Release", action: onRelease).buttonStyle(SecondaryButtonStyle())
                     Button("Charge here", action: onCharge).buttonStyle(PrimaryButtonStyle())
                 }
