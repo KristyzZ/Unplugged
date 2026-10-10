@@ -49,6 +49,8 @@ final class AppModel {
     var onboarded = false
     /// Usual charge limit (%): the default target when starting a charge and planning trips.
     var chargeLimit: Double = 80
+    /// Chargers you rent out to other drivers.
+    var hostListings: [HostListing] = []
 
     // MARK: Live
     var lang: Lang = L10n.current

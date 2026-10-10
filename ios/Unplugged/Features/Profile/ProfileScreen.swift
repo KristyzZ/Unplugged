@@ -11,6 +11,7 @@ struct ProfileScreen: View {
                 VStack(alignment: .leading, spacing: 20) {
                     carSummary
                     accountList
+                    hostingList
                     settingsList
                     moreList
                 }
@@ -69,6 +70,29 @@ struct ProfileScreen: View {
             RowDivider()
             NavigationLink { PlansScreen() } label: {
                 ListRow(systemImage: "ticket.fill", title: "Operator plans", value: plans == 0 ? tr("None") : tr("\(plans) active"))
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var hostingList: some View {
+        let count = model.hostListings.count
+        return ListCard {
+            NavigationLink { HostingScreen() } label: {
+                HStack(spacing: 12) {
+                    IconBadge(systemImage: "bolt.house.fill", color: Theme.ok)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Host your charger").font(.body).foregroundStyle(Theme.text)
+                        Text(count == 0 ? "Rent it out to drivers nearby" : "Bookings, prices and earnings")
+                            .font(.caption)
+                            .foregroundStyle(Theme.muted)
+                    }
+                    Spacer(minLength: 8)
+                    ListRowValue(value: count == 0 ? nil : tr("\(count) listed"))
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .contentShape(Rectangle())
             }
         }
         .buttonStyle(.plain)

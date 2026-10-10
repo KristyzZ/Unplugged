@@ -36,7 +36,8 @@ enum DemoData {
     ]
 
     static func chargeOperator(_ id: String) -> ChargeOperator {
-        operators.first { $0.id == id } ?? ChargeOperator(id: id, name: id, colorHex: "64748B")
+        if id == HostListing.operatorId { return ChargeOperator(id: id, name: tr("Private host"), colorHex: "DB2777") }
+        return operators.first { $0.id == id } ?? ChargeOperator(id: id, name: id, colorHex: "64748B")
     }
 
     enum Profile { case mall, office, residential, highway, transport }
