@@ -101,7 +101,7 @@ struct SessionScreen: View {
             .padding(.top, 12)
             leaveButton
         case .idle:
-            idleCard(snap).padding(.top, 12)
+            idleCard(snap, policy: s.appliedFeePolicy).padding(.top, 12)
             leaveButton
         case .ended:
             receipt(s, snap).padding(.top, 12)
@@ -126,8 +126,8 @@ struct SessionScreen: View {
         }
     }
 
-    private func idleCard(_ snap: SessionSnapshot) -> some View {
-        let rate = IdleFee.currentRate(minutes: snap.idleMinutes)
+    private func idleCard(_ snap: SessionSnapshot, policy: IdleFee.Policy) -> some View {
+        let rate = snap.idleRate
         return CardBox(stroke: Theme.bad) {
             HStack(alignment: .firstTextBaseline) {
                 Text("You've been idle for \(Fmt.minutes(snap.idleMinutes))").font(.headline)
@@ -135,9 +135,9 @@ struct SessionScreen: View {
                 Text(String(format: "%.2f €/min", rate)).font(.subheadline).foregroundStyle(Theme.muted)
             }
             HStack(spacing: 6) {
-                ForEach(Array(IdleFee.tiers.enumerated()), id: \.offset) { item in
+                ForEach(Array(policy.tiers.enumerated()), id: \.offset) { item in
                     let tier = item.element
-                    let end = item.offset + 1 < IdleFee.tiers.count ? IdleFee.tiers[item.offset + 1].fromMin : nil
+                    let end = item.offset + 1 < policy.tiers.count ? policy.tiers[item.offset + 1].fromMin : nil
                     let active = rate == tier.eurPerMin
                     VStack(spacing: 2) {
                         Text(String(format: "%.2f €/min", tier.eurPerMin)).font(.caption.weight(.semibold))
@@ -150,7 +150,7 @@ struct SessionScreen: View {
                 }
             }
             .padding(.top, 12)
-            Text("Maximum fee \(Fmt.eur(IdleFee.capEur)). Other drivers are waiting for this spot.")
+            Text("Maximum fee \(Fmt.eur(policy.capEur)). Other drivers are waiting for this spot.")
                 .font(.caption)
                 .foregroundStyle(Theme.muted)
                 .padding(.top, 8)

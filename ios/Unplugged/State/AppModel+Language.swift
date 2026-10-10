@@ -5,7 +5,7 @@ extension AppModel {
         guard value != lang else { return }
         L10n.set(value)
         lang = value
-        stations = DemoData.stations(at: .now, tick: tick)
+        refreshStations()
         banners.removeAll()
         rescheduleNotifications()
     }

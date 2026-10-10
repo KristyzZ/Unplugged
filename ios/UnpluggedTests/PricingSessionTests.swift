@@ -95,7 +95,9 @@ final class PricingSessionTests: XCTestCase {
                 else { defaults.removeObject(forKey: key) }
             }
         }
-        let station = DemoData.stations(at: Fixtures.t0).first { $0.id == "akropolis" }!
+        var station = DemoData.stations().first { $0.id == "akropolis" }!
+        station.connectors[0].status = .available
+        station.connectors[0].provenance = .demo(at: .now)
         let connector = station.connectors[0]
         model.setPlan("ignitis", active: false)
         let publicPrice = model.chargingEstimate(at: station, connector: connector, targetSoc: 80)

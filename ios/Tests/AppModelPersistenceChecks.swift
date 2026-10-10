@@ -109,8 +109,11 @@ struct AppModelPersistenceChecks {
 
         restored.resetDemo()
         restored.setLockScreen(false)
-        let station = restored.stations[0]
-        let connector = station.connectors.first { Charging.isCompatible(restored.vehicle, $0) }!
+        var station = restored.stations[0]
+        let index = station.connectors.firstIndex { Charging.isCompatible(restored.vehicle, $0) }!
+        station.connectors[index].status = .available
+        station.connectors[index].provenance = .demo(at: .now)
+        let connector = station.connectors[index]
         let historyCount = restored.sessionHistory.count
         let originalPoints = restored.points
         restored.startCharging(at: station, connector: connector, targetSoc: 80)
