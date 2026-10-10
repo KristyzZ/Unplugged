@@ -9,3 +9,6 @@ build/
 pipeline/data/
 __pycache__/
 *.pyc
+
+# Xcode build output from scripts/ios.sh
+ios/build/
