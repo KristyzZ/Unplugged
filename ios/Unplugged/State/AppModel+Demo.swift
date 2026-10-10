@@ -7,6 +7,7 @@ extension AppModel {
         points = 120
         lifetimePoints = 240
         history = AppModel.demoHistory
+        rewardRedemptions = []
         session = nil
         sessionEvents = []
         banners.removeAll()
@@ -42,7 +43,8 @@ extension AppModel {
                 startSoc: from, targetSoc: to, minutesToTarget: charge, graceMinutes: grace,
                 pricePerKwh: price, batteryKwh: kwh,
                 doneAt: done, endedAt: done.addingTimeInterval((Double(grace) + idle) * 60),
-                idleFeeEur: IdleFee.fee(minutes: idle), pointsEarned: points
+                idleFeeEur: IdleFee.fee(minutes: idle), pointsEarned: points,
+                sessionId: "seed:\(id)", origin: .seededDemo
             )
         }
         return [

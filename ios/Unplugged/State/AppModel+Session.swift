@@ -87,7 +87,12 @@ extension AppModel {
         s.idleFeeEur = s.appliedFeePolicy.fee(minutes: max(0, minutesAfter - Double(s.graceMinutes)))
         let reason = Points.forMove(minutesAfterDone: minutesAfter, graceMinutes: s.graceMinutes)
         s.pointsEarned = reason?.points ?? 0
+        let settled = SessionSnapshot(s, now: now)
+        s.settledEnergyKwh = settled.kwh
+        s.settledCharges = settled.pricingCharges
+        s.settledLegacyEnergyCost = settled.pricingCharges == nil ? settled.energyCost : nil
         session = s
+        archiveCompletedSession(s)
         recordSessionEvent(s, kind: .released, at: now, points: s.pointsEarned ?? 0)
         soc = SessionSnapshot(s, now: now).soc.rounded()
         if let reason {
@@ -103,10 +108,7 @@ extension AppModel {
 
     func finishSession() {
         guard let s = session, s.endedAt != nil else { return }
-        if !sessionHistory.contains(where: { $0.id == s.id }) {
-            sessionHistory.insert(s, at: 0)
-            sessionHistory = Array(sessionHistory.prefix(30))
-        }
+        archiveCompletedSession(s)
         session = nil
         tileHiddenFor = nil
         rescheduleNotifications()
@@ -211,7 +213,10 @@ extension AppModel {
     func loadSession(from snapshot: PersistenceSnapshot) {
         guard let state: SessionState = snapshot.value(for: "session") else { return }
         session = state.session
-        sessionHistory = state.sessionHistory ?? AppModel.demoSessionHistory
+        var seen: Set<String> = []
+        sessionHistory = Array((state.sessionHistory ?? AppModel.demoSessionHistory)
+            .filter { seen.insert($0.id).inserted }.prefix(30))
+        if let completed = session, completed.endedAt != nil { archiveCompletedSession(completed) }
         lockScreenEnabled = state.lockScreen ?? true
         sessionEvents = state.sessionEvents ?? []
     }

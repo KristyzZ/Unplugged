@@ -6,6 +6,7 @@ struct PointsEntry: Codable, Identifiable, Hashable {
     let points: Int
     let at: Date
     var note: String?
+    var redemptionId: String? = nil
 }
 
 extension AppModel {
@@ -31,12 +32,19 @@ extension AppModel {
     }
 
     @discardableResult
-    func redeem(_ reward: Points.Reward) -> Bool {
-        guard points >= reward.cost else { return false }
-        points -= reward.cost
-        history.insert(PointsEntry(reason: .redeem, points: -reward.cost, at: .now, note: reward.title), at: 0)
-        save()
-        showBanner(tr("Reward activated"), reward.title)
+    func redeem(_ reward: Points.Reward, requestId: String? = nil) -> Bool {
+        // Canonical catalog terms prevent forged/negative-cost reward inputs.
+        guard let canonical = Points.rewards.first(where: { $0.id == reward.id }), canonical.cost > 0 else { return false }
+        let key = requestId ?? "default:\(canonical.id)"
+        guard !key.isEmpty, !rewardRedemptions.contains(where: { $0.id == key }), points >= canonical.cost else { return false }
+        let record = RewardRedemption(id: key, rewardId: canonical.id, titleKey: canonical.titleKey,
+                                      cost: canonical.cost, at: .now)
+        rewardRedemptions.insert(record, at: 0)
+        points -= canonical.cost
+        history.insert(PointsEntry(reason: .redeem, points: -canonical.cost, at: record.at,
+                                   note: record.titleKey, redemptionId: record.id), at: 0)
+        save() // The record, balance and points history are one atomic snapshot.
+        showBanner(tr("Demo reward recorded"), tr("No real partner benefit or charging discount has been activated."))
         return true
     }
 
@@ -62,13 +70,14 @@ extension AppModel {
         var history: [PointsEntry]
         var defaultPaymentId: String?
         var activePlanIds: [String]?
+        var rewardRedemptions: [RewardRedemption]?
     }
 
     func saveProfile(to snapshot: inout PersistenceSnapshot) throws {
         try snapshot.set(ProfileState(vehicleId: vehicleId, soc: soc, points: points,
                                       lifetimePoints: lifetimePoints, history: history,
                                       defaultPaymentId: defaultPaymentId,
-                                      activePlanIds: Array(activePlanIds)), for: "profile")
+                                      activePlanIds: Array(activePlanIds), rewardRedemptions: rewardRedemptions), for: "profile")
     }
 
     func loadProfile(from snapshot: PersistenceSnapshot) {
@@ -80,5 +89,6 @@ extension AppModel {
         history = state.history
         defaultPaymentId = state.defaultPaymentId ?? "visa"
         activePlanIds = Set(state.activePlanIds ?? ["ignitis"])
+        rewardRedemptions = state.rewardRedemptions ?? []
     }
 }

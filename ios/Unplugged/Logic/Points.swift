@@ -52,10 +52,10 @@ enum Points {
 
     static var rewards: [Reward] { [
         Reward(id: "coffee", title: tr("Free coffee"), partner: tr("Partner café"), cost: 80),
-        Reward(id: "kwh-5", title: tr("−5 % on your next charge"), partner: "Unplugged", cost: 100),
+        Reward(id: "kwh-5", title: trKey("−5 %% on your next charge").replacingOccurrences(of: "%%", with: "%"), partner: "Unplugged", cost: 100),
         Reward(id: "eur-2", title: tr("€2 off charging"), partner: "Unplugged", cost: 200),
-        Reward(id: "wash", title: tr("−50 % car wash"), partner: tr("Partner car wash"), cost: 250),
-        Reward(id: "kwh-20", title: tr("−20 % on all charging for a week"), partner: "Unplugged", cost: 600),
+        Reward(id: "wash", title: trKey("−50 %% car wash").replacingOccurrences(of: "%%", with: "%"), partner: tr("Partner car wash"), cost: 250),
+        Reward(id: "kwh-20", title: trKey("−20 %% on all charging for a week").replacingOccurrences(of: "%%", with: "%"), partner: "Unplugged", cost: 600),
     ] }
 
     struct Tier {
