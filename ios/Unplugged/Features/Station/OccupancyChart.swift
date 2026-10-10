@@ -30,7 +30,14 @@ struct OccupancyChart: View {
         .chartYScale(domain: 0...1)
         .chartYAxis(.hidden)
         .chartXAxis {
-            AxisMarks(values: ["00", "06", "12", "18", "23"])
+            AxisMarks(values: ["00", "06", "12", "18", "23"]) { value in
+                AxisGridLine()
+                AxisTick()
+                // Each of the 24 categories is narrow; without fixedSize the labels truncate to "...".
+                AxisValueLabel {
+                    if let hour = value.as(String.self) { Text(hour).fixedSize() }
+                }
+            }
         }
         .frame(height: 120)
     }

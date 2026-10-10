@@ -190,7 +190,7 @@ struct PlanScreen: View {
                             .foregroundStyle(Theme.muted)
                     }
                     Spacer()
-                    Pill(text: tr("free \(Fmt.pct(stop.freeProbability))"), color: pColor)
+                    Pill(text: tr("free \(Fmt.estimatePct(stop.freeProbability))"), color: pColor)
                 }
                 StatRow {
                     StatView(label: "Arrival", value: Fmt.clock(stop.arriveAt), sub: "\(stop.arriveSoc) %")

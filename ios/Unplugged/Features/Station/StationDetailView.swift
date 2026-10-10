@@ -83,11 +83,11 @@ struct StationDetailView: View {
                     OccupancyChart(values: station.hourlyOccupancy, currentHour: hour, highlight: best != hour ? best : nil)
                     Divider().padding(.vertical, 12)
                     StatRow {
-                        StatView(label: "Usual chance of a free spot now", value: station.probabilityFree(atHour: hour).map(Fmt.pct) ?? "–")
+                        StatView(label: "Usual chance of a free spot now", value: station.probabilityFree(atHour: hour).map(Fmt.estimatePct) ?? "–")
                         StatView(
                             label: "Best time in the next 6 h",
                             value: Fmt.hour(best),
-                            sub: station.probabilityFree(atHour: best).map { tr("chance \(Fmt.pct($0))") }
+                            sub: station.probabilityFree(atHour: best).map { tr("chance \(Fmt.estimatePct($0))") }
                         )
                     }
                 }

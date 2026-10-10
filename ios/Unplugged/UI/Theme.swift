@@ -169,6 +169,11 @@ enum Fmt {
 
     static func pct(_ v: Double) -> String { "\(Int((v * 100).rounded())) %" }
 
+    /// An estimate is never shown as certain: clamped to 1-99 % and prefixed with "≈".
+    static func estimatePct(_ v: Double) -> String {
+        "≈ \(Int((min(0.99, max(0.01, v)) * 100).rounded())) %"
+    }
+
     static func price(_ v: Double) -> String { String(format: "%.2f €/kWh", v) }
 
     static func hour(_ h: Int) -> String { String(format: "%02d:00", h) }
@@ -377,11 +382,12 @@ struct ScreenHeader<Trailing: View>: View {
         .padding(.top, 6)
         .padding(.bottom, 14)
         .background {
-            // Fades into the map backdrop instead of a hard edge.
+            // Solid behind the title (scrolled content must never show through the text), then a
+            // short fade so the edge is not hard.
             LinearGradient(
                 stops: [
-                    .init(color: Theme.background.opacity(0.92), location: 0),
-                    .init(color: Theme.background.opacity(0.75), location: 0.7),
+                    .init(color: Theme.background, location: 0),
+                    .init(color: Theme.background, location: 0.72),
                     .init(color: Theme.background.opacity(0), location: 1),
                 ],
                 startPoint: .top,
