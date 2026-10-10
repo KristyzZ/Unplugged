@@ -6232,6 +6232,106 @@
           }
         }
       }
+    },
+    "You": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūs"
+          }
+        }
+      }
+    },
+    "Leaderboard": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lyderių lentelė"
+          }
+        }
+      }
+    },
+    "Rank by": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rikiuoti pagal"
+          }
+        }
+      }
+    },
+    "CO₂ saved": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sutaupyta CO₂"
+          }
+        }
+      }
+    },
+    "Show less": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti mažiau"
+          }
+        }
+      }
+    },
+    "Show all %lld": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti visus %lld"
+          }
+        }
+      }
+    },
+    "%lld kg": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld kg"
+          }
+        }
+      }
+    },
+    "Place %lld: %@, %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld vieta: %@, %@"
+          }
+        }
+      }
+    },
+    "Estimated vs. a petrol car, from the energy you charged. Other drivers are demo data.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apskaičiuota lyginant su benzininiu automobiliu pagal įkrautą energiją. Kitų vairuotojų duomenys demonstraciniai."
+          }
+        }
+      }
+    },
+    "Lifetime points. Other drivers are demo data.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visi surinkti taškai. Kitų vairuotojų duomenys demonstraciniai."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
