@@ -150,7 +150,7 @@ private struct TileContent {
             progress = snap.graceLeft / max(1, Double(s.graceMinutes) * 60)
         case .idle:
             title = "+" + Fmt.eur(snap.idleFee)
-            subtitle = String(format: "%.2f €/min", IdleFee.currentRate(minutes: snap.idleMinutes))
+            subtitle = Fmt.eurPerMin(IdleFee.currentRate(minutes: snap.idleMinutes))
             symbol = "exclamationmark"
             color = Theme.bad
             progress = 1

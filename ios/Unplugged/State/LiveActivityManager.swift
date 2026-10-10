@@ -125,7 +125,7 @@ final class LiveActivityManager {
             powerKw: s.averageKw.rounded(),
             energyCostEur: cents(snap.chargingCost),
             totalEur: cents(total),
-            idleRateEurPerMin: IdleFee.currentRate(minutes: snap.idleMinutes),
+            idleRateEurPerMin: s.appliedFeePolicy.currentRate(minutes: snap.idleMinutes),
             idleFeeEur: cents(snap.idleFee),
             points: points,
             handedOver: s.handedOver

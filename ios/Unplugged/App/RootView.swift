@@ -45,7 +45,7 @@ struct RootView: View {
         .overlay(alignment: .top) { BannerStack() }
         // Plug-in, charging done and receipt animations, above everything.
         .overlay { ChargingMomentLayer() }
-        .onChange(of: model.session?.stationId) { _, newValue in
+        .onChange(of: model.session?.id) { _, newValue in
             // Jump to the session tab when charging starts.
             if newValue != nil { model.tab = .charging }
         }

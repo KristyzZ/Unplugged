@@ -14,19 +14,16 @@ extension AppModel {
     /// A spot held for you right now.
     var myHold: SpotHold? { holds.first { $0.forMe } }
 
-    /// Station snapshot with the held chargers marked.
-    func refreshStations() {
-        var fresh = DemoData.stations(at: .now, tick: tick)
-        fresh += hostListings.compactMap { Hosting.station(for: $0) }
+    /// Marks the held chargers as reserved on the current station list. Applied last, so a hold is
+    /// never hidden by the "just released" overlay of the session that handed the spot over.
+    func applyHolds() {
         for hold in holds {
-            guard let si = fresh.firstIndex(where: { $0.id == hold.stationId }),
-                  let ci = fresh[si].connectors.firstIndex(where: { $0.id == hold.connectorId }) else { continue }
-            fresh[si].connectors[ci].status = .reserved
-            fresh[si].connectors[ci].idleMinutes = nil
-            fresh[si].connectors[ci].etaMinutes = nil
+            guard let si = stations.firstIndex(where: { $0.id == hold.stationId }),
+                  let ci = stations[si].connectors.firstIndex(where: { $0.id == hold.connectorId }) else { continue }
+            stations[si].connectors[ci].status = .reserved
+            stations[si].connectors[ci].idleMinutes = nil
+            stations[si].connectors[ci].etaMinutes = nil
         }
-        stations = fresh
-        publishNearby()
     }
 
     func openStation(_ id: String) {
@@ -72,9 +69,7 @@ extension AppModel {
     /// The car left: if someone is waiting here, keep this charger for them.
     func handOverSpot(_ s: ChargingSession, at now: Date) -> Bool {
         guard let station = stations.first(where: { $0.id == s.stationId }) else { return false }
-        let hour = Calendar.current.component(.hour, from: .now)
-        let someoneWaiting = station.freeCount == 0 || station.demandLevel(hour: hour) >= 0.5
-        guard someoneWaiting else { return false }
+        guard someoneWaitingAt(station) else { return false }
         let connector = station.connectors.first { $0.id == s.connectorId } ?? station.connectors[0]
         holds.removeAll { $0.id == "\(station.id)|\(connector.id)" }
         holds.append(SpotHold(

@@ -36,6 +36,7 @@ final class AppModel {
     var lifetimePoints = 240
     var history: [PointsEntry] = AppModel.demoHistory
     var session: ChargingSession?
+    var sessionEvents: [SessionEvent] = []
     var queue: QueueEntry?
     /// Chargers held for a queued driver (you, or whoever is after you).
     var holds: [SpotHold] = []
@@ -69,21 +70,30 @@ final class AppModel {
     /// Where "nearby" is measured from: your location, else Vilnius centre.
     var origin: LatLng = DemoData.vilniusCenter
 
+    @ObservationIgnored var scheduledSessionNotificationIds: [String] = []
     @ObservationIgnored var realAnchor = Date()
     @ObservationIgnored var simAnchor = Date()
     @ObservationIgnored var graceAnnouncedFor: Date?
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
     #if os(iOS)
+    /// Is another driver waiting for a spot at this station? A demo heuristic (a busy station); tests
+    /// inject a fixed answer so results do not depend on the hour they run.
+    @ObservationIgnored var someoneWaitingAt: (Station) -> Bool = { station in
+        let hour = Calendar.current.component(.hour, from: .now)
+        return station.freeCount == 0 || station.demandLevel(hour: hour) >= 0.5
+    }
+
     @ObservationIgnored var lastWidgetSnapshot: NearbySnapshot?
     @ObservationIgnored var lastWidgetReload = Date.distantPast
     #endif
 
     var vehicle: Vehicle { DemoData.vehicle(vehicleId) }
 
-    init() {
+    init(runLoops: Bool = true) {
         load()
         refreshStations()
-        startLoops()
+        checkSession()
+        if runLoops { startLoops() }
         rescheduleNotifications()
         #if os(iOS)
         listenForLockScreenActions()

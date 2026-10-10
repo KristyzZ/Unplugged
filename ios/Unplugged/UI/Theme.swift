@@ -166,7 +166,7 @@ enum Fmt {
     }
 
     static func km(_ v: Double) -> String {
-        v < 10 ? String(format: "%.1f km", v) : "\(Int(v.rounded())) km"
+        v < 10 ? "\(number(v, decimals: 1)) km" : "\(Int(v.rounded())) km"
     }
 
     static func kw(_ v: Double) -> String {
@@ -175,7 +175,33 @@ enum Fmt {
 
     static func pct(_ v: Double) -> String { "\(Int((v * 100).rounded())) %" }
 
-    static func price(_ v: Double) -> String { String(format: "%.2f €/kWh", v) }
+    /// An estimate is never shown as certain: clamped to 1-99 % and prefixed with "≈".
+    static func estimatePct(_ v: Double) -> String {
+        "≈ \(Int((min(0.99, max(0.01, v)) * 100).rounded())) %"
+    }
+
+    /// A decimal number in the app language (comma in Lithuanian, dot in English). `String(format:)`
+    /// always uses a dot, so never use it for text people read.
+    static func number(_ v: Double, decimals: Int, locale: Locale = Fmt.locale) -> String {
+        v.formatted(.number.precision(.fractionLength(decimals)).grouping(.never).locale(locale))
+    }
+
+    static func kwh(_ v: Double, decimals: Int = 1, locale: Locale = Fmt.locale) -> String {
+        "\(number(v, decimals: decimals, locale: locale)) kWh"
+    }
+
+    /// Plain euro amount with the symbol after the number, e.g. "0.40 €" / "0,40 €".
+    static func euros(_ v: Double, locale: Locale = Fmt.locale) -> String {
+        "\(number(v, decimals: 2, locale: locale)) €"
+    }
+
+    static func eurPerMin(_ v: Double, locale: Locale = Fmt.locale) -> String {
+        "\(number(v, decimals: 2, locale: locale)) €/min"
+    }
+
+    static func price(_ v: Double, locale: Locale = Fmt.locale) -> String {
+        "\(number(v, decimals: 2, locale: locale)) €/kWh"
+    }
 
     static func hour(_ h: Int) -> String { String(format: "%02d:00", h) }
 

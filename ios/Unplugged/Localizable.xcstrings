@@ -6132,6 +6132,36 @@
           }
         }
       }
+    },
+    "Grace period ending soon": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lengvatinis laikotarpis greitai baigsis"
+          }
+        }
+      }
+    },
+    "Move your car before idle fees start.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patraukite automobilį prieš pradedant skaičiuoti prastovos mokestį."
+          }
+        }
+      }
+    },
+    "Demo session": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė sesija"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

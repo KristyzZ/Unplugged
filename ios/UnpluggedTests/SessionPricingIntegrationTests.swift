@@ -13,8 +13,8 @@ final class SessionPricingIntegrationTests: XCTestCase {
     private func session(terms: Pricing.Terms?) -> ChargingSession {
         ChargingSession(stationId: "s", stationName: "S", connectorLabel: "CCS2", startedAt: Fixtures.t0,
                         startSoc: 20, targetSoc: 80, minutesToTarget: 30, graceMinutes: 10,
-                        pricePerKwh: 0.5, batteryKwh: 60, connectorId: "s-1", handedOver: true,
-                        pricingTerms: terms)
+                        pricePerKwh: 0.5, batteryKwh: 60, pricingTerms: terms,
+                        connectorId: "s-1", handedOver: true)
     }
 
     func testPlannedCostIncludesStartFeeAndTimeChargeFromFrozenTerms() {

@@ -8,6 +8,8 @@ extension AppModel {
         lifetimePoints = 240
         history = AppModel.demoHistory
         session = nil
+        sessionEvents = []
+        banners.removeAll()
         tileHiddenFor = nil
         moment = nil
         queue = nil
@@ -22,6 +24,7 @@ extension AppModel {
         realAnchor = Date()
         simAnchor = Date()
         speed = 1
+        refreshStations()
         rescheduleNotifications()
         save()
     }
