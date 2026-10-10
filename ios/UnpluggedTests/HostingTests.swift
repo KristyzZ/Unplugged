@@ -138,7 +138,23 @@ final class HostingTests: XCTestCase {
         XCTAssertEqual(station?.id, listing.id)
         XCTAssertEqual(station?.operatorId, HostListing.operatorId)
         XCTAssertEqual(station?.connectors.count, 2)
-        XCTAssertEqual(station?.freeCount, 2)
+        // Fresh at the time it was built: confirmed free, and bookable through the app.
+        XCTAssertEqual(station?.freeCount(at: Fixtures.t0), 2)
+        XCTAssertEqual(station?.connectors.allSatisfy { $0.isConfirmedAvailable(at: Fixtures.t0) }, true)
+        XCTAssertEqual(station?.capabilities.supportsSessionControl, true)
+        XCTAssertEqual(station?.priceProvenance.isStale(at: Fixtures.t0, maxAge: Freshness.priceMaxAge), false)
+    }
+
+    func testHostedStationIsPricedAtTheHostsRateWithoutDemoFees() {
+        var listing = HostListing()
+        listing.schedule = .always
+        listing.pricePerKwh = 0.42
+        let station = Hosting.station(for: listing, at: Fixtures.t0)!
+        let tariff = PricingDemoFixtures.tariff(station: station, connector: station.connectors[0])
+        XCTAssertEqual(tariff.energyEurPerKwh, 0.42)
+        XCTAssertEqual(tariff.startEur, 0)
+        XCTAssertEqual(tariff.chargingEurPerMinute, 0)
+        XCTAssertFalse(tariff.supportsAccountPricing)
     }
 
     func testPausedOrClosedListingIsHidden() {

@@ -205,10 +205,14 @@ enum Hosting {
     }
 
     /// The listing as a station on the map: only while it's live and open.
+    /// Its status and price are the host's own, current as of `date`; booking
+    /// and payment run through Unplugged (simulated, like the demo stations).
     static func station(for listing: HostListing, at date: Date = .now) -> Station? {
         guard !listing.paused, listing.schedule.isOpen(at: date) else { return nil }
+        let provenance = Provenance.demo(at: date, source: "Host listing")
         let connectors = (0..<max(1, listing.spots)).map { i in
-            Connector(id: "\(listing.id)-\(i + 1)", type: listing.connector, powerKw: listing.powerKw, status: .available)
+            Connector(id: "\(listing.id)-\(i + 1)", type: listing.connector, powerKw: listing.powerKw,
+                      status: .available, provenance: provenance)
         }
         let base = DemoData.profiles[.residential] ?? Array(repeating: 0.3, count: 24)
         return Station(
@@ -216,7 +220,9 @@ enum Hosting {
             lat: listing.location.lat, lng: listing.location.lng, operatorId: HostListing.operatorId,
             pricePerKwh: listing.pricePerKwh, connectors: connectors,
             hourlyOccupancy: base.map { $0 * 0.4 },
-            amenities: listing.amenities.sorted { $0.rawValue < $1.rawValue }.map(\.title)
+            amenities: listing.amenities.sorted { $0.rawValue < $1.rawValue }.map(\.title),
+            priceProvenance: provenance,
+            capabilities: .demo(.fullCharging)
         )
     }
 }
