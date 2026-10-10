@@ -147,7 +147,7 @@ extension AppModel {
     /// Fresh demo snapshot plus hosted chargers, then the active session / release overlay and finally
     /// the held spots (which win over the overlay).
     func refreshStations(at date: Date = .now) {
-        var fresh = DemoData.stations(at: date, tick: tick)
+        var fresh = stationSource == .demo ? DemoData.stations(at: date, tick: tick) : baseStations
         fresh += hostListings.compactMap { Hosting.station(for: $0) }
         stations = fresh
         applySessionStatus(at: date)

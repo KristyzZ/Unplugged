@@ -21,26 +21,39 @@ struct MapScreen: View {
         )
     )
 
-    struct Item: Identifiable {
-        let station: Station
-        let distance: Double
-        var id: String { station.id }
-    }
+    typealias Item = StationQuery.Item
+
+    /// What the map is showing, so only nearby pins are drawn (the whole country is ~2,000 stations).
+    @State private var region: StationQuery.Region?
+    /// The camera moves to you once, on the first location fix, and never fights a manual pan.
+    @State private var centeredOnUser = false
+    @State private var userMovedCamera = false
 
     private var origin: LatLng { location.location ?? DemoData.vilniusCenter }
 
     private var items: [Item] {
-        let vehicle = model.vehicle
-        let q = query.trimmingCharacters(in: .whitespaces).lowercased()
-        return model.stations
-            .filter { operatorId == nil || $0.operatorId == operatorId }
-            // One connector must satisfy all active filters (available + fast + fits my car).
-            .filter { $0.hasConnector(matching: ConnectorFilter(
-                onlyAvailable: onlyFree, minPowerKw: fastOnly ? 50 : nil, vehicle: myCarOnly ? vehicle : nil)) }
-            .filter { s in q.isEmpty || "\(s.name) \(s.address) \(s.city)".lowercased().contains(q) }
-            .map { Item(station: $0, distance: Geo.haversineKm(origin, $0.latLng)) }
-            .sorted { $0.distance < $1.distance }
+        // One connector must satisfy all active filters (available + fast + fits my car).
+        StationQuery.items(
+            model.stations, origin: origin, vehicle: model.vehicle,
+            filter: .init(onlyAvailable: onlyFree, fastOnly: fastOnly, myCarOnly: myCarOnly,
+                          operatorId: operatorId, text: query))
     }
+
+    private func priceText(_ station: Station) -> String {
+        station.priceKnown ? Fmt.price(station.pricePerKwh) : tr("Price unknown")
+    }
+
+    private var dataStatusLine: String {
+        switch model.feedStatus {
+        case .demo: tr("Demo stations")
+        case .loading: tr("Loading live data…")
+        case .live(let at): tr("Live data · \(Fmt.clock(at))")
+        case .offline(let from):
+            from.map { tr("Offline · data from \(Fmt.clock($0))") } ?? tr("Offline · saved snapshot")
+        }
+    }
+
+    private var usingFallbackOrigin: Bool { location.location == nil }
 
     /// The station shown in the bottom card: the one tapped on the map, else the nearest.
     private func focused(in items: [Item]) -> Item? {
@@ -87,8 +100,9 @@ struct MapScreen: View {
     // MARK: Map
 
     private func map(_ items: [Item]) -> some View {
-        Map(position: $camera) {
-            ForEach(items) { item in
+        let pins = StationQuery.pins(items, region: region, selectedId: selectedId).shown
+        return Map(position: $camera) {
+            ForEach(pins) { item in
                 Annotation(item.station.name, coordinate: item.station.coordinate, anchor: .bottom) {
                     StationPin(station: item.station, emphasized: item.id == selectedId)
                         .onTapGesture {
@@ -103,6 +117,18 @@ struct MapScreen: View {
             UserAnnotation()
         }
         .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll))
+        .onMapCameraChange(frequency: .onEnd) { context in
+            let r = context.region
+            region = StationQuery.Region(center: LatLng(lat: r.center.latitude, lng: r.center.longitude),
+                                         latSpan: r.span.latitudeDelta, lngSpan: r.span.longitudeDelta)
+        }
+        .simultaneousGesture(DragGesture(minimumDistance: 10).onChanged { _ in userMovedCamera = true })
+        .onChange(of: location.location) { _, here in
+            guard let here, !centeredOnUser, !userMovedCamera else { return }
+            centeredOnUser = true
+            camera = .region(MKCoordinateRegion(center: here.coordinate,
+                                                span: MKCoordinateSpan(latitudeDelta: 0.06, longitudeDelta: 0.06)))
+        }
         .onTapGesture { searchFocused = false }
     }
 
@@ -215,16 +241,23 @@ struct MapScreen: View {
                 .accessibilityAddTraits(.isButton)
 
             if listOpen {
-                HStack {
-                    Text("\(items.count) stations nearby")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(items.count) stations")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Theme.text)
-                    Spacer()
+                    Text(dataStatusLine).font(.caption).foregroundStyle(Theme.muted)
+                    if usingFallbackOrigin {
+                        Text("Distances are measured from Vilnius centre. Allow location to measure from where you are.")
+                            .font(.caption)
+                            .foregroundStyle(Theme.muted)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 6)
                 ScrollView {
                     LazyVStack(spacing: 8) {
-                        ForEach(items) { item in
+                        // The nearest hundred: a list of the whole country would be slow and useless.
+                        ForEach(items.prefix(100)) { item in
                             NavigationLink(value: item.station.id) {
                                 StationRow(station: item.station, distance: item.distance)
                             }
@@ -303,6 +336,8 @@ struct StationSummaryCard: View {
     let station: Station
     let distance: Double
 
+    private var priceLabel: String { station.priceKnown ? Fmt.price(station.pricePerKwh) : tr("Price unknown") }
+
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
@@ -318,7 +353,7 @@ struct StationSummaryCard: View {
                     Text("\(station.freeCount)/\(station.workingCount) free")
                         .font(.body.weight(.medium))
                         .foregroundStyle(station.availability.color)
-                    Text("\(Fmt.price(station.pricePerKwh)) · \(Fmt.km(distance))")
+                    Text("\(priceLabel) · \(Fmt.km(distance))")
                         .font(.body)
                         .foregroundStyle(Theme.text)
                     Text(station.address)
@@ -340,7 +375,7 @@ struct StationSummaryCard: View {
                     }
                     Spacer(minLength: 8)
                     VStack(alignment: .trailing, spacing: 4) {
-                        Text(Fmt.price(station.pricePerKwh))
+                        Text(priceLabel)
                             .font(.body)
                             .foregroundStyle(Theme.text)
                         Text(Fmt.km(distance))
@@ -385,7 +420,7 @@ struct StationRow: View {
                 .foregroundStyle(Theme.muted)
                 HStack(spacing: 8) {
                     Pill(text: "\(station.freeCount)/\(station.workingCount) · \(station.availability.label)", color: station.availability.color)
-                    Text(Fmt.price(station.pricePerKwh)).font(.caption).foregroundStyle(Theme.muted)
+                    Text(station.priceKnown ? Fmt.price(station.pricePerKwh) : tr("Price unknown")).font(.caption).foregroundStyle(Theme.muted)
                 }
             }
             Spacer(minLength: 0)

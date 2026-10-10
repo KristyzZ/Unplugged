@@ -11,6 +11,17 @@ enum PricingDemoFixtures {
     ]
 
     static func tariff(station: Station, connector: Connector) -> Pricing.Tariff {
+        // Real stations: the operator's own published tariff (energy, session fee, time fee).
+        // The profile plans are fictional demo contracts, so they apply only where the integration
+        // is simulated; a private host's charger never takes them.
+        if let real = connector.tariff, let energy = real.energyEurPerKwh {
+            let planApplies = station.capabilities.simulated && station.capabilities.supportsAccountPricing
+                && station.operatorId != HostListing.operatorId
+            return Pricing.Tariff(id: "ocpi:\(station.id):\(connector.id)", operatorId: station.operatorId,
+                                  operatorName: DemoData.chargeOperator(station.operatorId).name,
+                                  energyEurPerKwh: energy, startEur: real.startEur,
+                                  chargingEurPerMinute: real.perMinuteEur, supportsAccountPricing: planApplies)
+        }
         // Explicit demo allowlist. An unfamiliar/imported station never gains
         // account pricing merely because its operator matches a profile toggle.
         let simulated = DemoData.seeds.contains { $0.id == station.id && $0.operatorId == station.operatorId }

@@ -10,13 +10,14 @@ from . import db as store
 from .ocpi import crawl
 from .registry import read_registry
 from .report import build_report
-from .export import write_snapshot
+from .export import write_app_feed, write_snapshot
 from .vehicles import import_vehicles
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DB = str(ROOT / "pipeline/data/ev.sqlite")
 DEFAULT_XLSX = str(ROOT / "EV_IS_2026-10-09.xlsx")
 DEFAULT_SNAPSHOT = str(ROOT / "pipeline/data/stations.json")
+DEFAULT_APP_FEED = str(ROOT / "ios/Unplugged/Data/stations.json")
 # Bundled with the iOS app, so it's committed (unlike pipeline/data/).
 DEFAULT_VEHICLES = str(ROOT / "ios/Unplugged/Data/vehicles.json")
 
@@ -65,6 +66,8 @@ def main(argv: list[str] | None = None) -> int:
     exp = sub.add_parser("export", help="write a JSON snapshot for the app")
     exp.add_argument("--out", default=DEFAULT_SNAPSHOT)
     exp.add_argument("--city", default=None, help="e.g. Vilnius")
+    app = sub.add_parser("export-app", help="write the snapshot bundled in the iOS app (whole country)")
+    app.add_argument("--out", default=DEFAULT_APP_FEED)
     veh = sub.add_parser("vehicles", help="import electric car models and specs for the app")
     veh.add_argument("--out", default=DEFAULT_VEHICLES)
     veh.add_argument("--src", default=None, help="Open EV Data JSON (URL or file; default: GitHub)")
@@ -97,6 +100,9 @@ def main(argv: list[str] | None = None) -> int:
             time.sleep(args.interval + random.uniform(0, 10))
     elif args.cmd == "report":
         print(build_report(db))
+    elif args.cmd == "export-app":
+        n, t = write_app_feed(db, args.out)
+        log(f"wrote {n} stations and {t} tariffs to {args.out}")
     elif args.cmd == "export":
         log(f"wrote {write_snapshot(db, args.out, args.city)} stations to {args.out}")
     return 0

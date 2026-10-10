@@ -209,7 +209,8 @@ struct PlanScreen: View {
     }
 
     private func stopRow(_ stop: TripStop) -> some View {
-        let likely = stop.freeProbability > 0.7 ? Theme.ok : stop.freeProbability > 0.4 ? Theme.warn : Theme.bad
+        let chance = stop.freeProbability
+        let likely = (chance ?? 0) > 0.7 ? Theme.ok : (chance ?? 0) > 0.4 ? Theme.warn : Theme.bad
         return HStack(spacing: 12) {
             IconBadge(systemImage: "bolt.fill")
             VStack(alignment: .leading, spacing: 2) {
@@ -217,9 +218,11 @@ struct PlanScreen: View {
                 Text(tr("Charge \(Fmt.minutes(Double(stop.chargeMinutes))) to \(stop.departSoc) %"))
                     .font(.caption)
                     .foregroundStyle(Theme.muted)
-                Text(tr("Usually free: \(Fmt.pct(stop.freeProbability))"))
-                    .font(.caption)
-                    .foregroundStyle(likely)
+                if let chance {
+                    Text(tr("Usually free: \(Fmt.pct(chance))"))
+                        .font(.caption)
+                        .foregroundStyle(likely)
+                }
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {

@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from . import OCPI_BASE
 from .http import fetch_json
 
-PAGE = 100
+PAGE = 1000   # the feed accepts limit=1000: the whole country is ~4 requests instead of ~33
 
 
 @dataclass
@@ -34,6 +34,7 @@ def crawl(endpoint: str, *, pause: float = 0.15, log=lambda msg: None) -> Crawl:
     offset = 0
     total = None
     while total is None or offset < total:
+        before = len(result.items)
         url = f"{OCPI_BASE}/{endpoint}?limit={PAGE}&offset={offset}"
         try:
             headers, body = fetch_json(url)
@@ -55,19 +56,44 @@ def crawl(endpoint: str, *, pause: float = 0.15, log=lambda msg: None) -> Crawl:
             result.items.append(item)
         result.pages += 1
         offset += PAGE
+        if not total and len(result.items) == before:
+            break  # no count header (e.g. /tariffs, which ignores paging) and nothing new: done
+        if not total:
+            total = None  # keep going until a page adds nothing
         time.sleep(pause)
     return result
 
 
-def energy_price(tariff: dict) -> dict:
-    """Flatten an OCPI tariff into per-kWh / per-minute / flat prices (EUR)."""
-    prices = {"ENERGY": None, "TIME": None, "FLAT": None, "PARKING_TIME": None}
+def trim_tariff(tariff: dict) -> dict:
+    """The part of an OCPI tariff the app needs: per element whether it is restricted (time, date,
+    duration or energy conditions) and its price components. The app resolves it the same way
+    `energy_price` does."""
+    elements = []
     for element in tariff.get("elements") or []:
-        for component in element.get("price_components") or []:
-            kind = component.get("type")
-            if kind in prices and prices[kind] is None:
-                try:
-                    prices[kind] = float(component["price"])
-                except (KeyError, TypeError, ValueError):
-                    pass
-    return prices
+        components = []
+        for c in element.get("price_components") or []:
+            try:
+                components.append({"type": c["type"], "price": float(c["price"]), "step": c.get("step_size")})
+            except (KeyError, TypeError, ValueError):
+                continue
+        elements.append({"restricted": bool(element.get("restrictions")), "components": components})
+    return {"id": tariff.get("id"), "currency": tariff.get("currency") or "", "elements": elements}
+
+
+def energy_price(tariff: dict) -> dict:
+    """Flatten an OCPI tariff into per-kWh / per-minute / flat prices (EUR).
+
+    The everyday price comes from unrestricted elements; a tariff made only of restricted elements
+    uses its first energy element. TIME is per hour in OCPI and is returned per hour."""
+    trimmed = trim_tariff(tariff)
+    unrestricted = [e for e in trimmed["elements"] if not e["restricted"]]
+
+    def first(kind: str, elements: list) -> float | None:
+        return next((c["price"] for e in elements for c in e["components"] if c["type"] == kind), None)
+
+    return {
+        "ENERGY": first("ENERGY", unrestricted) if first("ENERGY", unrestricted) is not None else first("ENERGY", trimmed["elements"]),
+        "TIME": first("TIME", unrestricted),
+        "FLAT": first("FLAT", unrestricted),
+        "PARKING_TIME": first("PARKING_TIME", unrestricted),
+    }
