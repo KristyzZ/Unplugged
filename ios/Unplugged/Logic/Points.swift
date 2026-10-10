@@ -8,6 +8,7 @@ enum PointsReason: String, Codable, CaseIterable {
     case offPeak          // charged in a low-demand hour
     case reportConfirmed  // own abuse report verified
     case confirmReport    // helped verify someone else's report
+    case handedOver       // freed the spot while someone was waiting for it
     case redeem
 
     var points: Int {
@@ -17,6 +18,7 @@ enum PointsReason: String, Codable, CaseIterable {
         case .offPeak: 10
         case .reportConfirmed: 15
         case .confirmReport: 5
+        case .handedOver: 10
         case .redeem: 0
         }
     }
@@ -28,6 +30,7 @@ enum PointsReason: String, Codable, CaseIterable {
         case .offPeak: tr("Charged off-peak")
         case .reportConfirmed: tr("Confirmed report")
         case .confirmReport: tr("Helped confirm a report")
+        case .handedOver: tr("Handed the spot to the next driver")
         case .redeem: tr("Redeemed for a reward")
         }
     }

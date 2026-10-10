@@ -6,6 +6,7 @@ Turns Lithuania's open charging-station data into a local database the Unplugged
 |---|---|---|
 | Live OCPI 2.3.0 feed `https://ev.vialietuva.lt/ocpi/2.3.0/{locations,tariffs}` | stations, chargers, **live status**, connectors, tariffs | CC BY 4.0 / ODC-BY 1.0 |
 | `EV_IS_2026-10-09.xlsx` (repo root, never modified) | payment methods, opening hours, accessibility, renewables, smart/V2G, station power | open data export |
+| [Open EV Data](https://github.com/KilowattApp/open-ev-data) `data/ev-data.json` | ~1,000 electric car models: usable battery, consumption, AC/DC power, plugs, DC charging curves | MIT with attribution |
 
 The two join on the charger id (`evse_id`): 5,734 of 5,737 live chargers match.
 Please keep the attribution "Contains data from Via Lietuva (ev.vialietuva.lt), CC BY 4.0" wherever the data is shown.
@@ -18,6 +19,7 @@ python3 pipeline/run.py load-registry    # Excel -> registry table
 python3 pipeline/run.py report           # findings (reliability, outages, accessibility, data quality)
 python3 pipeline/run.py poll             # keep crawling every 5 min and record every status change
 python3 pipeline/run.py export --city Vilnius   # compact JSON for the app (pipeline/data/stations.json)
+python3 pipeline/run.py vehicles             # car models -> ios/Unplugged/Data/vehicles.json (bundled, committed)
 python3 -m unittest discover -s pipeline/tests
 ```
 `--db PATH` (before the command) puts the database somewhere else, e.g. outside the repo so it survives worktree cleanup.
@@ -41,3 +43,18 @@ and the view `evses_current` (freshest record per charger; use it for statistics
 ## Moving to hosted Postgres (e.g. Supabase)
 The schema is plain SQL. Create the tables in Postgres (`TEXT`→`text`/`timestamptz`, add `geography(Point)` from `lat,lng` for radius queries),
 then point a thin API at it. The crawler functions in `evdata/db.py` are the only SQLite-specific code (the `ON CONFLICT` upserts also work in Postgres).
+
+## Car models (`vehicles`)
+Writes `ios/Unplugged/Data/vehicles.json`, which the app bundles for the car picker, range and charge-time estimates
+(DC charging curves instead of a generic taper). Attribution required by the licence:
+"Open EV Data (https://github.com/KilowattApp/open-ev-data)" — the app shows it on the car pages.
+
+What the import cleans (source last updated 2025-04-12, 1,321 records → 988 cars):
+- Motorbikes are dropped; cars and microcars stay.
+- ~290 scraped records (they carry `_model_hash`) are dropped: their names lost the model family (an Audi called "50 quattro").
+- Rows with impossible numbers are dropped (battery, consumption); AC power is capped at 22 kW (a few rows list DC power there).
+- Plugs are mapped to what Lithuanian stations have: CCS2, CHAdeMO, Type 2. Type 1 cars use Type 2 sockets with their own cable;
+  the old Tesla Supercharger-only plug is dropped.
+- Duplicates differing only in case or spacing are merged. Some odd values remain upstream (e.g. a DC figure equal to the
+  battery size) — treat single entries with care.
+- `aliases` maps the app's old built-in car ids to catalog entries so saved choices keep working.

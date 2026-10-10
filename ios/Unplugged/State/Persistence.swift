@@ -45,6 +45,7 @@ extension AppModel {
             try saveSession(to: &snapshot)
             try saveQueue(to: &snapshot)
             try saveReports(to: &snapshot)
+            try saveHosting(to: &snapshot)
             try saveClock(to: &snapshot)
             UserDefaults.standard.set(try snapshot.encoded(), forKey: Self.snapshotKey)
         } catch {
@@ -67,6 +68,7 @@ extension AppModel {
         loadSession(from: snapshot)
         loadQueue(from: snapshot)
         loadReports(from: snapshot)
+        loadHosting(from: snapshot)
         loadClock(from: snapshot)
     }
 }

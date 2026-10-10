@@ -10,6 +10,7 @@ final class SessionLifecycleTests: XCTestCase {
         keys.forEach { defaults.removeObject(forKey: $0) }
         let model = AppModel(runLoops: false)
         model.lockScreenEnabled = false
+        model.someoneWaitingAt = { _ in false }   // hand-over is covered by HandOverTests
         defer {
             model.resetDemo()
             for (key, value) in zip(keys, previous) {

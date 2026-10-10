@@ -4,6 +4,7 @@ extension AppModel {
     var hasActiveSession: Bool { session != nil && session?.endedAt == nil }
 
     func checkSession(at suppliedNow: Date? = nil) {
+        defer { checkBackgroundTime() }
         guard var s = session, s.endedAt == nil else { return }
         let now = suppliedNow ?? simNow()
         var changed = false
@@ -12,6 +13,7 @@ extension AppModel {
             s.completionAnnounced = true
             recordSessionEvent(s, kind: .completed, at: s.scheduledDoneAt)
             showBanner(tr("Charging complete"), tr("You have \(s.graceMinutes) min to move your car. After that an idle fee applies."))
+            moment = .completed(stopped: false)
             changed = true
         }
         if let done = s.doneAt {
@@ -35,10 +37,13 @@ extension AppModel {
     // MARK: Charging
 
     func startCharging(at station: Station, connector: Connector, targetSoc: Double) {
+        // The spot held for you is marked reserved for everyone else, but it is yours to start.
+        let heldForMe = myHold.map { $0.stationId == station.id && $0.connectorId == connector.id } ?? false
         guard !hasActiveSession, targetSoc > soc, targetSoc <= 100,
               station.capabilities.simulated, station.capabilities.supportsSessionControl,
               station.connectors.contains(where: { $0.id == connector.id }),
-              Charging.isCompatible(vehicle, connector), connector.effectiveStatus() == .available else { return }
+              Charging.isCompatible(vehicle, connector),
+              connector.effectiveStatus() == .available || heldForMe else { return }
         if session?.endedAt != nil { finishSession() }
         let terms = pricingTerms(at: station, connector: connector)
         let estimate = Charging.chargeTime(vehicle, connector, from: soc, to: targetSoc)
@@ -54,8 +59,13 @@ extension AppModel {
         )
         session = s
         recordSessionEvent(s, kind: .started, at: s.startedAt)
+        // Charging at the spot held for you uses up the hold.
+        if myHold?.stationId == station.id {
+            holds.removeAll { $0.forMe }
+        }
         queue = nil
         tileHiddenFor = nil
+        moment = .started
         applySessionStatus()
         rescheduleNotifications()
         save()
@@ -71,9 +81,11 @@ extension AppModel {
         applySessionStatus()
         rescheduleNotifications()
         save()
-        showBanner(tr("Charging stopped"), tr("You have \(s.graceMinutes) min to move your car."))
+        moment = .completed(stopped: true)
     }
 
+    /// The driver has moved the car: settle the idle fee, award points and,
+    /// if someone is waiting, hold the charger for them.
     func leaveSpot(at suppliedNow: Date? = nil) {
         guard var s = session, s.endedAt == nil else { return }
         let now = max(s.startedAt, suppliedNow ?? simNow())
@@ -86,7 +98,12 @@ extension AppModel {
         s.endedAt = now
         s.idleFeeEur = s.appliedFeePolicy.fee(minutes: max(0, minutesAfter - Double(s.graceMinutes)))
         let reason = Points.forMove(minutesAfterDone: minutesAfter, graceMinutes: s.graceMinutes)
-        s.pointsEarned = reason?.points ?? 0
+        let handOver = handOverSpot(s, at: now)
+        // The handover bonus is for moving on time; an overstay still hands the
+        // spot on, but earns nothing.
+        let handOverBonus = handOver && reason != nil
+        s.handedOver = handOver
+        s.pointsEarned = (reason?.points ?? 0) + (handOverBonus ? PointsReason.handedOver.points : 0)
         session = s
         recordSessionEvent(s, kind: .released, at: now, points: s.pointsEarned ?? 0)
         soc = SessionSnapshot(s, now: now).soc.rounded()
@@ -94,10 +111,14 @@ extension AppModel {
             // Session/release state is already set; addPoints persists it atomically
             // with the balance, so repeated calls and relaunch cannot award twice.
             addPoints(reason, note: s.stationName)
-            showBanner(tr("+\(reason.points) pts"), reason.label)
+        }
+        if handOverBonus {
+            addPoints(.handedOver, note: s.stationName)
         }
         applySessionStatus()
         rescheduleNotifications()
+        // The receipt shows the points, so no banner here.
+        moment = .finished
         save()
     }
 
@@ -109,6 +130,7 @@ extension AppModel {
         }
         session = nil
         tileHiddenFor = nil
+        moment = nil
         rescheduleNotifications()
         save()
     }
@@ -122,12 +144,18 @@ extension AppModel {
 
     // MARK: Station overlay
 
+    /// Fresh demo snapshot plus hosted chargers, then the active session / release overlay and finally
+    /// the held spots (which win over the overlay).
     func refreshStations(at date: Date = .now) {
-        stations = DemoData.stations(at: date, tick: tick)
+        var fresh = DemoData.stations(at: date, tick: tick)
+        fresh += hostListings.compactMap { Hosting.station(for: $0) }
+        stations = fresh
         applySessionStatus(at: date)
+        publishNearby()
     }
 
     func applySessionStatus(at observedNow: Date = .now) {
+        defer { applyHolds() }
         // A released demo bay stays visibly free for five real minutes. Thereafter
         // background simulation may change it. An active session always wins.
         for event in sessionEvents where event.kind == .released && observedNow.timeIntervalSince(event.recordedAt) < 300 {
@@ -152,6 +180,10 @@ extension AppModel {
         stations[i].connectors[j].provenance = .demo(at: observedNow, source: "Demo session")
     }
 
+    func dismissMoment() {
+        moment = nil
+    }
+
     // MARK: Lock Screen and charging tile
 
     func setLockScreen(_ on: Bool) { lockScreenEnabled = on; save(); syncLiveActivity() }
@@ -171,6 +203,7 @@ extension AppModel {
 
     func rescheduleNotifications() {
         syncLiveActivity()
+        rescheduleQueueNotifications()
         let n = NotificationManager.shared
         n.cancel([NotificationManager.chargeDoneId, NotificationManager.graceOverId]
                  + scheduledSessionNotificationIds + (session.map { SessionNotificationPlan.ids(for: $0) } ?? []))
@@ -192,7 +225,7 @@ extension AppModel {
                 title = tr("Idle fee has started")
                 body = tr("Move your car from \(s.stationName) — the rate is increasing.")
             }
-            n.schedule(id: item.id, title: title, body: body, after: item.after)
+            n.schedule(id: item.id, title: title, body: body, after: item.after, category: NotificationManager.moveCategory)
         }
     }
 

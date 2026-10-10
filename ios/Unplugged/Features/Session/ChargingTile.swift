@@ -3,6 +3,8 @@ import SwiftUI
 /// Floating charging status shown in the top-left corner of every tab while a
 /// session is running (except on the Charging tab itself). Tap opens the
 /// Charging tab; × hides it until the session moves to its next phase.
+/// With no session but a spot held for you, it counts down the hold instead
+/// and opens that station.
 struct ChargingTile: View {
     enum Style { case square, compact }
 
@@ -15,23 +17,28 @@ struct ChargingTile: View {
             TimelineView(.periodic(from: .now, by: 0.5)) { _ in
                 let snap = SessionSnapshot(session, now: model.simNow())
                 if model.tileHiddenFor != snap.phase {
-                    tile(TileContent(session, snap))
+                    tile(TileContent(session, snap), closable: true) { model.tab = .charging }
                         .transition(.scale(scale: 0.8, anchor: .topLeading).combined(with: .opacity))
                 }
+            }
+        } else if let hold = model.myHold {
+            TimelineView(.periodic(from: .now, by: 0.5)) { _ in
+                tile(TileContent(hold: hold, now: model.simNow()), closable: false) { model.openStation(hold.stationId) }
+                    .transition(.scale(scale: 0.8, anchor: .topLeading).combined(with: .opacity))
             }
         }
     }
 
     @ViewBuilder
-    private func tile(_ c: TileContent) -> some View {
+    private func tile(_ c: TileContent, closable: Bool, action: @escaping () -> Void) -> some View {
         switch style {
-        case .square: square(c)
-        case .compact: compact(c)
+        case .square: square(c, closable: closable, action: action)
+        case .compact: compact(c, closable: closable, action: action)
         }
     }
 
-    private func square(_ c: TileContent) -> some View {
-        Button { model.tab = .charging } label: {
+    private func square(_ c: TileContent, closable: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             VStack(spacing: 6) {
                 ProgressRing(progress: c.progress, color: c.color, lineWidth: 4) {
                     Image(systemName: c.symbol)
@@ -56,14 +63,13 @@ struct ChargingTile: View {
             .glass(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(Text("Charging status: \(c.title), \(c.subtitle)"))
-        .accessibilityHint(Text("Opens charging details"))
-        .overlay(alignment: .topTrailing) { closeButton.offset(x: -6, y: 6) }
+        .accessibilityLabel(Text("\(c.title), \(c.subtitle)"))
+        .overlay(alignment: .topTrailing) { if closable { closeButton.offset(x: -6, y: 6) } }
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
-    private func compact(_ c: TileContent) -> some View {
-        Button { model.tab = .charging } label: {
+    private func compact(_ c: TileContent, closable: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             HStack(spacing: 8) {
                 ProgressRing(progress: c.progress, color: c.color, lineWidth: 3) {
                     Image(systemName: c.symbol)
@@ -83,14 +89,13 @@ struct ChargingTile: View {
                 }
             }
             .padding(.leading, 8)
-            .padding(.trailing, 30)
+            .padding(.trailing, closable ? 30 : 12)
             .padding(.vertical, 7)
             .glass(in: Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(Text("Charging status: \(c.title), \(c.subtitle)"))
-        .accessibilityHint(Text("Opens charging details"))
-        .overlay(alignment: .trailing) { closeButton.padding(.trailing, 6) }
+        .accessibilityLabel(Text("\(c.title), \(c.subtitle)"))
+        .overlay(alignment: .trailing) { if closable { closeButton.padding(.trailing, 6) } }
         .fixedSize()
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
@@ -118,6 +123,16 @@ private struct TileContent {
     let symbol: String
     let color: Color
     let progress: Double
+
+    /// A spot held for you: time left to get there.
+    init(hold: SpotHold, now: Date) {
+        let left = max(0, hold.until.timeIntervalSince(now))
+        title = Fmt.mmss(left)
+        subtitle = tr("Held for you")
+        symbol = "parkingsign"
+        color = Theme.brand
+        progress = left / max(1, hold.duration)
+    }
 
     init(_ s: ChargingSession, _ snap: SessionSnapshot) {
         switch snap.phase {

@@ -24,6 +24,8 @@ enum AppTab: Hashable, CaseIterable {
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @Environment(LocationManager.self) private var location
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         @Bindable var model = model
@@ -41,9 +43,40 @@ struct RootView: View {
                 .ignoresSafeArea(.keyboard)
         }
         .overlay(alignment: .top) { BannerStack() }
+        // Plug-in, charging done and receipt animations, above everything.
+        .overlay { ChargingMomentLayer() }
         .onChange(of: model.session?.id) { _, newValue in
             // Jump to the session tab when charging starts.
             if newValue != nil { model.tab = .charging }
+        }
+        // First launch: car, charge limit, permissions.
+        .fullScreenCover(isPresented: Binding(get: { !model.onboarded }, set: { _ in })) {
+            OnboardingView()
+        }
+        // unplugged://station/<id> from the widget, unplugged://charging from the Lock Screen.
+        .onOpenURL { url in
+            switch url.host() {
+            case "station":
+                if let id = url.pathComponents.last, id != "/" { model.openStation(id) }
+            case "charging":
+                model.tab = .charging
+            default:
+                break
+            }
+        }
+        .onChange(of: location.location) { _, here in
+            if let here { model.setOrigin(here) }
+        }
+        // Ask for notifications at launch only once the intro has explained why.
+        .task {
+            if model.onboarded { NotificationManager.shared.requestPermission() }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            switch phase {
+            case .active: model.becameActive()
+            case .background: model.enteredBackground()
+            default: break
+            }
         }
     }
 

@@ -25,10 +25,13 @@ enum Fixtures {
         consumption: Double = 15,
         maxDc: Double = 150,
         maxAc: Double = 11,
-        connectors: [ConnectorType] = [.ccs2, .type2]
+        connectors: [ConnectorType] = [.ccs2, .type2],
+        curve: [[Double]]? = nil
     ) -> Vehicle {
-        Vehicle(id: "test-ev", name: "Test EV", batteryKwh: battery, consumptionKwhPer100: consumption,
-                maxDcKw: maxDc, maxAcKw: maxAc, connectors: connectors)
+        Vehicle(id: "test-ev", brand: "Test", model: "EV", variant: "", year: nil,
+                batteryKwh: battery, consumptionKwhPer100: consumption,
+                acKw: maxAc, acPhases: nil, dcKw: maxDc, connectors: connectors,
+                curve: curve, curveMeasured: nil)
     }
 
     /// A connector whose status was reported `ageMinutes` before `Fixtures.t0` (fresh by default).

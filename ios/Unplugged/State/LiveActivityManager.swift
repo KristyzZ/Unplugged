@@ -9,9 +9,19 @@ final class LiveActivityManager {
     static let shared = LiveActivityManager()
 
     private var lastState: ChargingActivityAttributes.ContentState?
+    /// Activities we've asked to end. Ending is asynchronous, so they can still
+    /// report `.active` for a moment and must not be picked up again.
+    private var ending: Set<String> = []
 
-    private var current: Activity<ChargingActivityAttributes>? {
-        Activity<ChargingActivityAttributes>.activities.first { $0.activityState == .active }
+    private func current(for session: ChargingSession) -> Activity<ChargingActivityAttributes>? {
+        for activity in Activity<ChargingActivityAttributes>.activities
+        where activity.activityState == .active && !ending.contains(activity.id) {
+            // Compare loosely: dates may lose precision on the way through the system.
+            if abs(activity.attributes.sessionStart.timeIntervalSince(session.startedAt)) < 1 { return activity }
+            // Left over from an earlier session.
+            end(activity)
+        }
+        return nil
     }
 
     func sync(session: ChargingSession?, enabled: Bool, simNow: Date, speed: Double, lang: Lang) {
@@ -21,20 +31,23 @@ final class LiveActivityManager {
         }
         let state = makeState(s, simNow: simNow, speed: speed)
 
-        if let activity = current {
+        if let activity = current(for: s) {
             guard state != lastState else { return }
             lastState = state
-            let content = ActivityContent(state: state, staleDate: nil)
+            let content = ActivityContent(state: state, staleDate: state.staleDate)
             Task {
-                if state.phase == .ended {
-                    // Leave the "finished" card up briefly, then clear it.
-                    await activity.end(content, dismissalPolicy: .after(Date().addingTimeInterval(5 * 60)))
-                } else {
+                if state.phase != .ended {
                     await activity.update(content)
                 }
             }
+            if state.phase == .ended {
+                // Leave the receipt up for a while, then clear it.
+                ending.insert(activity.id)
+                Task { await activity.end(content, dismissalPolicy: .after(Date().addingTimeInterval(15 * 60))) }
+            }
         } else if state.phase != .ended, ActivityAuthorizationInfo().areActivitiesEnabled {
             let attributes = ChargingActivityAttributes(
+                sessionStart: s.startedAt,
                 stationName: s.stationName,
                 connectorLabel: s.connectorLabel,
                 lang: lang.rawValue
@@ -42,7 +55,7 @@ final class LiveActivityManager {
             do {
                 _ = try Activity.request(
                     attributes: attributes,
-                    content: ActivityContent(state: state, staleDate: nil),
+                    content: ActivityContent(state: state, staleDate: state.staleDate),
                     pushType: nil
                 )
                 lastState = state
@@ -52,11 +65,17 @@ final class LiveActivityManager {
         }
     }
 
+    /// Clears everything at once, including a receipt left up after the session.
     func endAll() {
         lastState = nil
         for activity in Activity<ChargingActivityAttributes>.activities {
-            Task { await activity.end(nil, dismissalPolicy: .immediate) }
+            end(activity)
         }
+    }
+
+    private func end(_ activity: Activity<ChargingActivityAttributes>) {
+        ending.insert(activity.id)
+        Task { await activity.end(nil, dismissalPolicy: .immediate) }
     }
 
     private func makeState(_ s: ChargingSession, simNow: Date, speed: Double) -> ChargingActivityAttributes.ContentState {
@@ -78,15 +97,38 @@ final class LiveActivityManager {
         case .ended: phase = .ended
         }
 
+        func cents(_ v: Double) -> Double { (v * 100).rounded() / 100 }
+        // Stopped early: the bar and labels end where charging did.
+        let target = s.doneAt != nil ? snap.soc.rounded() : s.targetSoc
+        let total: Double
+        let points: Int
+        switch phase {
+        case .ended:
+            total = snap.chargingCost + snap.idleFee
+            points = s.pointsEarned ?? 0
+        case .charging:
+            total = s.plannedCost
+            points = PointsReason.movedFast.points
+        case .grace, .idle:
+            total = snap.chargingCost
+            points = PointsReason.movedFast.points
+        }
+
         return .init(
             phase: phase,
             soc: snap.soc.rounded(),
-            targetSoc: s.targetSoc,
+            startSoc: s.startSoc.rounded(),
+            targetSoc: target,
             chargeStart: chargeStart.roundedToSecond,
             chargeEnd: chargeEnd.roundedToSecond,
             graceEnd: graceEnd.roundedToSecond,
-            energyCostEur: (snap.chargingCost * 100).rounded() / 100,
-            idleRateEurPerMin: s.appliedFeePolicy.currentRate(minutes: snap.idleMinutes)
+            powerKw: s.averageKw.rounded(),
+            energyCostEur: cents(snap.chargingCost),
+            totalEur: cents(total),
+            idleRateEurPerMin: s.appliedFeePolicy.currentRate(minutes: snap.idleMinutes),
+            idleFeeEur: cents(snap.idleFee),
+            points: points,
+            handedOver: s.handedOver
         )
     }
 }

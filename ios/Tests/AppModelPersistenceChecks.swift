@@ -8,8 +8,13 @@ final class NotificationManager {
     static let shared = NotificationManager()
     static let chargeDoneId = "charge-done"
     static let graceOverId = "grace-over"
+    static let moveCategory = "charging.move"
+    static let holdReadyId = "hold-ready"
+    static let holdEndingId = "hold-ending"
+    static let holdCategory = "queue.hold"
     func cancel(_ ids: [String]) {}
-    func schedule(id: String, title: String, body: String, after seconds: TimeInterval) {}
+    func schedule(id: String, title: String, body: String, after seconds: TimeInterval, category: String? = nil) {}
+    func registerCategories() {}
 }
 
 @MainActor
@@ -122,9 +127,11 @@ struct AppModelPersistenceChecks {
         precondition(restored.session?.doneAt != nil)
         restored.leaveSpot()
         precondition(!restored.hasActiveSession && restored.session?.endedAt != nil)
-        precondition(restored.points == originalPoints + 30)
+        // Moving at once earns 30; if drivers were waiting the spot is handed on, with a bonus.
+        let handOverBonus = restored.session?.handedOver == true ? PointsReason.handedOver.points : 0
+        precondition(restored.points == originalPoints + 30 + handOverBonus)
         restored.leaveSpot()
-        precondition(restored.points == originalPoints + 30)
+        precondition(restored.points == originalPoints + 30 + handOverBonus)
         restored.finishSession()
         precondition(restored.session == nil && restored.sessionHistory.count == historyCount + 1)
         let history = restored.sessionHistory

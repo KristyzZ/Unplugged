@@ -6,8 +6,14 @@ import Observation
 final class LocationManager: NSObject, CLLocationManagerDelegate {
     private(set) var location: LatLng?
     private(set) var denied = false
+    /// Location allowed (for the intro's "Allowed" state).
+    private(set) var allowed = false
 
     @ObservationIgnored private let manager = CLLocationManager()
+    /// Last status the delegate reported. Reading `manager.authorizationStatus`
+    /// on the main thread triggers a UI-responsiveness warning.
+    @ObservationIgnored private var status: CLAuthorizationStatus = .notDetermined
+    @ObservationIgnored private var wantsLocation = false
 
     override init() {
         super.init()
@@ -16,7 +22,8 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     }
 
     func request() {
-        switch manager.authorizationStatus {
+        wantsLocation = true
+        switch status {
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
         case .authorizedWhenInUse, .authorizedAlways:
@@ -27,10 +34,12 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        switch manager.authorizationStatus {
+        status = manager.authorizationStatus
+        allowed = status == .authorizedWhenInUse || status == .authorizedAlways
+        switch status {
         case .authorizedWhenInUse, .authorizedAlways:
             denied = false
-            manager.requestLocation()
+            if wantsLocation { manager.requestLocation() }
         case .denied, .restricted:
             denied = true
         default:

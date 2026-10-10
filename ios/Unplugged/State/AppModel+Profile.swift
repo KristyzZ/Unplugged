@@ -14,11 +14,29 @@ extension AppModel {
     func setVehicle(_ id: String) {
         vehicleId = id
         save()
+        publishNearby()
     }
 
     func setSoc(_ value: Double) {
         soc = min(100, max(1, value.rounded()))
         save()
+    }
+
+    /// Usual charge limit (%), 50–100.
+    func setChargeLimit(_ value: Double) {
+        chargeLimit = min(100, max(50, value.rounded()))
+        save()
+    }
+
+    // MARK: First-launch intro
+
+    func completeOnboarding() {
+        onboarded = true
+        save()
+    }
+
+    func showOnboardingAgain() {
+        onboarded = false
     }
 
     // MARK: Points and rewards
@@ -62,13 +80,17 @@ extension AppModel {
         var history: [PointsEntry]
         var defaultPaymentId: String?
         var activePlanIds: [String]?
+        // Added later; optional so older saves still decode.
+        var onboarded: Bool?
+        var chargeLimit: Double?
     }
 
     func saveProfile(to snapshot: inout PersistenceSnapshot) throws {
         try snapshot.set(ProfileState(vehicleId: vehicleId, soc: soc, points: points,
                                       lifetimePoints: lifetimePoints, history: history,
                                       defaultPaymentId: defaultPaymentId,
-                                      activePlanIds: Array(activePlanIds)), for: "profile")
+                                      activePlanIds: Array(activePlanIds),
+                                      onboarded: onboarded, chargeLimit: chargeLimit), for: "profile")
     }
 
     func loadProfile(from snapshot: PersistenceSnapshot) {
@@ -80,5 +102,7 @@ extension AppModel {
         history = state.history
         defaultPaymentId = state.defaultPaymentId ?? "visa"
         activePlanIds = Set(state.activePlanIds ?? ["ignitis"])
+        onboarded = state.onboarded ?? false
+        chargeLimit = state.chargeLimit ?? 80
     }
 }

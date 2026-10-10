@@ -65,11 +65,23 @@ struct MapScreen: View {
             .navigationDestination(for: String.self) { id in
                 StationDetailView(stationId: id)
             }
-            .onAppear { location.request() }
+            .onAppear {
+                // Before the intro has explained why, don't ask for location.
+                if model.onboarded { location.request() }
+                openRequestedStation()
+            }
+            // The held-spot tile asks for a station page.
+            .onChange(of: model.openStationId) { openRequestedStation() }
             .onChange(of: query) { _, q in
                 if !q.isEmpty { listOpen = true }
             }
         }
+    }
+
+    private func openRequestedStation() {
+        guard let id = model.openStationId else { return }
+        model.openStationId = nil
+        path = [id]
     }
 
     // MARK: Map
@@ -254,6 +266,8 @@ struct StationPin: View {
             Text("\(Int(station.maxPower))")
                 .scaledFont(13, weight: .bold, design: .rounded, relativeTo: .footnote)
                 .foregroundStyle(Theme.ink)
+                .lineLimit(1)
+                .fixedSize()
                 .padding(.horizontal, 6)
                 .frame(minWidth: 34, minHeight: 34)
                 .background(color, in: Capsule())

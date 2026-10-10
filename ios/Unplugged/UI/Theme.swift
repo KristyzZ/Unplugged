@@ -96,6 +96,7 @@ extension ConnectorStatus {
         case .idle: tr("Finished, still parked")
         case .blocked: tr("Occupied, not charging")
         case .offline: tr("Out of service")
+        case .reserved: tr("Held for the next driver")
         }
     }
 
@@ -107,6 +108,7 @@ extension ConnectorStatus {
         case .idle: Theme.warn
         case .blocked: Theme.bad
         case .offline: .gray
+        case .reserved: Theme.brand
         }
     }
 }
@@ -165,6 +167,10 @@ enum Fmt {
 
     static func km(_ v: Double) -> String {
         v < 10 ? "\(number(v, decimals: 1)) km" : "\(Int(v.rounded())) km"
+    }
+
+    static func kw(_ v: Double) -> String {
+        v == v.rounded() ? "\(Int(v)) kW" : String(format: "%.1f kW", v)
     }
 
     static func pct(_ v: Double) -> String { "\(Int((v * 100).rounded())) %" }
@@ -403,18 +409,16 @@ struct ScreenHeader<Trailing: View>: View {
         .padding(.top, 6)
         .padding(.bottom, 14)
         .background {
-            // Solid behind the title (scrolled content must never show through the text), then a
-            // short fade so the edge is not hard.
-            LinearGradient(
-                stops: [
-                    .init(color: Theme.background, location: 0),
-                    .init(color: Theme.background, location: 0.92),
-                    .init(color: Theme.background.opacity(0), location: 1),
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea(edges: .top)
+            // Solid behind the title so scrolled content never shows through,
+            // then a short fade so cards slide under it softly.
+            Theme.background
+                .ignoresSafeArea(edges: .top)
+                .overlay(alignment: .bottom) {
+                    LinearGradient(colors: [Theme.background, Theme.background.opacity(0)], startPoint: .top, endPoint: .bottom)
+                        .frame(height: 16)
+                        .offset(y: 16)
+                        .allowsHitTesting(false)
+                }
         }
     }
 }
@@ -481,5 +485,83 @@ struct StatRow<Content: View>: View {
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: spacing ?? 12))
             : AnyLayout(HStackLayout(alignment: .top, spacing: spacing))
         layout { content }
+    }
+}
+
+// MARK: Lists
+
+/// Rounded square with a symbol, used at the start of list rows.
+struct IconBadge: View {
+    let systemImage: String
+    var color: Color = Theme.brand
+
+    var body: some View {
+        Image(systemName: systemImage)
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundStyle(color)
+            .frame(width: 32, height: 32)
+            .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+    }
+}
+
+/// A group of rows on one frosted card. Put `RowDivider()` between rows.
+struct ListCard<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 22, style: .continuous)
+        VStack(spacing: 0) { content }
+        .background(Theme.card.opacity(0.72), in: shape)
+        .background(.ultraThinMaterial, in: shape)
+        .overlay { shape.strokeBorder(Color.white.opacity(0.08), lineWidth: 1) }
+    }
+}
+
+/// Hairline between rows, inset past the icon.
+struct RowDivider: View {
+    var body: some View {
+        Rectangle().fill(Color.white.opacity(0.07)).frame(height: 1).padding(.leading, 58)
+    }
+}
+
+/// Icon, title, optional value and chevron. Used inside ListCard.
+struct ListRow<Trailing: View>: View {
+    let systemImage: String
+    let title: LocalizedStringKey
+    var color: Color = Theme.brand
+    @ViewBuilder var trailing: Trailing
+
+    var body: some View {
+        HStack(spacing: 12) {
+            IconBadge(systemImage: systemImage, color: color)
+            Text(title).font(.body).foregroundStyle(Theme.text)
+            Spacer(minLength: 8)
+            trailing
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+        .contentShape(Rectangle())
+    }
+}
+
+extension ListRow where Trailing == ListRowValue {
+    /// Row that navigates somewhere: shows a value and a chevron.
+    init(systemImage: String, title: LocalizedStringKey, value: String? = nil, color: Color = Theme.brand) {
+        self.init(systemImage: systemImage, title: title, color: color) { ListRowValue(value: value) }
+    }
+}
+
+struct ListRowValue: View {
+    let value: String?
+
+    var body: some View {
+        HStack(spacing: 6) {
+            if let value {
+                Text(value).font(.subheadline).foregroundStyle(Theme.muted).lineLimit(1)
+            }
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Theme.muted.opacity(0.7))
+        }
     }
 }

@@ -11,7 +11,12 @@ extension AppModel {
         sessionEvents = []
         banners.removeAll()
         tileHiddenFor = nil
+        moment = nil
         queue = nil
+        holds = []
+        hostListings = []
+        HostPhotoStore.deleteAll()
+        refreshStations()
         reports = AppModel.demoReports
         sessionHistory = AppModel.demoSessionHistory
         defaultPaymentId = "visa"

@@ -18,6 +18,9 @@ struct ChargingSession: Codable, Equatable, Identifiable {
     var endedAt: Date?
     var idleFeeEur: Double?
     var pointsEarned: Int?
+    /// Someone was waiting, so the spot was held for them when the car left.
+    /// Optional so older saved sessions still decode.
+    var handedOver: Bool? = nil
 
     let sessionId: String?
     let connectorId: String?
@@ -35,7 +38,7 @@ struct ChargingSession: Codable, Equatable, Identifiable {
          startSoc: Double, targetSoc: Double, minutesToTarget: Double, graceMinutes: Int,
          pricePerKwh: Double, batteryKwh: Double, doneAt: Date? = nil, endedAt: Date? = nil,
          idleFeeEur: Double? = nil, pointsEarned: Int? = nil, pricingTerms: Pricing.Terms? = nil,
-         connectorId: String? = nil, sessionId: String? = UUID().uuidString,
+         connectorId: String? = nil, handedOver: Bool? = nil, sessionId: String? = UUID().uuidString,
          feePolicy: IdleFee.Policy? = .standard) {
         self.stationId = stationId
         self.stationName = stationName
@@ -53,6 +56,7 @@ struct ChargingSession: Codable, Equatable, Identifiable {
         self.pointsEarned = pointsEarned
         self.pricingTerms = pricingTerms
         self.connectorId = connectorId
+        self.handedOver = handedOver
         self.sessionId = sessionId
         self.feePolicy = feePolicy
     }
@@ -110,5 +114,20 @@ struct SessionSnapshot {
         else if s.doneAt == nil { phase = .charging }
         else if sinceDone < graceSeconds { phase = .grace }
         else { phase = .idle }
+    }
+}
+
+extension ChargingSession {
+    /// Energy put in by the time the target is reached (kWh, incl. ~8 % losses).
+    var plannedKwh: Double { max(0, targetSoc - startSoc) / 100 * batteryKwh / 0.92 }
+
+    /// Average charging power over the session (kW).
+    var averageKw: Double { minutesToTarget > 0 ? plannedKwh / (minutesToTarget / 60) : 0 }
+
+    /// What charging to the target will cost (€), with the frozen tariff's start
+    /// fee and time charge when the session has one.
+    var plannedCost: Double {
+        guard let pricingTerms else { return plannedKwh * pricePerKwh }
+        return Pricing.charges(terms: pricingTerms, kwh: plannedKwh, chargingMinutes: minutesToTarget).total
     }
 }

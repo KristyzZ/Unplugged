@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// Vehicles, payment methods, operator plans and settings. The selected
-/// vehicle drives range estimates, connector compatibility and trip planning.
+/// Your car at a glance, then a short list. Each detail lives on its own page.
 struct ProfileScreen: View {
     @Environment(AppModel.self) private var model
     @State private var confirmReset = false
@@ -9,19 +8,12 @@ struct ProfileScreen: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    SectionHeader(title: "My car").padding(.top, 0)
-                    vehicleCard
-                    SectionHeader(title: "Payment methods")
-                    paymentCard
-                    SectionHeader(title: "Subscriptions")
-                    plansCard
-                    SectionHeader(title: "Rewards")
-                    pointsLink
-                    SectionHeader(title: "For operators")
-                    operatorLink
-                    SectionHeader(title: "Settings")
-                    settingsCard
+                VStack(alignment: .leading, spacing: 20) {
+                    carSummary
+                    accountList
+                    hostingList
+                    settingsList
+                    moreList
                 }
                 .padding(16)
             }
@@ -36,163 +28,202 @@ struct ProfileScreen: View {
         }
     }
 
-    // MARK: Vehicle
+    // MARK: Car summary
 
-    private var vehicleCard: some View {
+    private var carSummary: some View {
         let vehicle = model.vehicle
-        let vehicleBinding = Binding(get: { model.vehicleId }, set: { model.setVehicle($0) })
-        let socBinding = Binding(get: { model.soc }, set: { model.setSoc($0) })
-        return CardBox {
-            Text("Car").font(.subheadline.weight(.medium))
-            DropdownField(selection: vehicleBinding, options: DemoData.vehicles.map { ($0.id, $0.name) })
-                .padding(.top, 4)
-            Divider().padding(.vertical, 12)
-            StatRow {
-                StatView(label: "Battery", value: "\(Int(vehicle.batteryKwh)) kWh")
-                StatView(label: "Max DC", value: "\(Int(vehicle.maxDcKw)) kW")
-                StatView(label: "Max AC", value: "\(Int(vehicle.maxAcKw)) kW")
-            }
-            StatRow {
-                StatView(label: "Consumption", value: "\(Fmt.number(vehicle.consumptionKwhPer100, decimals: 0)) kWh/100 km")
-                StatView(label: "Connectors", value: vehicle.connectors.map(\.rawValue).joined(separator: ", "))
-            }
-            .padding(.top, 10)
-            Divider().padding(.vertical, 12)
-            Text("Current battery level: \(Int(model.soc)) %").font(.subheadline.weight(.medium))
-            Slider(value: socBinding, in: 1...100, step: 1)
-            SocBar(value: model.soc)
-            StatRow {
-                StatView(label: "Range now", value: Fmt.km(vehicle.rangeKm(soc: model.soc)))
-                StatView(label: "Range at 80 %", value: Fmt.km(vehicle.rangeKm(soc: 80)))
-                StatView(label: "Range at 100 %", value: Fmt.km(vehicle.rangeKm(soc: 100)))
-            }
-            .padding(.top, 12)
-            Text("Range is estimated from your car's battery size and real-world consumption. It is used for trip planning and for showing compatible chargers.")
-                .font(.caption)
-                .foregroundStyle(Theme.muted)
-                .padding(.top, 8)
-        }
-    }
-
-    // MARK: Payments
-
-    private var paymentCard: some View {
-        CardBox {
-            ForEach(Array(DemoData.paymentMethods.enumerated()), id: \.element.id) { item in
-                let method = item.element
-                if item.offset > 0 { Divider().padding(.vertical, 8) }
-                Button { model.setDefaultPayment(method.id) } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: method.systemImage).frame(width: 28).foregroundStyle(Theme.brand)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(method.title).font(.subheadline.weight(.medium))
-                            Text(method.detail).font(.caption).foregroundStyle(Theme.muted)
-                        }
-                        Spacer()
-                        if model.defaultPaymentId == method.id {
-                            Pill(text: tr("Default"), color: Theme.ok)
-                        }
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-            Text("Demo payment methods. Payments are simulated in this prototype.")
-                .font(.caption)
-                .foregroundStyle(Theme.muted)
-                .padding(.top, 10)
-        }
-    }
-
-    // MARK: Subscriptions
-
-    private var plansCard: some View {
-        CardBox {
-            ForEach(Array(DemoData.plans.enumerated()), id: \.element.id) { item in
-                let plan = item.element
-                let binding = Binding(
-                    get: { model.activePlanIds.contains(plan.id) },
-                    set: { model.setPlan(plan.id, active: $0) }
-                )
-                if item.offset > 0 { Divider().padding(.vertical, 8) }
-                Toggle(isOn: binding) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(plan.name).font(.subheadline.weight(.medium))
-                        Text("\(DemoData.chargeOperator(plan.id).name) · \(plan.perk)")
-                            .font(.caption)
-                            .foregroundStyle(Theme.muted)
-                    }
-                }
-                .tint(Theme.brand)
-            }
-            Text("Fictional demo plans. Linking real operator accounts needs operator-supported authorization.")
-                .font(.caption)
-                .foregroundStyle(Theme.muted)
-                .padding(.top, 10)
-        }
-    }
-
-    // MARK: Points
-
-    private var pointsLink: some View {
-        NavigationLink {
-            RewardsScreen()
+        return NavigationLink {
+            CarScreen()
         } label: {
             CardBox {
-                HStack {
-                    Image(systemName: "star.fill").foregroundStyle(Theme.warn)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Points").font(.subheadline.weight(.medium))
-                        Text("\(model.points) pts · \(Points.tier(for: model.lifetimePoints).current.name)")
-                            .font(.caption)
+                HStack(spacing: 14) {
+                    IconBadge(systemImage: "car.side.fill").scaleEffect(1.25).frame(width: 42, height: 42)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(vehicle.name).font(.headline).foregroundStyle(Theme.text)
+                        Text(tr("\(Int(model.soc)) % · ≈ \(Int(vehicle.rangeKm(soc: model.soc))) km range"))
+                            .font(.subheadline)
                             .foregroundStyle(Theme.muted)
                     }
                     Spacer()
-                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Theme.muted)
+                    ListRowValue(value: nil)
                 }
+                SocBar(value: model.soc, height: 6).padding(.top, 12)
             }
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: Operators
+    // MARK: Lists
 
-    private var operatorLink: some View {
-        NavigationLink {
-            OperatorScreen()
-        } label: {
-            CardBox {
-                HStack {
-                    Image(systemName: "chart.bar.xaxis").foregroundStyle(Theme.brand)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("City and operator analytics").font(.subheadline.weight(.medium))
-                        Text("Idle time, demand by hour, blocked spots").font(.caption).foregroundStyle(Theme.muted)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Theme.muted)
-                }
+    private var accountList: some View {
+        let payment = DemoData.paymentMethods.first { $0.id == model.defaultPaymentId }
+        let plans = model.activePlanIds.count
+        let tier = Points.tier(for: model.lifetimePoints).current.name
+        return ListCard {
+            NavigationLink { RewardsScreen() } label: {
+                ListRow(systemImage: "star.fill", title: "Points", value: "\(model.points) · \(tier)", color: Theme.warn)
+            }
+            RowDivider()
+            NavigationLink { PaymentScreen() } label: {
+                ListRow(systemImage: "creditcard.fill", title: "Payment", value: payment?.title)
+            }
+            RowDivider()
+            NavigationLink { PlansScreen() } label: {
+                ListRow(systemImage: "ticket.fill", title: "Operator plans", value: plans == 0 ? tr("None") : tr("\(plans) active"))
             }
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: Settings
-
-    private var settingsCard: some View {
-        let langBinding = Binding(get: { model.lang }, set: { model.setLang($0) })
-        return CardBox {
-            HStack {
-                Label("Language", systemImage: "globe").font(.subheadline.weight(.medium))
-                Spacer()
-                DropdownField(selection: langBinding, options: Lang.allCases.map { ($0, $0.title) })
-                    .frame(width: 160)
-            }
-            Divider().padding(.vertical, 8)
-            Button(role: .destructive) { confirmReset = true } label: {
-                Label("Reset demo data", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.medium))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+    private var hostingList: some View {
+        let count = model.hostListings.count
+        return ListCard {
+            NavigationLink { HostingScreen() } label: {
+                HStack(spacing: 12) {
+                    IconBadge(systemImage: "bolt.house.fill", color: Theme.ok)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Host your charger").font(.body).foregroundStyle(Theme.text)
+                        Text(count == 0 ? "Rent it out to drivers nearby" : "Bookings, prices and earnings")
+                            .font(.caption)
+                            .foregroundStyle(Theme.muted)
+                    }
+                    Spacer(minLength: 8)
+                    ListRowValue(value: count == 0 ? nil : tr("\(count) listed"))
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .contentShape(Rectangle())
             }
         }
+        .buttonStyle(.plain)
+    }
+
+    private var settingsList: some View {
+        let lockScreen = Binding(get: { model.lockScreenEnabled }, set: { model.setLockScreen($0) })
+        return ListCard {
+            ListRow(systemImage: "lock.iphone", title: "Charging on Lock Screen") {
+                Toggle("", isOn: lockScreen).labelsHidden().tint(Theme.brand)
+            }
+            RowDivider()
+            ListRow(systemImage: "globe", title: "Language") {
+                Menu {
+                    Picker("Language", selection: Binding(get: { model.lang }, set: { model.setLang($0) })) {
+                        ForEach(Lang.allCases) { Text($0.title).tag($0) }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(model.lang.title)
+                        Image(systemName: "chevron.up.chevron.down").font(.caption2.weight(.semibold))
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.muted)
+                }
+            }
+        }
+    }
+
+    private var moreList: some View {
+        ListCard {
+            NavigationLink { OperatorScreen() } label: {
+                ListRow(systemImage: "chart.bar.xaxis", title: "City and operator analytics", color: Theme.ok)
+            }
+            .buttonStyle(.plain)
+            RowDivider()
+            Button { model.showOnboardingAgain() } label: {
+                ListRow(systemImage: "sparkles", title: "Show the intro again", color: Theme.brand) { EmptyView() }
+            }
+            .buttonStyle(.plain)
+            RowDivider()
+            Button { confirmReset = true } label: {
+                ListRow(systemImage: "arrow.counterclockwise", title: "Reset demo data", color: Theme.bad) { EmptyView() }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+}
+
+// MARK: - Payment
+
+private struct PaymentScreen: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                ListCard {
+                    ForEach(Array(DemoData.paymentMethods.enumerated()), id: \.element.id) { item in
+                        let method = item.element
+                        if item.offset > 0 { RowDivider() }
+                        Button { model.setDefaultPayment(method.id) } label: {
+                            ListRow(systemImage: method.systemImage, title: LocalizedStringKey(method.title)) {
+                                if model.defaultPaymentId == method.id {
+                                    Image(systemName: "checkmark").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.brand)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                Text("Charging is paid with the checked method. Demo only: no real payments are made.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.muted)
+                    .padding(.horizontal, 4)
+            }
+            .padding(16)
+        }
+        .tabBarClearance()
+        .screenBackdrop()
+        .navigationTitle("Payment")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Operator plans
+
+private struct PlansScreen: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Already pay for an operator's plan? Turn it on and we'll show your discounted price at their stations.")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.muted)
+                    .padding(.horizontal, 4)
+                    .padding(.bottom, 4)
+                ListCard {
+                    ForEach(Array(DemoData.plans.enumerated()), id: \.element.id) { item in
+                        let plan = item.element
+                        let op = DemoData.chargeOperator(plan.id)
+                        if item.offset > 0 { RowDivider() }
+                        HStack(spacing: 12) {
+                            IconBadge(systemImage: "ticket.fill", color: op.color)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(plan.name).font(.body.weight(.medium)).foregroundStyle(Theme.text)
+                                Text(plan.perk).font(.caption).foregroundStyle(Theme.muted)
+                            }
+                            Spacer()
+                            Toggle("", isOn: Binding(
+                                get: { model.activePlanIds.contains(plan.id) },
+                                set: { model.setPlan(plan.id, active: $0) }
+                            ))
+                            .labelsHidden()
+                            .tint(Theme.brand)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 11)
+                    }
+                }
+                Text("Demo plans. Linking real accounts needs the operator's sign-in.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.muted)
+                    .padding(.horizontal, 4)
+            }
+            .padding(16)
+        }
+        .tabBarClearance()
+        .screenBackdrop()
+        .navigationTitle("Operator plans")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

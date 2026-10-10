@@ -36,7 +36,8 @@ enum DemoData {
     ]
 
     static func chargeOperator(_ id: String) -> ChargeOperator {
-        operators.first { $0.id == id } ?? ChargeOperator(id: id, name: id, colorHex: "64748B")
+        if id == HostListing.operatorId { return ChargeOperator(id: id, name: tr("Private host"), colorHex: "DB2777") }
+        return operators.first { $0.id == id } ?? ChargeOperator(id: id, name: id, colorHex: "64748B")
     }
 
     enum Profile { case mall, office, residential, highway, transport }
@@ -149,20 +150,11 @@ enum DemoData {
 
     // MARK: Vehicles & places
 
-    /// Approximate real-world figures; good enough for planning demos.
-    static let vehicles: [Vehicle] = [
-        Vehicle(id: "model-y", name: "Tesla Model Y LR", batteryKwh: 75, consumptionKwhPer100: 17, maxDcKw: 250, maxAcKw: 11, connectors: [.ccs2, .type2]),
-        Vehicle(id: "model-3", name: "Tesla Model 3 RWD", batteryKwh: 57, consumptionKwhPer100: 15, maxDcKw: 170, maxAcKw: 11, connectors: [.ccs2, .type2]),
-        Vehicle(id: "id4", name: "Volkswagen ID.4 Pro", batteryKwh: 77, consumptionKwhPer100: 19, maxDcKw: 135, maxAcKw: 11, connectors: [.ccs2, .type2]),
-        Vehicle(id: "ioniq5", name: "Hyundai Ioniq 5 LR", batteryKwh: 77, consumptionKwhPer100: 19, maxDcKw: 230, maxAcKw: 11, connectors: [.ccs2, .type2]),
-        Vehicle(id: "ev3", name: "Kia EV3 LR", batteryKwh: 81, consumptionKwhPer100: 16, maxDcKw: 128, maxAcKw: 11, connectors: [.ccs2, .type2]),
-        Vehicle(id: "enyaq", name: "Škoda Enyaq 85", batteryKwh: 77, consumptionKwhPer100: 18, maxDcKw: 135, maxAcKw: 11, connectors: [.ccs2, .type2]),
-        Vehicle(id: "leaf", name: "Nissan Leaf 40", batteryKwh: 39, consumptionKwhPer100: 17, maxDcKw: 50, maxAcKw: 6.6, connectors: [.chademo, .type2]),
-        Vehicle(id: "dolphin", name: "BYD Dolphin", batteryKwh: 60, consumptionKwhPer100: 16, maxDcKw: 88, maxAcKw: 11, connectors: [.ccs2, .type2]),
-    ]
+    /// Every electric car model the app knows (Open EV Data).
+    static var vehicles: [Vehicle] { VehicleCatalog.all }
 
     static func vehicle(_ id: String) -> Vehicle {
-        vehicles.first { $0.id == id } ?? vehicles[0]
+        VehicleCatalog.vehicle(id)
     }
 
     static var places: [Place] { [

@@ -1,22 +1,31 @@
 import Foundation
 
 extension AppModel {
-    func submitReport(station: Station, kind: ReportKind, connectorId: String?, plate: String, description: String, hasPhoto: Bool) {
-        // Station telemetry backs the report: a bay occupied without a session
-        // (wrong use), or a connector the station already shows as out of service.
+    func submitReport(station: Station, kind: ReportKind, connectorId: String?, plate: String, description: String,
+                      hasPhoto: Bool, plateFromPhoto: Bool = false) {
+        // The charger's own data backs the report, judged from its live state now:
+        // wrong use → is that spot occupied without a session? (all spots when
+        // the driver isn't sure); charger problem → does it show as out of service?
+        let evidence: StationEvidence?
         let telemetry: Bool
         switch kind {
         case .wrongUsage:
-            telemetry = station.connectors.contains { $0.effectiveStatus() == .blocked }
+            // Judged from the freshness-aware status: stale data backs nothing.
+            let spot = station.connectors.first { $0.id == connectorId }
+            let found = spot.map { StationEvidence($0.effectiveStatus()) } ?? StationEvidence(station: station)
+            evidence = found
+            telemetry = found == .occupiedNoSession
         case .chargerProblem:
             let scope = station.connectors.filter { connectorId == nil || $0.id == connectorId }
+            evidence = nil
             telemetry = scope.contains { $0.effectiveStatus() == .offline }
         case .other:
+            evidence = nil
             telemetry = false
         }
         let report = AbuseReport(
             stationId: station.id,
-            plate: kind == .wrongUsage ? plate.uppercased() : "",
+            plate: kind == .wrongUsage ? Reports.formatPlate(plate) : "",
             description: description,
             hasPhoto: hasPhoto,
             telemetryMatches: telemetry,
@@ -24,7 +33,9 @@ extension AppModel {
             createdAt: .now,
             byMe: true,
             kind: kind,
-            connectorId: kind == .chargerProblem ? connectorId : nil
+            connectorId: kind == .other ? nil : connectorId,
+            plateFromPhoto: kind == .wrongUsage ? plateFromPhoto : nil,
+            evidence: evidence
         )
         reports.insert(report, at: 0)
         save()
@@ -32,7 +43,10 @@ extension AppModel {
             showBanner(tr("Report sent"), tr("Thanks — we'll pass it on to the operator."))
         } else if report.isConfirmed {
             addPoints(.reportConfirmed, note: station.name)
-            showBanner(tr("Report confirmed"), tr("Station data confirmed the violation. +\(PointsReason.reportConfirmed.points) pts"))
+            let why = report.stationEvidence == .occupiedNoSession
+                ? tr("The charger confirms the spot is blocked.")
+                : tr("Photo, plate and charger data agree.")
+            showBanner(tr("Report confirmed"), why + " " + tr("+\(PointsReason.reportConfirmed.points) pts"))
         } else {
             showBanner(tr("Report sent"), tr("Waiting for more confirmations."))
         }

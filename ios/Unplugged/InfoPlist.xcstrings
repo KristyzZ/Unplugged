@@ -1,10 +1,16 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "NSCameraUsageDescription" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The camera is used to photograph a car blocking a charger, so its licence plate can be read on your phone, and to photograph a charger you list for rent." } },
+        "lt" : { "stringUnit" : { "state" : "translated", "value" : "Kamera naudojama nufotografuoti įkrovimo vietą užstojusį automobilį, kad jo numeris būtų nuskaitytas jūsų telefone, ir nufotografuoti nuomai skelbiamą įkroviklį." } }
+      }
+    },
     "NSLocationWhenInUseUsageDescription" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your location is used to show the nearest charging stations." } },
-        "lt" : { "stringUnit" : { "state" : "translated", "value" : "Jūsų vieta naudojama artimiausioms įkrovimo stotelėms rodyti." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your location is used to show the nearest charging stations and to place a charger you list for rent." } },
+        "lt" : { "stringUnit" : { "state" : "translated", "value" : "Jūsų vieta naudojama artimiausioms įkrovimo stotelėms rodyti ir nuomai skelbiamo įkroviklio vietai pažymėti." } }
       }
     }
   },
