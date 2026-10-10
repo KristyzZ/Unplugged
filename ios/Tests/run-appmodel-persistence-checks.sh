@@ -11,6 +11,7 @@ sources=(
   "$repo_root/ios/Unplugged/Models/Provenance.swift"
   "$repo_root/ios/Unplugged/Models/OperatorCatalog.swift"
   "$repo_root/ios/Unplugged/Models/StationFeed.swift"
+  "$repo_root/ios/Unplugged/Models/EstimatedOccupancy.swift"
   "$repo_root/ios/Unplugged/Models/StationQuery.swift"
   "$repo_root/ios/Unplugged/Models/DemoData.swift"
   "$repo_root/ios/Unplugged/Models/VehicleCatalog.swift"
