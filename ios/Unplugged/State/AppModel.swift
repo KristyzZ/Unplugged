@@ -18,6 +18,7 @@ final class AppModel {
     var lifetimePoints = 240
     var history: [PointsEntry] = AppModel.demoHistory
     var session: ChargingSession?
+    var sessionEvents: [SessionEvent] = []
     var queue: QueueEntry?
     var reports: [AbuseReport] = AppModel.demoReports
     var sessionHistory: [ChargingSession] = AppModel.demoSessionHistory
@@ -37,6 +38,7 @@ final class AppModel {
     var speed: Double = 1
     var banners: [Banner] = []
 
+    @ObservationIgnored var scheduledSessionNotificationIds: [String] = []
     @ObservationIgnored var realAnchor = Date()
     @ObservationIgnored var simAnchor = Date()
     @ObservationIgnored var graceAnnouncedFor: Date?
@@ -44,10 +46,11 @@ final class AppModel {
 
     var vehicle: Vehicle { DemoData.vehicle(vehicleId) }
 
-    init() {
+    init(runLoops: Bool = true) {
         load()
-        stations = DemoData.stations(at: .now, tick: tick)
-        startLoops()
+        refreshStations()
+        checkSession()
+        if runLoops { startLoops() }
         rescheduleNotifications()
     }
 
@@ -75,7 +78,7 @@ final class AppModel {
                 try? await Task.sleep(for: .seconds(20))
                 guard let self else { return }
                 self.tick += 1
-                self.stations = DemoData.stations(at: .now, tick: self.tick)
+                self.refreshStations()
             }
         })
         // Session events (charging finished, grace over).

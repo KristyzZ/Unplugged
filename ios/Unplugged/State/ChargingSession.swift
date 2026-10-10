@@ -1,6 +1,6 @@
 import Foundation
 
-struct ChargingSession: Codable, Equatable {
+struct ChargingSession: Codable, Equatable, Identifiable {
     let stationId: String
     let stationName: String
     let connectorLabel: String
@@ -19,13 +19,24 @@ struct ChargingSession: Codable, Equatable {
     var idleFeeEur: Double?
     var pointsEarned: Int?
 
+    let sessionId: String?
+    let connectorId: String?
+    let feePolicy: IdleFee.Policy?
+    var completionAnnounced: Bool?
+    var graceWarningAnnounced: Bool?
+    var idleAnnounced: Bool?
+    var id: String { sessionId ?? "legacy:\(stationId):\(startedAt.timeIntervalSince1970):\(connectorLabel)" }
+    var appliedFeePolicy: IdleFee.Policy { feePolicy ?? .standard }
+
     /// Optional for backward compatibility: old saves retain energy-only billing.
     let pricingTerms: Pricing.Terms?
 
     init(stationId: String, stationName: String, connectorLabel: String, startedAt: Date,
          startSoc: Double, targetSoc: Double, minutesToTarget: Double, graceMinutes: Int,
          pricePerKwh: Double, batteryKwh: Double, doneAt: Date? = nil, endedAt: Date? = nil,
-         idleFeeEur: Double? = nil, pointsEarned: Int? = nil, pricingTerms: Pricing.Terms? = nil) {
+         idleFeeEur: Double? = nil, pointsEarned: Int? = nil, pricingTerms: Pricing.Terms? = nil,
+         connectorId: String? = nil, sessionId: String? = UUID().uuidString,
+         feePolicy: IdleFee.Policy? = .standard) {
         self.stationId = stationId
         self.stationName = stationName
         self.connectorLabel = connectorLabel
@@ -41,6 +52,9 @@ struct ChargingSession: Codable, Equatable {
         self.idleFeeEur = idleFeeEur
         self.pointsEarned = pointsEarned
         self.pricingTerms = pricingTerms
+        self.connectorId = connectorId
+        self.sessionId = sessionId
+        self.feePolicy = feePolicy
     }
 
     var scheduledDoneAt: Date { startedAt.addingTimeInterval(minutesToTarget * 60) }
@@ -61,6 +75,7 @@ struct SessionSnapshot {
     let graceLeft: TimeInterval
     let idleMinutes: Double
     let idleFee: Double
+    let idleRate: Double
 
     init(_ s: ChargingSession, now: Date) {
         let chargeEnd = s.doneAt ?? min(now, s.scheduledDoneAt)
@@ -88,7 +103,8 @@ struct SessionSnapshot {
         let idle = s.doneAt == nil ? 0 : max(0, (sinceDone - graceSeconds) / 60)
         graceLeft = max(0, graceSeconds - sinceDone)
         idleMinutes = idle
-        idleFee = s.idleFeeEur ?? IdleFee.fee(minutes: idle)
+        idleFee = s.idleFeeEur ?? s.appliedFeePolicy.fee(minutes: idle)
+        idleRate = s.appliedFeePolicy.currentRate(minutes: idle)
 
         if s.endedAt != nil { phase = .ended }
         else if s.doneAt == nil { phase = .charging }

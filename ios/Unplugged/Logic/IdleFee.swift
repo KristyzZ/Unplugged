@@ -15,7 +15,7 @@ enum IdleFee {
         return Int((Double(graceMax) - t * Double(graceMax - graceMin)).rounded())
     }
 
-    struct Tier: Hashable {
+    struct Tier: Codable, Hashable {
         /// Tier starts this many minutes after the grace period ends.
         let fromMin: Double
         let eurPerMin: Double
@@ -29,19 +29,25 @@ enum IdleFee {
 
     static let capEur = 40.0
 
-    /// Total idle fee for `minutes` spent idle after the grace period ended.
-    static func fee(minutes: Double) -> Double {
-        guard minutes > 0 else { return 0 }
-        var total = 0.0
-        for (i, tier) in tiers.enumerated() {
-            let end = i + 1 < tiers.count ? tiers[i + 1].fromMin : .infinity
-            if minutes <= tier.fromMin { break }
-            total += (min(minutes, end) - tier.fromMin) * tier.eurPerMin
-        }
-        return min(capEur, (total * 100).rounded() / 100)
-    }
+    struct Policy: Codable, Equatable {
+        let tiers: [Tier]
+        let capEur: Double
+        static var standard: Policy { Policy(tiers: IdleFee.tiers, capEur: IdleFee.capEur) }
 
-    static func currentRate(minutes: Double) -> Double {
-        tiers.last { minutes >= $0.fromMin }?.eurPerMin ?? 0
+        func fee(minutes: Double) -> Double {
+            guard minutes > 0 else { return 0 }
+            var total = 0.0
+            for (i, tier) in tiers.enumerated() {
+                let end = i + 1 < tiers.count ? tiers[i + 1].fromMin : .infinity
+                if minutes <= tier.fromMin { break }
+                total += (min(minutes, end) - tier.fromMin) * tier.eurPerMin
+            }
+            return min(capEur, (total * 100).rounded() / 100)
+        }
+        func currentRate(minutes: Double) -> Double {
+            tiers.last { minutes >= $0.fromMin }?.eurPerMin ?? 0
+        }
     }
+    static func fee(minutes: Double) -> Double { Policy.standard.fee(minutes: minutes) }
+    static func currentRate(minutes: Double) -> Double { Policy.standard.currentRate(minutes: minutes) }
 }
