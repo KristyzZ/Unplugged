@@ -6,13 +6,16 @@ struct StationDetailView: View {
 
     @Environment(AppModel.self) private var model
     @State private var pickedConnectorId: String?
-    @State private var target: Double = 80
     @State private var showReport = false
     @State private var showBooking = false
     @State private var bookingConnectorId: String?
     @State private var initialized = false
-    @State private var showPriceDetails = false
-    @State private var showIdleDetails = false
+    /// How long the driver wants to charge, in minutes.
+    @State private var minutes: Double = 30
+    /// Private chargers: start now, or book a later start.
+    @State private var startLater = false
+    @State private var startsAt = Date().addingTimeInterval(1800)
+    @State private var bookingFailed = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
@@ -54,7 +57,7 @@ struct StationDetailView: View {
                         Text(station.name).font(.largeTitle.bold())
                         HStack(spacing: 6) {
                             Circle().fill(op.color).frame(width: 8, height: 8)
-                            Text("\(op.name) · \(station.address), \(station.city)")
+                            Text(Self.subtitle(station, operatorName: op.name))
                         }
                         .font(.subheadline)
                         .foregroundStyle(Theme.muted)
@@ -66,13 +69,6 @@ struct StationDetailView: View {
                     }
 
                     statusCard(station)
-
-                    // Where the status and price come from, and a clear warning when it is stale.
-                    Text(station.provenanceSummary())
-                        .font(.caption)
-                        .foregroundStyle(Theme.muted)
-                        .padding(.top, 8)
-                        .accessibilityLabel(Text(station.provenanceSummary()))
 
                     if let hold = model.myHold, hold.stationId == station.id {
                         HoldCard(hold: hold) {
@@ -130,13 +126,24 @@ struct StationDetailView: View {
                             ForEach(station.amenities, id: \.self) { Pill(text: $0) }
                         }
                     }
+
+                    SectionHeader(title: "Idle fee")
+                    idleFeeCard(grace: grace)
+
+                    actions(station).padding(.top, 20)
+
+                    // Where the status and price come from, and a clear warning when it is stale.
+                    Text(station.provenanceSummary())
+                        .font(.caption)
+                        .foregroundStyle(Theme.muted)
+                        .padding(.top, 10)
+                        .accessibilityLabel(Text(station.provenanceSummary()))
                 }
                 .padding(16)
             }
             .onAppear {
                 guard !initialized else { return }
                 initialized = true
-                target = max(model.chargeLimit, min(100, model.soc + 5))
                 if let heldId, !busy {
                     selectConnector(heldId, selectableIDs: selectableIds, toggle: false)
                 }
@@ -207,18 +214,49 @@ struct StationDetailView: View {
                 StatView(label: "Finished, parked", value: "\(station.count(.idle))")
                 StatView(label: "Occupied, no charge", value: "\(station.count(.blocked))")
             }
-            let actionLayout = typeSize.isAccessibilitySize
-                ? AnyLayout(VStackLayout(spacing: 8)) : AnyLayout(HStackLayout(spacing: 8))
-            actionLayout {
-                if let url = URL(string: "http://maps.apple.com/?daddr=\(station.lat),\(station.lng)") {
-                    Link(destination: url) { Label("Route", systemImage: "arrow.triangle.turn.up.right.diamond") }
-                        .buttonStyle(SecondaryButtonStyle())
-                }
-                Button { showReport = true } label: { Label("Report", systemImage: "exclamationmark.triangle") }
+        }
+    }
+
+    private func actions(_ station: Station) -> some View {
+        let actionLayout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: 8)) : AnyLayout(HStackLayout(spacing: 8))
+        return actionLayout {
+            if let url = URL(string: "http://maps.apple.com/?daddr=\(station.lat),\(station.lng)") {
+                Link(destination: url) { Label("Route", systemImage: "arrow.triangle.turn.up.right.diamond") }
                     .buttonStyle(SecondaryButtonStyle())
             }
-            .padding(.top, 14)
+            Button { showReport = true } label: { Label("Report", systemImage: "exclamationmark.triangle") }
+                .buttonStyle(SecondaryButtonStyle())
         }
+    }
+
+    private func idleFeeCard(grace: Int) -> some View {
+        CardBox {
+            Text("Move within \(grace) min after charging ends, or idle fees apply.")
+                .font(.subheadline).foregroundStyle(Theme.text)
+                .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(Array(IdleFee.tiers.enumerated()), id: \.offset) { item in
+                    let tier = item.element
+                    Text("From \(Int(tier.fromMin)) min: \(Fmt.euros(tier.eurPerMin)) / min")
+                }
+                Text("Maximum idle fee: \(Fmt.eur(IdleFee.capEur))")
+            }
+            .font(.caption)
+            .foregroundStyle(Theme.muted)
+            .padding(.top, 10)
+        }
+    }
+
+    /// Operator and where the station is, without repeating an address that is
+    /// already the station's name (common in the open registry).
+    static func subtitle(_ station: Station, operatorName: String) -> String {
+        let name = station.name.lowercased()
+        let address = station.address.trimmingCharacters(in: .whitespaces)
+        var parts = [operatorName]
+        if !address.isEmpty && !name.contains(address.lowercased()) { parts.append(address) }
+        if !station.city.isEmpty && !name.contains(station.city.lowercased()) { parts.append(station.city) }
+        return parts.joined(separator: " · ")
     }
 
     private func queueCard(_ station: Station) -> some View {
@@ -257,9 +295,14 @@ struct StationDetailView: View {
         pickedConnectorId = toggle
             ? StationConnectorSelection.tapping(id, currentID: pickedConnectorId, selectableIDs: selectableIDs)
             : StationConnectorSelection.visibleID(id, selectableIDs: selectableIDs, busy: false)
-        target = max(target, min(100, model.soc + 5))
-        showPriceDetails = false
-        showIdleDetails = false
+        bookingFailed = false
+        // Default to the time it takes to reach the charge limit, in 5-minute steps.
+        if let id = pickedConnectorId,
+           let c = model.stations.first(where: { $0.id == stationId })?.connectors.first(where: { $0.id == id }) {
+            let goal = max(model.chargeLimit, min(100, model.soc + 5))
+            let m = Charging.chargeTime(model.vehicle, c, from: model.soc, to: goal).minutes
+            minutes = Double(max(5, Int((Double(m) / 5).rounded()) * 5))
+        }
         if pickedConnectorId != nil {
             UIAccessibility.post(notification: .announcement, argument: tr("Connector selected. Charging options expanded."))
         }
@@ -317,62 +360,81 @@ struct StationDetailView: View {
     }
 
     private func chargeCard(_ station: Station, connector: Connector, vehicle: Vehicle, grace: Int) -> some View {
-        let estimate = Charging.chargeTime(vehicle, connector, from: model.soc, to: target)
+        let listing = model.hostListing(forStation: station.id)
+        let full = Charging.minutesToFull(vehicle, connector, from: model.soc)
+        let chosen = min(Int(minutes), full)
+        let target = Charging.targetSoc(vehicle, connector, from: model.soc, minutes: chosen)
+        let energy = Charging.chargeTime(vehicle, connector, from: model.soc, to: target).kwh
         let price = model.chargingEstimate(at: station, connector: connector, targetSoc: target)
-        let minTarget = min(100, model.soc + 5)
         return CardBox {
-            Text(vehicle.name).font(.headline).fixedSize(horizontal: false, vertical: true)
-            HStack {
-                Text("Now \(Int(model.soc)) %")
+            Text("How long do you want to charge?").font(.headline).fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .firstTextBaseline) {
+                Text(Fmt.minutes(Double(chosen)))
+                    .scaledFont(28, weight: .bold, design: .rounded, relativeTo: .title)
+                    .monospacedDigit()
                 Spacer()
-                Text("To \(Int(target)) %")
+                Text("\(Int(model.soc)) % → \(Int(target)) %")
+                    .font(.subheadline).foregroundStyle(Theme.muted).monospacedDigit()
             }
-            .font(.subheadline)
             .padding(.top, 8)
-            if minTarget < 100 {
-                Slider(value: $target, in: minTarget...100, step: 1)
+            if full > 5 {
+                Slider(value: $minutes, in: 5...Double(full), step: 5)
                     .frame(minHeight: 44)
-                    .accessibilityLabel(Text("Charge target"))
-                    .accessibilityValue(Text("\(Int(target)) %"))
+                    .accessibilityLabel(Text("Charging time"))
+                    .accessibilityValue(Text(Fmt.minutes(Double(chosen))))
             }
             StatRow {
-                StatView(label: "Duration", value: Fmt.minutes(Double(estimate.minutes)))
-                StatView(label: "Energy", value: Fmt.kwh(estimate.kwh))
-                StatView(label: "Cost", value: Fmt.eur(price.charges.total))
+                StatView(label: "Energy", value: Fmt.kwh(energy))
+                StatView(label: "You pay about", value: Fmt.eur(price.charges.total))
             }
-            .padding(.top, 8)
-            DisclosureGroup(isExpanded: $showPriceDetails) {
-                PricingBreakdownView(terms: price.terms, charges: price.charges).padding(.top, 8)
-            } label: {
-                Text("Price details").font(.subheadline.weight(.medium)).frame(minHeight: 44)
+            .padding(.top, 4)
+
+            if let listing {
+                // Private charger: choose when to come, then pay.
+                Picker("Start", selection: $startLater) {
+                    Text("Now").tag(false)
+                    Text("Later").tag(true)
+                }
+                .pickerStyle(.segmented)
+                .padding(.top, 14)
+                if startLater {
+                    DatePicker("Arrive at", selection: $startsAt,
+                               in: Date.now...Date.now.addingTimeInterval(ReservationRules.bookingHorizon / max(1, model.speed)),
+                               displayedComponents: [.hourAndMinute])
+                        .padding(.top, 8)
+                    Text("Host is available: \(listing.schedule.summary)")
+                        .font(.caption).foregroundStyle(Theme.muted)
+                }
+                if bookingFailed {
+                    Text("Reservation unavailable. Refresh the station or cancel your existing queue or reservation.")
+                        .font(.caption).foregroundStyle(Theme.warn).padding(.top, 8)
+                }
             }
-            .tint(Theme.muted)
-            DisclosureGroup(isExpanded: $showIdleDetails) {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Array(IdleFee.tiers.enumerated()), id: \.offset) { item in
-                        let tier = item.element
-                        Text("From \(Int(tier.fromMin)) min: \(Fmt.euros(tier.eurPerMin)) / min")
-                    }
-                    Text("Maximum idle fee: \(Fmt.eur(IdleFee.capEur))")
-                }.font(.caption).padding(.vertical, 8)
-            } label: {
-                Text("Move within \(grace) min after charging ends, or idle fees apply.")
-                    .font(.caption).fixedSize(horizontal: false, vertical: true)
-                    .frame(minHeight: 44, alignment: .leading)
-            }
-            .tint(Theme.muted)
+
             Text("Demo session. No real payment.")
                 .font(.caption).foregroundStyle(Theme.muted)
-                .padding(.top, 6)
-            Button("Start & pay") {
-                // Keep Explore's destination and selection alive. The model
-                // switches to Charging; returning shows this same station.
-                model.startCharging(at: station, connector: connector, targetSoc: target)
+                .padding(.top, 10)
+            if listing != nil && startLater {
+                Button("Book & pay \(Fmt.eur(price.charges.total))") {
+                    let now = model.simNow()
+                    let delay = startsAt.timeIntervalSinceNow
+                    guard delay > 0 else { bookingFailed = true; return }
+                    bookingFailed = !model.reserveConnector(at: station, connector: connector,
+                                                            startsAt: now.addingTimeInterval(delay * max(1, model.speed)), now: now)
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .padding(.top, 10)
+            } else {
+                Button("Start & pay \(Fmt.eur(price.charges.total))") {
+                    // Keep Explore's destination and selection alive. The model
+                    // switches to Charging; returning shows this same station.
+                    model.startCharging(at: station, connector: connector, targetSoc: target)
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .accessibilityIdentifier("station-start-charge")
+                .padding(.top, 10)
             }
-            .buttonStyle(PrimaryButtonStyle())
-            .accessibilityIdentifier("station-start-charge")
-            .padding(.top, 10)
-            if model.myReservation == nil && model.queue == nil {
+            if listing == nil && model.myReservation == nil && model.queue == nil {
                 Button("Reserve connector") {
                     bookingConnectorId = connector.id
                     showBooking = true

@@ -37,3 +37,21 @@ enum Charging {
         return (Int((hours * 60).rounded()), (kwh * 10).rounded() / 10)
     }
 }
+
+extension Charging {
+    /// The charge level reached after about `minutes` of charging, starting at
+    /// `fromSoc` (never above 100 %). The inverse of `chargeTime`.
+    static func targetSoc(_ vehicle: Vehicle, _ connector: Connector, from fromSoc: Double, minutes: Int) -> Double {
+        let start = Int(fromSoc.rounded(.down))
+        guard minutes > 0, start < 100 else { return fromSoc }
+        for target in (start + 1)...100 where chargeTime(vehicle, connector, from: fromSoc, to: Double(target)).minutes >= minutes {
+            return Double(target)
+        }
+        return 100
+    }
+
+    /// Minutes to go from `fromSoc` to a full battery, at least 5.
+    static func minutesToFull(_ vehicle: Vehicle, _ connector: Connector, from fromSoc: Double) -> Int {
+        max(5, chargeTime(vehicle, connector, from: fromSoc, to: 100).minutes)
+    }
+}
