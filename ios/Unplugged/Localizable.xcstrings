@@ -351,16 +351,6 @@
         }
       }
     },
-    "Charging: %@": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Įkrovimas: %@"
-          }
-        }
-      }
-    },
     "Now %lld %%": {
       "localizations": {
         "lt": {
@@ -417,26 +407,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kaina"
-          }
-        }
-      }
-    },
-    "Once charging ends you'll have **%lld min** to move your car (current demand %@). After that the idle fee grows: %@ per min. Move on time to earn points.": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Baigus įkrovimą turėsite **%lld min.** patraukti automobilį (dabartinė paklausa %@). Vėliau prastovos mokestis didėja: %@ per min. Patraukę laiku gausite taškų."
-          }
-        }
-      }
-    },
-    "Start and pay with Unplugged": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pradėti ir mokėti per Unplugged"
           }
         }
       }
@@ -6159,6 +6129,96 @@
           "stringUnit": {
             "state": "translated",
             "value": "Demonstracinė sesija"
+          }
+        }
+      }
+    },
+    "Connector selected. Charging options expanded.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jungtis pasirinkta. Įkrovimo parinktys išskleistos."
+          }
+        }
+      }
+    },
+    "Collapse charging options": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suskleisti įkrovimo parinktis"
+          }
+        }
+      }
+    },
+    "Show charging options": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti įkrovimo parinktis"
+          }
+        }
+      }
+    },
+    "Charge target": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tikslinis įkrovos lygis"
+          }
+        }
+      }
+    },
+    "From %lld min: %@ / min": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuo %lld min.: %@ / min."
+          }
+        }
+      }
+    },
+    "Maximum idle fee: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Didžiausias prastovos mokestis: %@"
+          }
+        }
+      }
+    },
+    "Move within %lld min after charging ends, or idle fees apply.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasibaigus įkrovimui patraukite automobilį per %lld min., kitaip taikomas prastovos mokestis."
+          }
+        }
+      }
+    },
+    "Demo session. No real payment.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė sesija. Tikro mokėjimo nėra."
+          }
+        }
+      }
+    },
+    "Start & pay": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradėti ir mokėti"
           }
         }
       }

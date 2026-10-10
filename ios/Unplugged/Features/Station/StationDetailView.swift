@@ -5,10 +5,13 @@ struct StationDetailView: View {
     let stationId: String
 
     @Environment(AppModel.self) private var model
-    @Environment(\.dismiss) private var dismiss
     @State private var pickedConnectorId: String?
     @State private var target: Double = 80
     @State private var showReport = false
+    @State private var initialized = false
+    @State private var showPriceDetails = false
+    @State private var showIdleDetails = false
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         Group {
@@ -33,8 +36,15 @@ struct StationDetailView: View {
         let grace = IdleFee.graceMinutes(demand: demand)
         let best = station.bestHour(from: hour)
         let busy = model.hasActiveSession
-        let picked = station.connectors.first { $0.id == pickedConnectorId }
+        let heldId = model.myHold.flatMap { hold in
+            hold.stationId == station.id && hold.until > model.simNow() ? hold.connectorId : nil
+        }
+        let selectableIds = StationConnectorSelection.selectableIDs(
+            connectors: station.connectors, vehicle: vehicle, heldID: heldId
+        )
+        let picked = StationConnectorSelection.visibleID(pickedConnectorId, selectableIDs: selectableIds, busy: busy)
 
+        ScrollViewReader { scroll in
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 // Header
@@ -64,8 +74,7 @@ struct StationDetailView: View {
 
                 if let hold = model.myHold, hold.stationId == station.id {
                     HoldCard(hold: hold) {
-                        pickedConnectorId = hold.connectorId
-                        target = max(target, min(100, model.soc + 5))
+                        selectConnector(hold.connectorId, selectableIDs: selectableIds, toggle: false)
                     } onRelease: {
                         model.releaseHold()
                     }
@@ -77,18 +86,24 @@ struct StationDetailView: View {
                 SectionHeader(title: "Connectors")
                 VStack(spacing: 8) {
                     ForEach(station.connectors) { c in
-                        connectorRow(c, station: station, vehicle: vehicle, selectable: !busy)
+                        VStack(spacing: 8) {
+                            connectorRow(c, station: station, vehicle: vehicle,
+                                         enabled: !busy && selectableIds.contains(c.id),
+                                         selected: picked == c.id, heldForMe: heldId == c.id) {
+                                selectConnector(c.id, selectableIDs: selectableIds)
+                            }
+                            if picked == c.id {
+                                chargeCard(station, connector: c, vehicle: vehicle, grace: grace)
+                                    .id("charge-card")
+                            } else if busy && pickedConnectorId == c.id {
+                                viewSessionButton
+                            }
+                        }
                     }
                 }
 
-                if let picked, !busy {
-                    chargeCard(station, connector: picked, vehicle: vehicle, grace: grace, demand: demand)
-                        .padding(.top, 12)
-                }
-                if busy {
-                    Button("You're already charging — view session") { model.tab = .charging }
-                        .buttonStyle(SecondaryButtonStyle())
-                        .padding(.top, 10)
+                if busy && !station.connectors.contains(where: { $0.id == pickedConnectorId }) {
+                    viewSessionButton.padding(.top, 10)
                 }
 
                 SectionHeader(title: "Occupancy by hour")
@@ -115,12 +130,30 @@ struct StationDetailView: View {
             .padding(16)
         }
         .onAppear {
-            target = model.chargeLimit
-            // Arriving at a spot held for you: it's already picked.
-            if let hold = model.myHold, hold.stationId == station.id, !busy {
-                pickedConnectorId = hold.connectorId
+            guard !initialized else { return }
+            initialized = true
+            target = max(model.chargeLimit, min(100, model.soc + 5))
+            if let heldId, !busy {
+                selectConnector(heldId, selectableIDs: selectableIds, toggle: false)
             }
         }
+        .onChange(of: picked) { _, selected in
+            guard selected != nil else { return }
+            // Scroll the entire compact card into view; at accessibility sizes
+            // the footer remains reachable without shrinking or clipping text.
+            Task { @MainActor in
+                await Task.yield()
+                withAnimation { scroll.scrollTo("charge-card", anchor: .bottom) }
+            }
+        }
+        .onChange(of: selectableIds) { _, ids in
+            guard !busy else { return }
+            pickedConnectorId = StationConnectorSelection.visibleID(pickedConnectorId, selectableIDs: ids, busy: false)
+        }
+        .onChange(of: heldId) { _, id in
+            if let id, !busy { selectConnector(id, selectableIDs: selectableIds, toggle: false) }
+        }
+        } // ScrollViewReader
         .sheet(isPresented: $showReport) {
             NavigationStack {
                 ReportContent(stationId: station.id)
@@ -201,16 +234,30 @@ struct StationDetailView: View {
         }
     }
 
-    private func connectorRow(_ c: Connector, station: Station, vehicle: Vehicle, selectable: Bool) -> some View {
+    private var viewSessionButton: some View {
+        Button("You're already charging — view session") { model.tab = .charging }
+            .buttonStyle(SecondaryButtonStyle())
+            .accessibilityIdentifier("station-view-session")
+    }
+
+    private func selectConnector(_ id: String, selectableIDs: [String], toggle: Bool = true) {
+        pickedConnectorId = toggle
+            ? StationConnectorSelection.tapping(id, currentID: pickedConnectorId, selectableIDs: selectableIDs)
+            : StationConnectorSelection.visibleID(id, selectableIDs: selectableIDs, busy: false)
+        target = max(target, min(100, model.soc + 5))
+        showPriceDetails = false
+        showIdleDetails = false
+        if pickedConnectorId != nil {
+            UIAccessibility.post(notification: .announcement, argument: tr("Connector selected. Charging options expanded."))
+        }
+    }
+
+    private func connectorRow(_ c: Connector, station: Station, vehicle: Vehicle,
+                              enabled: Bool, selected: Bool, heldForMe: Bool,
+                              onSelect: @escaping () -> Void) -> some View {
         let compatible = Charging.isCompatible(vehicle, c)
         let status = c.effectiveStatus()
-        let heldForMe = model.myHold.map { $0.stationId == station.id && $0.connectorId == c.id } ?? false
-        let enabled = selectable && compatible && (c.isConfirmedAvailable() || heldForMe)
-        let selected = pickedConnectorId == c.id
-        return Button {
-            pickedConnectorId = c.id
-            target = max(target, min(100, model.soc + 5))
-        } label: {
+        return Button(action: onSelect) {
             HStack(spacing: 12) {
                 Circle().fill(status.color).frame(width: 10, height: 10)
                 VStack(alignment: .leading, spacing: 2) {
@@ -218,13 +265,18 @@ struct StationDetailView: View {
                     Text(heldForMe ? tr("Held for you") : detail(c, status: status, compatible: compatible))
                         .font(.caption)
                         .foregroundStyle(heldForMe ? Theme.brand : Theme.muted)
+                    if compatible && typeSize.isAccessibilitySize {
+                        Text("up to \(Int(Charging.effectivePeakKw(vehicle, c))) kW")
+                            .font(.caption).foregroundStyle(Theme.muted)
+                    }
                 }
                 Spacer()
-                if compatible {
+                if compatible && !typeSize.isAccessibilitySize {
                     Text("up to \(Int(Charging.effectivePeakKw(vehicle, c))) kW").font(.caption).foregroundStyle(Theme.muted)
                 }
             }
             .padding(12)
+            .frame(minHeight: 44)
             .background(Theme.card, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -234,6 +286,9 @@ struct StationDetailView: View {
         }
         .buttonStyle(.plain)
         .disabled(!enabled)
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
+        .accessibilityHint(selected ? Text("Collapse charging options") : Text("Show charging options"))
+        .accessibilityIdentifier("station-connector-\(c.id)")
     }
 
     private func detail(_ c: Connector, status: ConnectorStatus, compatible: Bool) -> String {
@@ -248,49 +303,67 @@ struct StationDetailView: View {
         return text
     }
 
-    private func chargeCard(_ station: Station, connector: Connector, vehicle: Vehicle, grace: Int, demand: Double) -> some View {
+    private func chargeCard(_ station: Station, connector: Connector, vehicle: Vehicle, grace: Int) -> some View {
         let estimate = Charging.chargeTime(vehicle, connector, from: model.soc, to: target)
         let price = model.chargingEstimate(at: station, connector: connector, targetSoc: target)
         let minTarget = min(100, model.soc + 5)
-        let tiersText = IdleFee.tiers.map { Fmt.euros($0.eurPerMin) }.joined(separator: " → ")
-        let finishText = Fmt.clock(Date().addingTimeInterval(Double(estimate.minutes) * 60))
         return CardBox {
-            Text("Charging: \(vehicle.name)").font(.headline)
+            Text(vehicle.name).font(.headline).fixedSize(horizontal: false, vertical: true)
             HStack {
                 Text("Now \(Int(model.soc)) %")
                 Spacer()
                 Text("To \(Int(target)) %")
             }
             .font(.subheadline)
-            .padding(.top, 10)
-            SocBar(value: model.soc, target: target).padding(.top, 4)
+            .padding(.top, 8)
             if minTarget < 100 {
-                Slider(value: $target, in: minTarget...100, step: 1).padding(.top, 6)
+                Slider(value: $target, in: minTarget...100, step: 1)
+                    .frame(minHeight: 44)
+                    .accessibilityLabel(Text("Charge target"))
+                    .accessibilityValue(Text("\(Int(target)) %"))
             }
             StatRow {
-                StatView(label: "Duration", value: Fmt.minutes(Double(estimate.minutes)), sub: tr("ends ~\(finishText)"))
+                StatView(label: "Duration", value: Fmt.minutes(Double(estimate.minutes)))
                 StatView(label: "Energy", value: Fmt.kwh(estimate.kwh))
                 StatView(label: "Cost", value: Fmt.eur(price.charges.total))
             }
-            .padding(.top, 10)
-            PricingBreakdownView(terms: price.terms, charges: price.charges)
-                .padding(.top, 12)
-            Text("Once charging ends you'll have **\(grace) min** to move your car (current demand \(Fmt.pct(demand))). After that the idle fee grows: \(tiersText) per min. Move on time to earn points.")
-                .font(.caption)
-                .foregroundStyle(Theme.muted)
-                .padding(10)
-                .background(Theme.fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .padding(.top, 12)
-            Button("Start and pay with Unplugged") {
+            .padding(.top, 8)
+            DisclosureGroup(isExpanded: $showPriceDetails) {
+                PricingBreakdownView(terms: price.terms, charges: price.charges).padding(.top, 8)
+            } label: {
+                Text("Price details").font(.subheadline.weight(.medium)).frame(minHeight: 44)
+            }
+            .tint(Theme.muted)
+            DisclosureGroup(isExpanded: $showIdleDetails) {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(IdleFee.tiers.enumerated()), id: \.offset) { item in
+                        let tier = item.element
+                        Text("From \(Int(tier.fromMin)) min: \(Fmt.euros(tier.eurPerMin)) / min")
+                    }
+                    Text("Maximum idle fee: \(Fmt.eur(IdleFee.capEur))")
+                }.font(.caption).padding(.vertical, 8)
+            } label: {
+                Text("Move within \(grace) min after charging ends, or idle fees apply.")
+                    .font(.caption).fixedSize(horizontal: false, vertical: true)
+                    .frame(minHeight: 44, alignment: .leading)
+            }
+            .tint(Theme.muted)
+            Text("Demo session. No real payment.")
+                .font(.caption).foregroundStyle(Theme.muted)
+                .padding(.top, 6)
+            Button("Start & pay") {
+                // Keep Explore's destination and selection alive. The model
+                // switches to Charging; returning shows this same station.
                 model.startCharging(at: station, connector: connector, targetSoc: target)
-                pickedConnectorId = nil
-                // Leave the map stack at its root; the app switches to the Charging tab.
-                dismiss()
             }
             .buttonStyle(PrimaryButtonStyle())
-            .padding(.top, 12)
+            .accessibilityIdentifier("station-start-charge")
+            .padding(.top, 10)
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("station-charge-card")
     }
+
 }
 
 /// "This spot is held for you" with the time left to plug in.
@@ -366,5 +439,26 @@ private struct HostedStationCard: View {
                 }
             }
         }
+    }
+}
+
+/// Selection policy shared by row highlighting and the single inline card.
+enum StationConnectorSelection {
+    static func selectableIDs(connectors: [Connector], vehicle: Vehicle, heldID: String?, now: Date = .now) -> [String] {
+        connectors.filter { connector in
+            let status = connector.effectiveStatus(at: now)
+            return Charging.isCompatible(vehicle, connector)
+                && (connector.isConfirmedAvailable(at: now) || (connector.id == heldID && status == .reserved))
+        }.map(\.id)
+    }
+
+    static func visibleID(_ currentID: String?, selectableIDs: [String], busy: Bool) -> String? {
+        guard !busy, let currentID, selectableIDs.contains(currentID) else { return nil }
+        return currentID
+    }
+
+    static func tapping(_ id: String, currentID: String?, selectableIDs: [String]) -> String? {
+        guard selectableIDs.contains(id) else { return visibleID(currentID, selectableIDs: selectableIDs, busy: false) }
+        return currentID == id ? nil : id
     }
 }
