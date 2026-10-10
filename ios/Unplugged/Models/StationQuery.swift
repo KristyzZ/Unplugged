@@ -98,7 +98,8 @@ enum StationQuery {
         /// Stable while the same stations are grouped, so markers don't flicker.
         var id: String { items.count == 1 ? items[0].id : "c:" + items.map(\.id).sorted().joined(separator: ",") }
         var single: Item? { items.count == 1 ? items[0] : nil }
-        func freeCount(at now: Date = .now) -> Int { items.reduce(0) { $0 + $1.station.freeCount(at: now) } }
+        /// Stations in the group with at least one free plug (never more than the group size).
+        func freeStations(at now: Date = .now) -> Int { items.filter { $0.station.freeCount(at: now) > 0 }.count }
         /// Bounding span of the grouped stations (degrees).
         var latSpan: Double { (items.map(\.station.lat).max() ?? 0) - (items.map(\.station.lat).min() ?? 0) }
         var lngSpan: Double { (items.map(\.station.lng).max() ?? 0) - (items.map(\.station.lng).min() ?? 0) }

@@ -6723,16 +6723,6 @@
         }
       }
     },
-    "%lld stations, %lld free connectors": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stotelių: %lld, laisvų jungčių: %lld"
-          }
-        }
-      }
-    },
     "Zooms in": {
       "localizations": {
         "lt": {
@@ -6759,6 +6749,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Verslo įkroviklis · %@"
+          }
+        }
+      }
+    },
+    "Start drive": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradėti kelionę"
+          }
+        }
+      }
+    },
+    "Opens turn-by-turn directions to %@ in Maps.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atidaro maršruto nurodymus iki %@ programoje „Žemėlapiai“."
+          }
+        }
+      }
+    },
+    "Opens turn-by-turn directions in Maps, via %lld charging stops.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atidaro maršruto nurodymus programoje „Žemėlapiai“ per %lld įkrovimo sustojimus."
+          }
+        }
+      }
+    },
+    "%lld stations, %lld with a free plug": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stotelių: %lld, su laisva jungtimi: %lld"
           }
         }
       }
