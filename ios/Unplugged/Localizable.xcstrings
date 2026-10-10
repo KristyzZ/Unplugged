@@ -6123,6 +6123,136 @@
         }
       }
     },
+    "Not enough data yet": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dar nepakanka duomenų"
+          }
+        }
+      }
+    },
+    "Busy-hour history is still being collected for this station.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šios stotelės užimtumo istorija dar renkama."
+          }
+        }
+      }
+    },
+    "Price unknown": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaina nežinoma"
+          }
+        }
+      }
+    },
+    "Live data · %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gyvi duomenys · %@"
+          }
+        }
+      }
+    },
+    "Loading live data…": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kraunami gyvi duomenys…"
+          }
+        }
+      }
+    },
+    "Offline · data from %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Be ryšio · duomenys iš %@"
+          }
+        }
+      }
+    },
+    "Offline · saved snapshot": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Be ryšio · išsaugota kopija"
+          }
+        }
+      }
+    },
+    "Demo stations": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinės stotelės"
+          }
+        }
+      }
+    },
+    "Distances are measured from Vilnius centre. Allow location to measure from where you are.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atstumai matuojami nuo Vilniaus centro. Leiskite nustatyti vietą, kad matuotume nuo jūsų."
+          }
+        }
+      }
+    },
+    "Use demo stations": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naudoti demonstracines stoteles"
+          }
+        }
+      }
+    },
+    "Show invented stations instead of the live ones, for offline demos.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti išgalvotas stoteles vietoje gyvų, skirta demonstracijoms be ryšio."
+          }
+        }
+      }
+    },
+    "Contains data from Via Lietuva (ev.vialietuva.lt), CC BY 4.0.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yra Via Lietuva (ev.vialietuva.lt) duomenų, CC BY 4.0."
+          }
+        }
+      }
+    },
+    "Zoom in to see more stations on the map.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priartinkite, kad pamatytumėte daugiau stotelių žemėlapyje."
+          }
+        }
+      }
+    },
     "Spot held for you: %@": {
       "localizations": {
         "lt": {
@@ -6229,6 +6359,106 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pradėti ir mokėti"
+          }
+        }
+      }
+    },
+    "You": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūs"
+          }
+        }
+      }
+    },
+    "Leaderboard": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lyderių lentelė"
+          }
+        }
+      }
+    },
+    "Rank by": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rikiuoti pagal"
+          }
+        }
+      }
+    },
+    "CO₂ saved": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sutaupyta CO₂"
+          }
+        }
+      }
+    },
+    "Show less": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti mažiau"
+          }
+        }
+      }
+    },
+    "Show all %lld": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti visus %lld"
+          }
+        }
+      }
+    },
+    "%lld kg": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld kg"
+          }
+        }
+      }
+    },
+    "Place %lld: %@, %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld vieta: %@, %@"
+          }
+        }
+      }
+    },
+    "Estimated vs. a petrol car, from the energy you charged. Other drivers are demo data.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apskaičiuota lyginant su benzininiu automobiliu pagal įkrautą energiją. Kitų vairuotojų duomenys demonstraciniai."
+          }
+        }
+      }
+    },
+    "Lifetime points. Other drivers are demo data.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visi surinkti taškai. Kitų vairuotojų duomenys demonstraciniai."
           }
         }
       }

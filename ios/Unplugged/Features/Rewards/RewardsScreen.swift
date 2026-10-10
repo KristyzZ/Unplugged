@@ -8,6 +8,7 @@ struct RewardsScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 balance
+                LeaderboardCard()
                 section("Spend points") { rewards }
                 section("How to earn") { earning }
                 if !model.history.isEmpty {

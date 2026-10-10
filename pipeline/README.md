@@ -58,3 +58,14 @@ What the import cleans (source last updated 2025-04-12, 1,321 records → 988 ca
 - Duplicates differing only in case or spacing are merged. Some odd values remain upstream (e.g. a DC figure equal to the
   battery size) — treat single entries with care.
 - `aliases` maps the app's old built-in car ids to catalog entries so saved choices keep working.
+
+## App snapshot (`export-app`)
+`python3 pipeline/run.py export-app` writes `ios/Unplugged/Data/stations.json`, the whole-country snapshot the app bundles
+(stations, connectors, referenced EUR tariffs). The app shows it at once and replaces it with the live OCPI feed.
+Regenerate it after a fresh `crawl`; it is ~1.5 MB.
+
+Feed behaviour the app and crawler both rely on:
+- `limit=1000` per page; `/tariffs` is fetched once per refresh (best effort), not per location.
+- `date_from` is unreliable on this feed, so refreshes are always full (~0.5 MB gzipped).
+- Some records carry bogus `last_updated` dates far in the future: they rank last when deduplicating and the app ignores them.
+- `BLOCKED` now appears for at least one charger, so the older "never reported" note is no longer exact.

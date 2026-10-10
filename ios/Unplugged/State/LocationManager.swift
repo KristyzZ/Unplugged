@@ -19,6 +19,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        manager.distanceFilter = 200      // metres: nearby lists need no finer updates
     }
 
     func request() {
@@ -28,6 +29,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
             manager.requestWhenInUseAuthorization()
         case .authorizedWhenInUse, .authorizedAlways:
             manager.requestLocation()
+            manager.startUpdatingLocation()
         default:
             denied = true
         }
@@ -39,7 +41,10 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         switch status {
         case .authorizedWhenInUse, .authorizedAlways:
             denied = false
-            if wantsLocation { manager.requestLocation() }
+            if wantsLocation {
+                manager.requestLocation()
+                manager.startUpdatingLocation()
+            }
         case .denied, .restricted:
             denied = true
         default:

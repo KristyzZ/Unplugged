@@ -7,7 +7,7 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .ocpi import energy_price
+from .ocpi import energy_price, trim_tariff
 
 SCHEMA = (Path(__file__).resolve().parent.parent / "schema.sql").read_text()
 BROKEN = ("INOPERATIVE", "OUTOFORDER")
@@ -23,6 +23,9 @@ def connect(path: str) -> sqlite3.Connection:
     db = sqlite3.connect(path)
     db.row_factory = sqlite3.Row
     db.executescript(SCHEMA)
+    # Older databases predate the raw tariff elements the app snapshot is built from.
+    if "elements" not in {r["name"] for r in db.execute("PRAGMA table_info(tariffs)")}:
+        db.execute("ALTER TABLE tariffs ADD COLUMN elements TEXT")
     return db
 
 
@@ -82,12 +85,14 @@ def apply_tariffs(db: sqlite3.Connection, tariffs: list[dict]) -> int:
         for t in tariffs:
             p = energy_price(t)
             alt = next((a.get("text") for a in t.get("tariff_alt_text") or [] if a.get("language") == "lt"), None)
+            per_minute = None if p["TIME"] is None else p["TIME"] / 60   # OCPI TIME is per hour
             db.execute(
-                "INSERT INTO tariffs(id, party_id, currency, energy_eur_kwh, time_eur_min, flat_eur, description, last_updated) "
-                "VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET party_id=excluded.party_id, currency=excluded.currency, "
+                "INSERT INTO tariffs(id, party_id, currency, energy_eur_kwh, time_eur_min, flat_eur, description, last_updated, elements) "
+                "VALUES (?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET party_id=excluded.party_id, currency=excluded.currency, "
                 "energy_eur_kwh=excluded.energy_eur_kwh, time_eur_min=excluded.time_eur_min, flat_eur=excluded.flat_eur, "
-                "description=excluded.description, last_updated=excluded.last_updated",
-                (t["id"], t.get("party_id"), t.get("currency"), p["ENERGY"], p["TIME"], p["FLAT"], alt, t.get("last_updated")),
+                "description=excluded.description, last_updated=excluded.last_updated, elements=excluded.elements",
+                (t["id"], t.get("party_id"), t.get("currency"), p["ENERGY"], per_minute, p["FLAT"], alt, t.get("last_updated"),
+                 json.dumps(trim_tariff(t)["elements"], separators=(",", ":"))),
             )
     return len(tariffs)
 

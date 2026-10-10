@@ -15,7 +15,8 @@ struct TripStop: Identifiable {
     let chargeMinutes: Int
     let energyKwh: Double
     let costEur: Double
-    let freeProbability: Double
+    /// nil when the station has no busy-hour history: shown as nothing, never as "0 %".
+    let freeProbability: Double?
 }
 
 struct TripPlan {
@@ -120,21 +121,22 @@ enum TripPlanner {
             if i == maxStops { break }
 
             // Reachable stations further along the route, scored.
-            var best: (c: Candidate, km: Double, arriveSoc: Double, pFree: Double, score: Double)?
+            var best: (c: Candidate, km: Double, arriveSoc: Double, pFree: Double?, score: Double)?
             for c in candidates where c.t > progress + 0.01 {
                 let km = Geo.roadKm(pos, c.station.latLng)
                 let arriveSoc = soc - km * socPerKm
                 guard arriveSoc >= input.reserveSoc else { continue }
                 let eta = clock.addingTimeInterval(km / input.avgSpeedKmh * 3600)
                 // No usable history means no credit for availability (not a guess).
-                let pFree = c.station.probabilityFree(atHour: Calendar.current.component(.hour, from: eta)) ?? 0
+                let pFreeKnown = c.station.probabilityFree(atHour: Calendar.current.component(.hour, from: eta))
+                let pFree = pFreeKnown ?? 0
                 let peak = Charging.effectivePeakKw(v, c.connector)
                 // Go far, charge fast, avoid busy stations and detours, avoid pointless stops.
                 var score = c.t * 100 + min(peak, 150) / 10 + pFree * 15 - c.detourKm * 0.5
                 if !c.connector.type.isDC { score -= 30 }
                 if arriveSoc > input.maxChargeSoc - 10 { score -= 60 }
                 if best == nil || score > best!.score {
-                    best = (c, km, arriveSoc, pFree, score)
+                    best = (c, km, arriveSoc, pFreeKnown, score)
                 }
             }
 

@@ -7,7 +7,7 @@ final class ReservationQueueTests: XCTestCase {
         let keys = ["unplugged.state.v1", "unplugged.state.v2", "unplugged.lang"]
         let previous = keys.map { defaults.object(forKey: $0) }
         keys.forEach { defaults.removeObject(forKey: $0) }
-        let model = AppModel(runLoops: false)
+        let model = AppModel(runLoops: false, stationSource: .demo)
         model.lockScreenEnabled = false
         model.realAnchor = .now
         model.simAnchor = Fixtures.t0

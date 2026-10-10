@@ -32,7 +32,29 @@ struct OccupancyChart: View {
         }
     }
 
+    /// 24 finite values in 0...1, one per hour. Real stations have no history until #37 provides it.
+    private var hasHistory: Bool {
+        values.count == 24 && values.allSatisfy { $0.isFinite && (0...1).contains($0) }
+    }
+
     var body: some View {
+        if hasHistory { chart } else { noHistory }
+    }
+
+    private var noHistory: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "chart.bar.xaxis").font(.title2).foregroundStyle(Theme.muted)
+            Text("Not enough data yet").font(.subheadline.weight(.medium)).foregroundStyle(Theme.text)
+            Text("Busy-hour history is still being collected for this station.")
+                .font(.caption)
+                .foregroundStyle(Theme.muted)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, minHeight: 120)
+        .accessibilityElement(children: .combine)
+    }
+
+    private var chart: some View {
         Chart(bars) { bar in
             // Rectangles with explicit hour edges: on a numeric axis a bar
             // width ratio has no band to scale against and draws nothing.
