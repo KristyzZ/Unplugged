@@ -3150,6 +3150,156 @@
           }
         }
       }
+    },
+    "Seeded demo session": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iš anksto parengta demonstracinė sesija"
+          }
+        }
+      }
+    },
+    "Simulated session": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simuliuota sesija"
+          }
+        }
+      }
+    },
+    "Legacy demo session": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ankstesnė demonstracinė sesija"
+          }
+        }
+      }
+    },
+    "Receipt ID: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kvito ID: %@"
+          }
+        }
+      }
+    },
+    "Simulated receipt. No payment was made.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinis kvitas. Mokėjimas neatliktas."
+          }
+        }
+      }
+    },
+    "Demo reward recorded": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinis atlygis įrašytas"
+          }
+        }
+      }
+    },
+    "No real partner benefit or charging discount has been activated.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tikra partnerio paslauga ar įkrovimo nuolaida neaktyvuota."
+          }
+        }
+      }
+    },
+    "Earn points in the demo and exchange them for simulated rewards. No real credits or partner benefits are activated.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracijoje rinkite taškus ir iškeiskite juos į demonstracinius atlygius. Tikri kreditai ar partnerių paslaugos neaktyvuojami."
+          }
+        }
+      }
+    },
+    "Simulated rewards": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstraciniai atlygiai"
+          }
+        }
+      }
+    },
+    "Redeem demo reward?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iškeisti į demonstracinį atlygį?"
+          }
+        }
+      }
+    },
+    "Redeem %lld pts": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iškeisti %lld taškų"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atšaukti"
+          }
+        }
+      }
+    },
+    "This creates a simulated reward record. No partner benefit is activated.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bus sukurtas demonstracinio atlygio įrašas. Partnerio paslauga neaktyvuojama."
+          }
+        }
+      }
+    },
+    "No simulated rewards yet.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinių atlygių dar nėra."
+          }
+        }
+      }
+    },
+    "Demo reward ID: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinio atlygio ID: %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

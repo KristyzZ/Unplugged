@@ -4,6 +4,7 @@ struct SessionScreen: View {
     var onFindStation: () -> Void = {}
 
     @Environment(AppModel.self) private var model
+    @State private var selectedReceipt: ChargingSession?
     private let speeds: [Double] = [1, 10, 60, 300]
 
     var body: some View {
@@ -32,6 +33,7 @@ struct SessionScreen: View {
             }
             .tabBarClearance()
             .screenBackdrop()
+            .sheet(item: $selectedReceipt) { SessionReceiptView(session: $0) }
             .navigationTitle("Charging")
             .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top, spacing: 0) { ScreenHeader(title: "Charging") }
@@ -158,20 +160,7 @@ struct SessionScreen: View {
     }
 
     private func receipt(_ s: ChargingSession, _ snap: SessionSnapshot) -> some View {
-        CardBox {
-            Text("Receipt").font(.headline).padding(.bottom, 8)
-            if let terms = s.pricingTerms, let charges = snap.pricingCharges {
-                PricingBreakdownView(terms: terms, charges: charges).padding(.bottom, 8)
-            } else {
-                row(String(format: trKey("Charging (%.1f kWh × %.2f €)"), snap.kwh, s.pricePerKwh), Fmt.eur(snap.chargingCost))
-            }
-            row("Idle fee", Fmt.eur(snap.idleFee))
-            Divider().padding(.vertical, 6)
-            row("Total", Fmt.eur(snap.chargingCost + snap.idleFee), bold: true)
-            if let pts = s.pointsEarned, pts > 0 {
-                row("Points earned", "+\(pts)")
-            }
-        }
+        CardBox { SessionReceiptDetails(session: s) }
     }
 
     private func row(_ label: String, _ value: String, bold: Bool = false) -> some View {
@@ -191,12 +180,14 @@ struct SessionScreen: View {
                 if model.sessionHistory.isEmpty {
                     Text("No past sessions yet.").font(.subheadline).foregroundStyle(Theme.muted)
                 }
-                ForEach(Array(model.sessionHistory.enumerated()), id: \.offset) { item in
+                ForEach(Array(model.sessionHistory.enumerated()), id: \.element.id) { item in
                     let s = item.element
                     let snap = SessionSnapshot(s, now: s.endedAt ?? s.startedAt)
                     if item.offset > 0 { Divider().padding(.vertical, 8) }
+                    Button { selectedReceipt = s } label: {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 2) {
+                            Text(s.historyOrigin.title).font(.caption).foregroundStyle(Theme.muted)
                             Text(s.stationName).font(.subheadline.weight(.semibold))
                             Text("\(s.startedAt.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(L10n.locale))) · \(String(format: "%.1f kWh", snap.kwh))")
                                 .font(.caption)
@@ -217,6 +208,7 @@ struct SessionScreen: View {
                             }
                         }
                     }
+                    }.buttonStyle(.plain)
                 }
             }
         }

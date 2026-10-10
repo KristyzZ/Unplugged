@@ -16,6 +16,7 @@ final class AppModel {
     var soc: Double = 34
     var points = 120
     var lifetimePoints = 240
+    var rewardRedemptions: [RewardRedemption] = []
     var history: [PointsEntry] = AppModel.demoHistory
     var session: ChargingSession?
     var sessionEvents: [SessionEvent] = []

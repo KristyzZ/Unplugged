@@ -1,5 +1,7 @@
 import Foundation
 
+enum SessionHistoryOrigin: String, Codable { case seededDemo, simulatedDemo, legacyDemo }
+
 struct ChargingSession: Codable, Equatable, Identifiable {
     let stationId: String
     let stationName: String
@@ -22,6 +24,11 @@ struct ChargingSession: Codable, Equatable, Identifiable {
     let sessionId: String?
     let connectorId: String?
     let feePolicy: IdleFee.Policy?
+    let origin: SessionHistoryOrigin?
+    var settledEnergyKwh: Double?
+    var settledCharges: Pricing.Breakdown?
+    var settledLegacyEnergyCost: Double?
+    var historyOrigin: SessionHistoryOrigin { origin ?? .legacyDemo }
     var completionAnnounced: Bool?
     var graceWarningAnnounced: Bool?
     var idleAnnounced: Bool?
@@ -36,7 +43,7 @@ struct ChargingSession: Codable, Equatable, Identifiable {
          pricePerKwh: Double, batteryKwh: Double, doneAt: Date? = nil, endedAt: Date? = nil,
          idleFeeEur: Double? = nil, pointsEarned: Int? = nil, pricingTerms: Pricing.Terms? = nil,
          connectorId: String? = nil, sessionId: String? = UUID().uuidString,
-         feePolicy: IdleFee.Policy? = .standard) {
+         feePolicy: IdleFee.Policy? = .standard, origin: SessionHistoryOrigin? = .simulatedDemo) {
         self.stationId = stationId
         self.stationName = stationName
         self.connectorLabel = connectorLabel
@@ -55,6 +62,7 @@ struct ChargingSession: Codable, Equatable, Identifiable {
         self.connectorId = connectorId
         self.sessionId = sessionId
         self.feePolicy = feePolicy
+        self.origin = origin
     }
 
     var scheduledDoneAt: Date { startedAt.addingTimeInterval(minutesToTarget * 60) }
@@ -81,19 +89,19 @@ struct SessionSnapshot {
         let chargeEnd = s.doneAt ?? min(now, s.scheduledDoneAt)
         let progress = max(0, min(1, chargeEnd.timeIntervalSince(s.startedAt) / (s.minutesToTarget * 60)))
         let currentSoc = s.startSoc + (s.targetSoc - s.startSoc) * progress
-        let energy = (currentSoc - s.startSoc) / 100 * s.batteryKwh / 0.92
+        let energy = s.settledEnergyKwh ?? ((currentSoc - s.startSoc) / 100 * s.batteryKwh / 0.92)
         soc = currentSoc
         kwh = energy
         if let terms = s.pricingTerms {
             let minutes = max(0, min(s.minutesToTarget, chargeEnd.timeIntervalSince(s.startedAt) / 60))
-            let charges = Pricing.charges(terms: terms, kwh: energy, chargingMinutes: minutes)
+            let charges = s.settledCharges ?? Pricing.charges(terms: terms, kwh: energy, chargingMinutes: minutes)
             pricingCharges = charges
             energyCost = charges.energy
             chargingCost = charges.total
         } else {
             pricingCharges = nil
-            energyCost = energy * s.pricePerKwh
-            chargingCost = energy * s.pricePerKwh
+            energyCost = s.settledLegacyEnergyCost ?? (energy * s.pricePerKwh)
+            chargingCost = s.settledLegacyEnergyCost ?? (energy * s.pricePerKwh)
         }
         minutesLeft = max(0, s.scheduledDoneAt.timeIntervalSince(now) / 60)
 

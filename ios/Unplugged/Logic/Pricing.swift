@@ -39,7 +39,7 @@ enum Pricing {
         var startEur: Double { plan?.waivesStartFee == true ? 0 : tariff.startEur }
     }
 
-    struct Breakdown: Equatable {
+    struct Breakdown: Codable, Equatable {
         let energy: Double
         let sessionStart: Double
         let chargingTime: Double
