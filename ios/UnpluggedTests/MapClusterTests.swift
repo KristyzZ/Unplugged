@@ -58,4 +58,11 @@ final class MapClusterTests: XCTestCase {
         XCTAssertTrue(listings.allSatisfy { (53.8...56.5).contains($0.location.lat) && (20.9...26.9).contains($0.location.lng) })
         XCTAssertTrue(PrivateChargers.stations().allSatisfy { $0.operatorId == HostListing.operatorId })
     }
+
+    func testClusterFreeCountIsStationsNotPlugs() {
+        // Fixture stations have several free plugs each; the bubble counts stations.
+        let items = (0..<3).map { item("s\($0)", dLat: Double($0) * 0.0001) }
+        let cluster = StationQuery.Cluster(items: items, center: vilnius)
+        XCTAssertLessThanOrEqual(cluster.freeStations(at: Fixtures.t0), items.count)
+    }
 }

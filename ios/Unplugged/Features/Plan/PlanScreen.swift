@@ -185,6 +185,33 @@ struct PlanScreen: View {
             RowDivider()
             endpointRow(systemImage: "mappin", title: to.name, detail: tr("Arrive \(Fmt.clock(plan.arriveAt)) with \(plan.arriveSoc) %"))
         }
+
+        if plan.feasible {
+            VStack(spacing: 6) {
+                Button { startDrive(plan, to: to) } label: {
+                    Label("Start drive", systemImage: "car.fill")
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                Text(plan.stops.isEmpty
+                     ? "Opens turn-by-turn directions to \(to.name) in Maps."
+                     : "Opens turn-by-turn directions in Maps, via \(plan.stops.count) charging stops.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.muted)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+
+    /// Hands the route to Apple Maps: every charging stop in order, then the destination.
+    private func startDrive(_ plan: TripPlan, to: Place) {
+        func item(_ name: String, _ c: CLLocationCoordinate2D) -> MKMapItem {
+            let i = MKMapItem(placemark: MKPlacemark(coordinate: c))
+            i.name = name
+            return i
+        }
+        let stops = plan.stops.map { item($0.station.name, $0.station.coordinate) } + [item(to.name, to.latLng.coordinate)]
+        MKMapItem.openMaps(with: [MKMapItem.forCurrentLocation()] + stops,
+                           launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
     }
 
     private func summaryLine(_ plan: TripPlan) -> String {
