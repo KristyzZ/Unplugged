@@ -197,13 +197,29 @@ enum StationBuilder {
     static let defaultSource = "Via Lietuva OCPI"
 
     /// A feed timestamp is local Lithuanian time without a zone.
+    private static let vilnius: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Europe/Vilnius")!
+        return calendar
+    }()
+
+    /// Parses "2026-10-10T00:01:05" by hand: a DateFormatter per charger made loading the whole
+    /// country many times slower.
     static func parseLocal(_ text: String?) -> Date? {
-        guard let text, text.count >= 19 else { return nil }
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(identifier: "Europe/Vilnius")
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        return formatter.date(from: String(text.prefix(19)))
+        guard let text else { return nil }
+        let b = Array(text.utf8)
+        guard b.count >= 19, b[4] == 45, b[7] == 45, b[10] == 84 || b[10] == 32, b[13] == 58, b[16] == 58 else { return nil }
+        func n(_ i: Int, _ len: Int) -> Int? {
+            var v = 0
+            for k in i..<(i + len) {
+                guard b[k] >= 48, b[k] <= 57 else { return nil }
+                v = v * 10 + Int(b[k] - 48)
+            }
+            return v
+        }
+        guard let y = n(0, 4), let mo = n(5, 2), let d = n(8, 2), let h = n(11, 2), let mi = n(14, 2), let s = n(17, 2),
+              (1...12).contains(mo), (1...31).contains(d), h < 24, mi < 60, s < 61 else { return nil }
+        return vilnius.date(from: DateComponents(year: y, month: mo, day: d, hour: h, minute: mi, second: s))
     }
 
     /// When a charger really last changed, or nil when the feed's date is missing or impossible

@@ -444,4 +444,18 @@ final class BundledSnapshotTests: XCTestCase {
         let snapshot = try XCTUnwrap(FeedSnapshot.bundled())
         measure { _ = StationBuilder.stations(from: snapshot) }
     }
+
+    func testReadingTheSnapshotAndBuildingTheMapIsFast() {
+        // What happens at launch: decode the bundled JSON and build every station.
+        measure { _ = FeedSnapshot.bundled().map { StationBuilder.stations(from: $0) } }
+    }
+
+    func testDateParsingMatchesTheFormatterAndRejectsGarbage() throws {
+        XCTAssertEqual(StationBuilder.parseLocal("2026-10-10T00:01:05"), ISO8601DateFormatter().date(from: "2026-10-09T21:01:05Z"))
+        XCTAssertEqual(StationBuilder.parseLocal("2026-01-15T08:00:00"), ISO8601DateFormatter().date(from: "2026-01-15T06:00:00Z"), "winter time is UTC+2")
+        XCTAssertEqual(StationBuilder.parseLocal("2026-10-10 00:01:05"), StationBuilder.parseLocal("2026-10-10T00:01:05"))
+        for bad in [nil, "", "2026-10-10", "not a date at all!!", "2026-13-10T00:00:00", "2026-10-10T25:00:00", "2026-1a-10T00:00:00"] {
+            XCTAssertNil(StationBuilder.parseLocal(bad), bad ?? "nil")
+        }
+    }
 }
