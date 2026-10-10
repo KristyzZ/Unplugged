@@ -6792,6 +6792,96 @@
           }
         }
       }
+    },
+    "How long do you want to charge?": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiek laiko norite krauti?"
+          }
+        }
+      }
+    },
+    "%lld %% → %lld %%": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld %% → %lld %%"
+          }
+        }
+      }
+    },
+    "Charging time": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimo laikas"
+          }
+        }
+      }
+    },
+    "You pay about": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mokėsite apie"
+          }
+        }
+      }
+    },
+    "Start": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradžia"
+          }
+        }
+      }
+    },
+    "Arrive at": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atvyksiu"
+          }
+        }
+      }
+    },
+    "Host is available: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Savininkas pasiekiamas: %@"
+          }
+        }
+      }
+    },
+    "Book & pay %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervuoti ir mokėti %@"
+          }
+        }
+      }
+    },
+    "Start & pay %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradėti ir mokėti %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
