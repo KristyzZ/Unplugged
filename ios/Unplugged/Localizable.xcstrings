@@ -2541,16 +2541,6 @@
         }
       }
     },
-    "Hide charging status": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Slėpti įkrovimo būseną"
-          }
-        }
-      }
-    },
     "Move your car": {
       "localizations": {
         "lt": {
@@ -6159,6 +6149,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Demonstracinė sesija"
+          }
+        }
+      }
+    },
+    "Spot held for you: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta jums rezervuota: %@"
+          }
+        }
+      }
+    },
+    "Opens the station": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atidaro stotelę"
           }
         }
       }
