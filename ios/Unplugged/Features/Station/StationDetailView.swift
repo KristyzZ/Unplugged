@@ -125,7 +125,7 @@ struct StationDetailView: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing) {
-                    Text(String(format: "%.2f €", station.pricePerKwh)).font(.title2.bold())
+                    Text(Fmt.euros(station.pricePerKwh)).font(.title2.bold())
                     Text("per kWh").font(.caption).foregroundStyle(Theme.muted)
                 }
             }
@@ -219,7 +219,7 @@ struct StationDetailView: View {
         let estimate = Charging.chargeTime(vehicle, connector, from: model.soc, to: target)
         let price = model.chargingEstimate(at: station, connector: connector, targetSoc: target)
         let minTarget = min(100, model.soc + 5)
-        let tiersText = IdleFee.tiers.map { String(format: "%.2f €", $0.eurPerMin) }.joined(separator: " → ")
+        let tiersText = IdleFee.tiers.map { Fmt.euros($0.eurPerMin) }.joined(separator: " → ")
         let finishText = Fmt.clock(Date().addingTimeInterval(Double(estimate.minutes) * 60))
         return CardBox {
             Text("Charging: \(vehicle.name)").font(.headline)
@@ -236,7 +236,7 @@ struct StationDetailView: View {
             }
             StatRow {
                 StatView(label: "Duration", value: Fmt.minutes(Double(estimate.minutes)), sub: tr("ends ~\(finishText)"))
-                StatView(label: "Energy", value: String(format: "%.1f kWh", estimate.kwh))
+                StatView(label: "Energy", value: Fmt.kwh(estimate.kwh))
                 StatView(label: "Cost", value: Fmt.eur(price.charges.total))
             }
             .padding(.top, 10)

@@ -66,7 +66,7 @@ struct SessionScreen: View {
             .padding(.top, 4)
             Divider().padding(.vertical, 12)
             StatRow {
-                StatView(label: "Energy", value: String(format: "%.1f kWh", snap.kwh))
+                StatView(label: "Energy", value: Fmt.kwh(snap.kwh))
                 StatView(label: "Cost", value: Fmt.eur(snap.chargingCost))
                 if snap.phase == .charging {
                     StatView(label: "Left", value: Fmt.minutes(snap.minutesLeft))
@@ -132,7 +132,7 @@ struct SessionScreen: View {
             HStack(alignment: .firstTextBaseline) {
                 Text("You've been idle for \(Fmt.minutes(snap.idleMinutes))").font(.headline)
                 Spacer()
-                Text(String(format: "%.2f €/min", rate)).font(.subheadline).foregroundStyle(Theme.muted)
+                Text(Fmt.eurPerMin(rate)).font(.subheadline).foregroundStyle(Theme.muted)
             }
             HStack(spacing: 6) {
                 ForEach(Array(IdleFee.tiers.enumerated()), id: \.offset) { item in
@@ -140,7 +140,7 @@ struct SessionScreen: View {
                     let end = item.offset + 1 < IdleFee.tiers.count ? IdleFee.tiers[item.offset + 1].fromMin : nil
                     let active = rate == tier.eurPerMin
                     VStack(spacing: 2) {
-                        Text(String(format: "%.2f €/min", tier.eurPerMin)).font(.caption.weight(.semibold))
+                        Text(Fmt.eurPerMin(tier.eurPerMin)).font(.caption.weight(.semibold))
                         Text(end.map { "\(Int(tier.fromMin))–\(Int($0)) min" } ?? "\(Int(tier.fromMin))+ min").font(.caption2)
                     }
                     .frame(maxWidth: .infinity)
@@ -163,7 +163,7 @@ struct SessionScreen: View {
             if let terms = s.pricingTerms, let charges = snap.pricingCharges {
                 PricingBreakdownView(terms: terms, charges: charges).padding(.bottom, 8)
             } else {
-                row(String(format: trKey("Charging (%.1f kWh × %.2f €)"), snap.kwh, s.pricePerKwh), Fmt.eur(snap.chargingCost))
+                row(String(format: trKey("Charging (%.1f kWh × %.2f €)"), locale: L10n.locale, snap.kwh, s.pricePerKwh), Fmt.eur(snap.chargingCost))
             }
             row("Idle fee", Fmt.eur(snap.idleFee))
             Divider().padding(.vertical, 6)
