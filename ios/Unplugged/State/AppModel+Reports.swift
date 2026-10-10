@@ -10,14 +10,15 @@ extension AppModel {
         let telemetry: Bool
         switch kind {
         case .wrongUsage:
+            // Judged from the freshness-aware status: stale data backs nothing.
             let spot = station.connectors.first { $0.id == connectorId }
-            let found = spot.map { StationEvidence($0.status) } ?? StationEvidence(station: station)
+            let found = spot.map { StationEvidence($0.effectiveStatus()) } ?? StationEvidence(station: station)
             evidence = found
             telemetry = found == .occupiedNoSession
         case .chargerProblem:
             let scope = station.connectors.filter { connectorId == nil || $0.id == connectorId }
             evidence = nil
-            telemetry = scope.contains { $0.status == .offline }
+            telemetry = scope.contains { $0.effectiveStatus() == .offline }
         case .other:
             evidence = nil
             telemetry = false

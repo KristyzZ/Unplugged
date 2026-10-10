@@ -34,13 +34,17 @@ enum Fixtures {
                 curve: curve, curveMeasured: nil)
     }
 
+    /// A connector whose status was reported `ageMinutes` before `Fixtures.t0` (fresh by default).
     static func connector(
         _ type: ConnectorType = .ccs2,
         kw: Double = 150,
         status: ConnectorStatus = .available,
-        id: String = "c1"
+        id: String = "c1",
+        ageMinutes: Double = 0,
+        dataClass: DataClass = .observed
     ) -> Connector {
-        Connector(id: id, type: type, powerKw: kw, status: status)
+        Connector(id: id, type: type, powerKw: kw, status: status,
+                  provenance: Provenance(source: "Test feed", timestamp: at(minutes: -ageMinutes), dataClass: dataClass))
     }
 
     static func station(
@@ -48,13 +52,17 @@ enum Fixtures {
         at location: LatLng,
         connectors: [Connector]? = nil,
         price: Double = 0.5,
-        occupancy: Double = 0.3
+        occupancy: Double = 0.3,
+        hourlyOccupancy: [Double]? = nil,
+        capabilities: StationCapabilities = .demo()
     ) -> Station {
         Station(
             id: id, name: id, address: "", city: "Test",
             lat: location.lat, lng: location.lng, operatorId: "test", pricePerKwh: price,
             connectors: connectors ?? [connector()],
-            hourlyOccupancy: Array(repeating: occupancy, count: 24), amenities: []
+            hourlyOccupancy: hourlyOccupancy ?? Array(repeating: occupancy, count: 24), amenities: [],
+            priceProvenance: Provenance(source: "Test feed", timestamp: t0, dataClass: .observed),
+            capabilities: capabilities
         )
     }
 

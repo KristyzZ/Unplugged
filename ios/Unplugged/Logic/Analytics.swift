@@ -58,7 +58,7 @@ enum Analytics {
         let avgCharge = chargeTotal / Double(max(1, sessions))
         let saved = idleTotal * idleReduction
         let hourly = (0..<24).map { h in
-            stations.reduce(0.0) { $0 + $1.hourlyOccupancy[h] } / Double(max(1, stations.count))
+            stations.reduce(0.0) { $0 + ($1.occupancy(atHour: h) ?? 0) } / Double(max(1, stations.count))
         }
         return NetworkSummary(
             stations: all,

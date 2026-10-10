@@ -50,6 +50,13 @@ struct StationDetailView: View {
 
                 statusCard(station)
 
+                // Where the status and price come from, and a clear warning when it is stale.
+                Text(station.provenanceSummary())
+                    .font(.caption)
+                    .foregroundStyle(Theme.muted)
+                    .padding(.top, 8)
+                    .accessibilityLabel(Text(station.provenanceSummary()))
+
                 if let hold = model.myHold, hold.stationId == station.id {
                     HoldCard(hold: hold) {
                         pickedConnectorId = hold.connectorId
@@ -84,11 +91,11 @@ struct StationDetailView: View {
                     OccupancyChart(values: station.hourlyOccupancy, currentHour: hour, highlight: best != hour ? best : nil)
                     Divider().padding(.vertical, 12)
                     StatRow {
-                        StatView(label: "Usual chance of a free spot now", value: Fmt.pct(station.probabilityFree(atHour: hour)))
+                        StatView(label: "Usual chance of a free spot now", value: station.probabilityFree(atHour: hour).map(Fmt.pct) ?? "–")
                         StatView(
                             label: "Best time in the next 6 h",
                             value: Fmt.hour(best),
-                            sub: tr("chance \(Fmt.pct(station.probabilityFree(atHour: best)))")
+                            sub: station.probabilityFree(atHour: best).map { tr("chance \(Fmt.pct($0))") }
                         )
                     }
                 }
@@ -191,18 +198,19 @@ struct StationDetailView: View {
 
     private func connectorRow(_ c: Connector, station: Station, vehicle: Vehicle, selectable: Bool) -> some View {
         let compatible = Charging.isCompatible(vehicle, c)
+        let status = c.effectiveStatus()
         let heldForMe = model.myHold.map { $0.stationId == station.id && $0.connectorId == c.id } ?? false
-        let enabled = selectable && compatible && (c.status == .available || heldForMe)
+        let enabled = selectable && compatible && (c.isConfirmedAvailable() || heldForMe)
         let selected = pickedConnectorId == c.id
         return Button {
             pickedConnectorId = c.id
             target = max(target, min(100, model.soc + 5))
         } label: {
             HStack(spacing: 12) {
-                Circle().fill(c.status.color).frame(width: 10, height: 10)
+                Circle().fill(status.color).frame(width: 10, height: 10)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(c.type.rawValue) · \(Int(c.powerKw)) kW").font(.body.weight(.medium))
-                    Text(heldForMe ? tr("Held for you") : detail(c, compatible: compatible))
+                    Text(heldForMe ? tr("Held for you") : detail(c, status: status, compatible: compatible))
                         .font(.caption)
                         .foregroundStyle(heldForMe ? Theme.brand : Theme.muted)
                 }
@@ -223,12 +231,12 @@ struct StationDetailView: View {
         .disabled(!enabled)
     }
 
-    private func detail(_ c: Connector, compatible: Bool) -> String {
-        var text = c.status.label
-        if c.status == .charging, let eta = c.etaMinutes {
+    private func detail(_ c: Connector, status: ConnectorStatus, compatible: Bool) -> String {
+        var text = status.label
+        if status == .charging, let eta = c.etaMinutes {
             text += tr(" · frees up ~\(Fmt.clock(Date().addingTimeInterval(Double(eta) * 60)))")
         }
-        if c.status == .idle, let idle = c.idleMinutes {
+        if status == .idle, let idle = c.idleMinutes {
             text += tr(" · parked for \(idle) min")
         }
         if !compatible { text += tr(" · not compatible with your car") }
@@ -237,6 +245,7 @@ struct StationDetailView: View {
 
     private func chargeCard(_ station: Station, connector: Connector, vehicle: Vehicle, grace: Int, demand: Double) -> some View {
         let estimate = Charging.chargeTime(vehicle, connector, from: model.soc, to: target)
+        let price = model.chargingEstimate(at: station, connector: connector, targetSoc: target)
         let minTarget = min(100, model.soc + 5)
         let tiersText = IdleFee.tiers.map { String(format: "%.2f €", $0.eurPerMin) }.joined(separator: " → ")
         let finishText = Fmt.clock(Date().addingTimeInterval(Double(estimate.minutes) * 60))
@@ -256,9 +265,11 @@ struct StationDetailView: View {
             StatRow {
                 StatView(label: "Duration", value: Fmt.minutes(Double(estimate.minutes)), sub: tr("ends ~\(finishText)"))
                 StatView(label: "Energy", value: String(format: "%.1f kWh", estimate.kwh))
-                StatView(label: "Cost", value: Fmt.eur(estimate.kwh * station.pricePerKwh))
+                StatView(label: "Cost", value: Fmt.eur(price.charges.total))
             }
             .padding(.top, 10)
+            PricingBreakdownView(terms: price.terms, charges: price.charges)
+                .padding(.top, 12)
             Text("Once charging ends you'll have **\(grace) min** to move your car (current demand \(Fmt.pct(demand))). After that the idle fee grows: \(tiersText) per min. Move on time to earn points.")
                 .font(.caption)
                 .foregroundStyle(Theme.muted)

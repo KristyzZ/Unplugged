@@ -84,13 +84,13 @@ enum StationEvidence: String, Codable {
         case .available, .reserved: self = .noSession
         case .idle: self = .finishedParked
         case .charging: self = .charging
-        case .offline: self = .unknown
+        case .offline, .unknown: self = .unknown
         }
     }
 
     /// For "not sure which spot": the strongest sign at the station.
     init(station: Station) {
-        let statuses = station.connectors.map(\.status)
+        let statuses = station.effectiveStatuses()
         if statuses.contains(.blocked) { self = .occupiedNoSession }
         else if statuses.contains(.idle) { self = .finishedParked }
         else if statuses.contains(.available) { self = .noSession }

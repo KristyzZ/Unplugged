@@ -104,13 +104,13 @@ final class LiveActivityManager {
         let points: Int
         switch phase {
         case .ended:
-            total = snap.energyCost + snap.idleFee
+            total = snap.chargingCost + snap.idleFee
             points = s.pointsEarned ?? 0
         case .charging:
             total = s.plannedCost
             points = PointsReason.movedFast.points
         case .grace, .idle:
-            total = snap.energyCost
+            total = snap.chargingCost
             points = PointsReason.movedFast.points
         }
 
@@ -123,7 +123,7 @@ final class LiveActivityManager {
             chargeEnd: chargeEnd.roundedToSecond,
             graceEnd: graceEnd.roundedToSecond,
             powerKw: s.averageKw.rounded(),
-            energyCostEur: cents(snap.energyCost),
+            energyCostEur: cents(snap.chargingCost),
             totalEur: cents(total),
             idleRateEurPerMin: IdleFee.currentRate(minutes: snap.idleMinutes),
             idleFeeEur: cents(snap.idleFee),

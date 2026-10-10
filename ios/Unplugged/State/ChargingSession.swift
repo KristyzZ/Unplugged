@@ -23,6 +23,33 @@ struct ChargingSession: Codable, Equatable {
     /// Someone was waiting, so the spot was held for them when the car left.
     var handedOver: Bool? = nil
 
+    /// Optional for backward compatibility: old saves retain energy-only billing.
+    let pricingTerms: Pricing.Terms?
+
+    init(stationId: String, stationName: String, connectorLabel: String, startedAt: Date,
+         startSoc: Double, targetSoc: Double, minutesToTarget: Double, graceMinutes: Int,
+         pricePerKwh: Double, batteryKwh: Double, doneAt: Date? = nil, endedAt: Date? = nil,
+         idleFeeEur: Double? = nil, pointsEarned: Int? = nil, connectorId: String? = nil,
+         handedOver: Bool? = nil, pricingTerms: Pricing.Terms? = nil) {
+        self.stationId = stationId
+        self.stationName = stationName
+        self.connectorLabel = connectorLabel
+        self.startedAt = startedAt
+        self.startSoc = startSoc
+        self.targetSoc = targetSoc
+        self.minutesToTarget = minutesToTarget
+        self.graceMinutes = graceMinutes
+        self.pricePerKwh = pricePerKwh
+        self.batteryKwh = batteryKwh
+        self.doneAt = doneAt
+        self.endedAt = endedAt
+        self.idleFeeEur = idleFeeEur
+        self.pointsEarned = pointsEarned
+        self.connectorId = connectorId
+        self.handedOver = handedOver
+        self.pricingTerms = pricingTerms
+    }
+
     var scheduledDoneAt: Date { startedAt.addingTimeInterval(minutesToTarget * 60) }
 }
 
@@ -34,6 +61,9 @@ struct SessionSnapshot {
     let soc: Double
     let kwh: Double
     let energyCost: Double
+    /// Charging subtotal (energy + start + charging time), excluding idle fees.
+    let chargingCost: Double
+    let pricingCharges: Pricing.Breakdown?
     let minutesLeft: Double
     let graceLeft: TimeInterval
     let idleMinutes: Double
@@ -46,7 +76,17 @@ struct SessionSnapshot {
         let energy = (currentSoc - s.startSoc) / 100 * s.batteryKwh / 0.92
         soc = currentSoc
         kwh = energy
-        energyCost = energy * s.pricePerKwh
+        if let terms = s.pricingTerms {
+            let minutes = max(0, min(s.minutesToTarget, chargeEnd.timeIntervalSince(s.startedAt) / 60))
+            let charges = Pricing.charges(terms: terms, kwh: energy, chargingMinutes: minutes)
+            pricingCharges = charges
+            energyCost = charges.energy
+            chargingCost = charges.total
+        } else {
+            pricingCharges = nil
+            energyCost = energy * s.pricePerKwh
+            chargingCost = energy * s.pricePerKwh
+        }
         minutesLeft = max(0, s.scheduledDoneAt.timeIntervalSince(now) / 60)
 
         let ref = s.endedAt ?? now
@@ -71,6 +111,10 @@ extension ChargingSession {
     /// Average charging power over the session (kW).
     var averageKw: Double { minutesToTarget > 0 ? plannedKwh / (minutesToTarget / 60) : 0 }
 
-    /// What charging to the target will cost (€).
-    var plannedCost: Double { plannedKwh * pricePerKwh }
+    /// What charging to the target will cost (€), with the frozen tariff's start
+    /// fee and time charge when the session has one.
+    var plannedCost: Double {
+        guard let pricingTerms else { return plannedKwh * pricePerKwh }
+        return Pricing.charges(terms: pricingTerms, kwh: plannedKwh, chargingMinutes: minutesToTarget).total
+    }
 }

@@ -33,7 +33,7 @@ struct ReportContent: View {
 
     private var evidence: StationEvidence {
         guard let station else { return .unknown }
-        if let spot = station.connectors.first(where: { $0.id == spotId }) { return StationEvidence(spot.status) }
+        if let spot = station.connectors.first(where: { $0.id == spotId }) { return StationEvidence(spot.effectiveStatus()) }
         return StationEvidence(station: station)
     }
 

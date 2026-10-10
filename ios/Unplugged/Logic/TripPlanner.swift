@@ -126,7 +126,8 @@ enum TripPlanner {
                 let arriveSoc = soc - km * socPerKm
                 guard arriveSoc >= input.reserveSoc else { continue }
                 let eta = clock.addingTimeInterval(km / input.avgSpeedKmh * 3600)
-                let pFree = c.station.probabilityFree(atHour: Calendar.current.component(.hour, from: eta))
+                // No usable history means no credit for availability (not a guess).
+                let pFree = c.station.probabilityFree(atHour: Calendar.current.component(.hour, from: eta)) ?? 0
                 let peak = Charging.effectivePeakKw(v, c.connector)
                 // Go far, charge fast, avoid busy stations and detours, avoid pointless stops.
                 var score = c.t * 100 + min(peak, 150) / 10 + pFree * 15 - c.detourKm * 0.5

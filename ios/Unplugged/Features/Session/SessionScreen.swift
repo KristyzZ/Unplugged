@@ -99,10 +99,10 @@ struct SessionScreen: View {
                         let added = model.vehicle.rangeKm(soc: snap.soc) - model.vehicle.rangeKm(soc: s.startSoc)
                         StatView(label: "Range added", value: "+\(Fmt.km(max(0, added)))")
                         StatView(label: "Power", value: "\(Int(s.averageKw.rounded())) kW")
-                        StatView(label: "So far", value: Fmt.eur(snap.energyCost))
+                        StatView(label: "So far", value: Fmt.eur(snap.chargingCost))
                     } else {
                         StatView(label: "Energy", value: String(format: "%.1f kWh", snap.kwh))
-                        StatView(label: "Charging", value: Fmt.eur(snap.energyCost))
+                        StatView(label: "Charging", value: Fmt.eur(snap.chargingCost))
                         // Only once it matters, so it doesn't read as a cost while charging.
                         if snap.idleFee > 0 {
                             StatView(label: "Idle fee", value: Fmt.eur(snap.idleFee))
@@ -110,6 +110,16 @@ struct SessionScreen: View {
                     }
                 }
                 .padding(.top, 4)
+
+                // The frozen contract and its lines (energy, start fee, time), one tap away.
+                if let terms = s.pricingTerms, let charges = snap.pricingCharges {
+                    DisclosureGroup {
+                        PricingBreakdownView(terms: terms, charges: charges).padding(.top, 8)
+                    } label: {
+                        Text("Price details").font(.subheadline.weight(.medium)).foregroundStyle(Theme.text)
+                    }
+                    .tint(Theme.muted)
+                }
 
                 action(snap.phase)
             }
@@ -167,7 +177,9 @@ struct SessionScreen: View {
 
     private func historyRow(_ s: ChargingSession) -> some View {
         let snap = SessionSnapshot(s, now: s.endedAt ?? s.startedAt)
-        let date = s.startedAt.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(L10n.locale))
+        let day = s.startedAt.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(L10n.locale))
+        // Name the plan when one priced the session.
+        let date = s.pricingTerms?.plan.map { "\(day) · \($0.name)" } ?? day
         return HStack(spacing: 12) {
             IconBadge(systemImage: "bolt.fill", color: snap.idleFee > 0 ? Theme.warn : Theme.ok)
             VStack(alignment: .leading, spacing: 2) {
@@ -178,7 +190,7 @@ struct SessionScreen: View {
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
-                Text(Fmt.eur(snap.energyCost + snap.idleFee)).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.text)
+                Text(Fmt.eur(snap.chargingCost + snap.idleFee)).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.text)
                 if let pts = s.pointsEarned, pts > 0 {
                     Text("+\(pts) pts").font(.caption).foregroundStyle(Theme.ok)
                 }
@@ -218,7 +230,7 @@ private struct PhaseLook {
             color = Theme.bad
             progress = 1
         case .ended:
-            value = Fmt.eur(snap.energyCost + snap.idleFee)
+            value = Fmt.eur(snap.chargingCost + snap.idleFee)
             caption = tr("total")
             explanation = (s.pointsEarned ?? 0) > 0
                 ? tr("Thanks for freeing the spot. You earned \(s.pointsEarned ?? 0) points.")

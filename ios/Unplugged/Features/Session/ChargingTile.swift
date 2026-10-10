@@ -156,7 +156,7 @@ private struct TileContent {
             progress = 1
         case .ended:
             title = tr("Done")
-            subtitle = Fmt.eur(snap.energyCost + snap.idleFee)
+            subtitle = Fmt.eur(snap.chargingCost + snap.idleFee)
             symbol = "checkmark"
             color = Theme.ok
             progress = 1

@@ -503,12 +503,26 @@ private struct FinishedMoment: View {
         var lines = [
             Line(label: "Battery", value: "\(Int(session.startSoc.rounded())) → \(Int(snap.soc.rounded())) %"),
             Line(label: "Energy", value: String(format: "%.1f kWh", snap.kwh)),
-            Line(label: "Charging", value: Fmt.eur(snap.energyCost)),
         ]
+        // Sessions priced with frozen terms itemize the charge; older ones are energy only.
+        if let charges = snap.pricingCharges {
+            lines.append(Line(label: "Energy charge", value: Fmt.eur(charges.energy)))
+            if charges.sessionStart > 0 {
+                lines.append(Line(label: "Session start fee", value: Fmt.eur(charges.sessionStart)))
+            }
+            if charges.chargingTime > 0 {
+                lines.append(Line(label: "Charging time fee", value: Fmt.eur(charges.chargingTime)))
+            }
+            if charges.savings > 0 {
+                lines.append(Line(label: "Plan saving (already included)", value: Fmt.eur(charges.savings), color: Theme.ok))
+            }
+        } else {
+            lines.append(Line(label: "Charging", value: Fmt.eur(snap.chargingCost)))
+        }
         if snap.idleFee > 0 {
             lines.append(Line(label: "Idle fee", value: Fmt.eur(snap.idleFee), color: Theme.bad))
         }
-        lines.append(Line(label: "Total", value: Fmt.eur(snap.energyCost + snap.idleFee), isTotal: true))
+        lines.append(Line(label: "Total", value: Fmt.eur(snap.chargingCost + snap.idleFee), isTotal: true))
         return lines
     }
 }
