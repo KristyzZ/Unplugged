@@ -7,8 +7,6 @@ struct StationDetailView: View {
     @Environment(AppModel.self) private var model
     @State private var pickedConnectorId: String?
     @State private var showReport = false
-    @State private var showBooking = false
-    @State private var bookingConnectorId: String?
     @State private var initialized = false
     /// How long the driver wants to charge, in minutes.
     @State private var minutes: Double = 30
@@ -167,11 +165,6 @@ struct StationDetailView: View {
                 if let id, !busy { selectConnector(id, selectableIDs: selectableIds, toggle: false) }
             }
         } // ScrollViewReader
-        .sheet(isPresented: $showBooking) {
-            if let connector = station.connectors.first(where: { $0.id == bookingConnectorId }) {
-                ReservationBookingView(station: station, connector: connector)
-            }
-        }
         .sheet(isPresented: $showReport) {
             NavigationStack {
                 ReportContent(stationId: station.id)
@@ -411,35 +404,42 @@ struct StationDetailView: View {
                 }
             }
 
-            Text("Demo session. No real payment.")
-                .font(.caption).foregroundStyle(Theme.muted)
-                .padding(.top, 10)
-            if listing != nil && startLater {
-                Button("Book & pay \(Fmt.eur(price.charges.total))") {
-                    let now = model.simNow()
-                    let delay = startsAt.timeIntervalSinceNow
-                    guard delay > 0 else { bookingFailed = true; return }
-                    bookingFailed = !model.reserveConnector(at: station, connector: connector,
-                                                            startsAt: now.addingTimeInterval(delay * max(1, model.speed)), now: now)
+            if listing != nil {
+                Text("Demo session. No real payment.")
+                    .font(.caption).foregroundStyle(Theme.muted)
+                    .padding(.top, 10)
+                if startLater {
+                    Button("Book & pay \(Fmt.eur(price.charges.total))") {
+                        let now = model.simNow()
+                        let delay = startsAt.timeIntervalSinceNow
+                        guard delay > 0 else { bookingFailed = true; return }
+                        bookingFailed = !model.reserveConnector(at: station, connector: connector,
+                                                                startsAt: now.addingTimeInterval(delay * max(1, model.speed)), now: now)
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .padding(.top, 10)
+                } else {
+                    Button("Start & pay \(Fmt.eur(price.charges.total))") {
+                        // Keep Explore's destination and selection alive. The model
+                        // switches to Charging; returning shows this same station.
+                        model.startCharging(at: station, connector: connector, targetSoc: target)
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .accessibilityIdentifier("station-start-charge")
+                    .padding(.top, 10)
                 }
-                .buttonStyle(PrimaryButtonStyle())
-                .padding(.top, 10)
             } else {
-                Button("Start & pay \(Fmt.eur(price.charges.total))") {
-                    // Keep Explore's destination and selection alive. The model
-                    // switches to Charging; returning shows this same station.
-                    model.startCharging(at: station, connector: connector, targetSoc: target)
+                // Public operators take payment in their own app or at the charger;
+                // Unplugged only estimates the cost.
+                Label {
+                    Text("Pay in the \(DemoData.chargeOperator(station.operatorId).name) app or at the charger. This is an estimate.")
+                } icon: {
+                    Image(systemName: "info.circle")
                 }
-                .buttonStyle(PrimaryButtonStyle())
-                .accessibilityIdentifier("station-start-charge")
-                .padding(.top, 10)
-            }
-            if listing == nil && model.myReservation == nil && model.queue == nil {
-                Button("Reserve connector") {
-                    bookingConnectorId = connector.id
-                    showBooking = true
-                }
-                .buttonStyle(SecondaryButtonStyle()).padding(.top, 8)
+                .font(.caption)
+                .foregroundStyle(Theme.muted)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 12)
             }
         }
         .accessibilityElement(children: .contain)

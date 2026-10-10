@@ -6882,6 +6882,16 @@
           }
         }
       }
+    },
+    "Pay in the %@ app or at the charger. This is an estimate.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mokėkite %@ programėlėje arba prie įkroviklio. Tai apytikslė kaina."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
