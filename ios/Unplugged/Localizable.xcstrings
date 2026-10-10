@@ -7002,6 +7002,196 @@
           }
         }
       }
+    },
+    "Demo": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracija"
+          }
+        }
+      }
+    },
+    "Try reservations and timed features without waiting. Everything here is demo data: nothing is booked for real.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Išbandykite rezervacijas ir laiko funkcijas nelaukdami. Čia viskas yra demonstraciniai duomenys: niekas iš tikrųjų nerezervuojama."
+          }
+        }
+      }
+    },
+    "Time speed": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laiko greitis"
+          }
+        }
+      }
+    },
+    "Demo clock": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinis laikrodis"
+          }
+        }
+      }
+    },
+    "Your reservation": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jūsų rezervacija"
+          }
+        }
+      }
+    },
+    "Reserve now": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervuoti dabar"
+          }
+        }
+      }
+    },
+    "Reserve in 15 min": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervuoti po 15 min."
+          }
+        }
+      }
+    },
+    "Reserve in 1 h": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervuoti po 1 val."
+          }
+        }
+      }
+    },
+    "Stop charging or leave the queue before making a reservation.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prieš rezervuodami sustabdykite įkrovimą arba palikite eilę."
+          }
+        }
+      }
+    },
+    "No free charger to reserve right now. Try again in a moment.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šiuo metu nėra laisvo įkroviklio rezervacijai. Netrukus pabandykite dar kartą."
+          }
+        }
+      }
+    },
+    "Books the nearest free charger you can reserve in the app. Times follow the demo clock.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervuoja artimiausią laisvą įkroviklį, kurį galima rezervuoti programėlėje. Laikas eina pagal demonstracinį laikrodį."
+          }
+        }
+      }
+    },
+    "Open station": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atidaryti stotelę"
+          }
+        }
+      }
+    },
+    "Other drivers": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiti vairuotojai"
+          }
+        }
+      }
+    },
+    "Another driver reserves a spot": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitas vairuotojas rezervuoja vietą"
+          }
+        }
+      }
+    },
+    "Marks the nearest free charger as reserved for 10 min, as if someone else booked it.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pažymi artimiausią laisvą įkroviklį kaip rezervuotą 10 min., tarsi jį būtų užsisakęs kažkas kitas."
+          }
+        }
+      }
+    },
+    "Reserved until %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervuota iki %@"
+          }
+        }
+      }
+    },
+    "Data": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duomenys"
+          }
+        }
+      }
+    },
+    "Another driver reserved a spot": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitas vairuotojas rezervavo vietą"
+          }
+        }
+      }
+    },
+    "%@ is reserved for the next %lld min.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ rezervuota artimiausias %2$lld min."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

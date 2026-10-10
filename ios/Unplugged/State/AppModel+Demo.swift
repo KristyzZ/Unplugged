@@ -29,6 +29,58 @@ extension AppModel {
         save()
     }
 
+    // MARK: Fake reservations (Demo screen)
+
+    /// Free connectors for your car that can be reserved in the app, nearest first.
+    private func demoReservableConnectors(at now: Date) -> [(Station, Connector)] {
+        let vehicle = self.vehicle
+        return stations
+            .filter { $0.capabilities.simulated && $0.capabilities.supportsSessionControl }
+            .sorted { Geo.haversineKm(origin, $0.latLng) < Geo.haversineKm(origin, $1.latLng) }
+            .compactMap { s in
+                s.connectors.first { c in
+                    Charging.isCompatible(vehicle, c) && c.isConfirmedAvailable()
+                        && !holds.contains { $0.releasedAt == nil && $0.stationId == s.id && $0.connectorId == c.id && $0.until > now }
+                }.map { (s, $0) }
+            }
+    }
+
+    /// Books the nearest reservable connector for you, starting in `minutes` on the demo clock.
+    /// Goes through the normal booking rules, so it fails while you charge, queue or already hold a spot.
+    @discardableResult
+    func fakeReservation(startingIn minutes: Double) -> Bool {
+        let now = simNow()
+        expireReservations(at: now)
+        guard let (station, connector) = demoReservableConnectors(at: now).first else { return false }
+        return reserveConnector(at: station, connector: connector,
+                                startsAt: now.addingTimeInterval(minutes * 60), now: now)
+    }
+
+    /// Another (invented) driver reserves the nearest free connector right now,
+    /// so it shows as reserved on the map for the 10-minute arrival window.
+    @discardableResult
+    func fakeOthersReservation() -> Bool {
+        let now = simNow()
+        expireReservations(at: now)
+        guard let (station, connector) = demoReservableConnectors(at: now).first else { return false }
+        var hold = SpotHold(stationId: station.id, stationName: station.name, connectorId: connector.id,
+                            connectorLabel: "\(connector.type.label) · \(Int(connector.powerKw)) kW",
+                            startedAt: now, until: ReservationRules.deadline(start: now), forMe: false)
+        hold.bookedAt = now
+        holds.removeAll { $0.id == hold.id && $0.releasedAt != nil }
+        holds.append(hold)
+        applyHolds(at: now)
+        save()
+        showBanner(tr("Another driver reserved a spot"), tr("\(station.name) is reserved for the next \(Int(SpotHold.minutes)) min."))
+        return true
+    }
+
+    /// Active reservations by other drivers, soonest to expire first.
+    var othersReservations: [SpotHold] {
+        let now = simNow()
+        return holds.filter { !$0.forMe && $0.releasedAt == nil && $0.until > now }.sorted { $0.until < $1.until }
+    }
+
     // MARK: Demo seed data
 
     static let demoHistory: [PointsEntry] = [
