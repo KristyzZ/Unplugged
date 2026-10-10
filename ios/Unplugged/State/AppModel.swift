@@ -59,6 +59,10 @@ final class AppModel {
     /// The charging tile was closed with × during this phase; it comes back on the next one.
     var tileHiddenFor: SessionSnapshot.Phase?
     var stations: [Station] = []
+    /// Real stations from the open feed (default) or the invented demo stations.
+    var stationSource: StationSource = .real
+    /// What the Explore screen says about the data it shows.
+    var feedStatus: FeedStatus = .loading
     var tick = 0
     /// Demo time multiplier for the charging simulation (1 = real time).
     var speed: Double = 1
@@ -75,6 +79,14 @@ final class AppModel {
     @ObservationIgnored var simAnchor = Date()
     @ObservationIgnored var graceAnnouncedFor: Date?
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
+    @ObservationIgnored var feed: StationFeeding = OCPIStationFeed()
+    /// Real stations before the session overlay and held spots are applied.
+    @ObservationIgnored var baseStations: [Station] = []
+    /// Tariffs of the last good fetch (or the bundled snapshot); kept when a refresh gets none.
+    @ObservationIgnored var tariffCache: [FeedTariff] = []
+    /// When the data in `baseStations` was fetched or the snapshot was made.
+    @ObservationIgnored var baseStationsDate: Date?
+    @ObservationIgnored var isRefreshingStations = false
     /// Is another driver waiting for a spot at this station? A demo heuristic (a busy station); tests
     /// inject a fixed answer so results do not depend on the hour they run.
     @ObservationIgnored var someoneWaitingAt: (Station) -> Bool = { station in
@@ -89,8 +101,11 @@ final class AppModel {
 
     var vehicle: Vehicle { DemoData.vehicle(vehicleId) }
 
-    init(runLoops: Bool = true) {
+    init(runLoops: Bool = true, stationSource: StationSource? = nil, feed: StationFeeding? = nil) {
+        self.stationSource = stationSource ?? Self.savedStationSource
+        if let feed { self.feed = feed }
         load()
+        loadBundledStations()
         refreshStations()
         checkSession()
         if runLoops { startLoops() }
@@ -132,6 +147,15 @@ final class AppModel {
                 self.refreshStations()
             }
         })
+        // Live stations from the open feed: now, then regularly while the app is running.
+        tasks.append(Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                await self.refreshLiveStations()
+                try? await Task.sleep(for: .seconds(StationRefresh.interval()))
+            }
+        })
+        observeForeground()
         // Session events (charging finished, grace over), the queue and held spots.
         tasks.append(Task { [weak self] in
             while !Task.isCancelled {

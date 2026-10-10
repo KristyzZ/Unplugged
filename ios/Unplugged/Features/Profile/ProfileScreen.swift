@@ -119,6 +119,23 @@ struct ProfileScreen: View {
                     .foregroundStyle(Theme.muted)
                 }
             }
+            RowDivider()
+            ListRow(systemImage: "bolt.horizontal.circle", title: "Use demo stations") {
+                Toggle("", isOn: Binding(get: { model.stationSource == .demo },
+                                         set: { model.setStationSource($0 ? .demo : .real) }))
+                    .labelsHidden().tint(Theme.brand)
+            }
+            Text("Show invented stations instead of the live ones, for offline demos.")
+                .font(.caption)
+                .foregroundStyle(Theme.muted)
+                .padding(.horizontal, 14)
+                .padding(.bottom, 4)
+            RowDivider()
+            Text("Contains data from Via Lietuva (ev.vialietuva.lt), CC BY 4.0.")
+                .font(.caption)
+                .foregroundStyle(Theme.muted)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
         }
     }
 

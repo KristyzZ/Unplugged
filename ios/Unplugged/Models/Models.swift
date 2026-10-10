@@ -43,6 +43,11 @@ struct Connector: Identifiable, Hashable {
     /// Source, time and kind of data behind `status`. Defaults to "unspecified" (stale), so a
     /// status without provenance is never counted as confirmed.
     var provenance: Provenance = .unspecified
+    /// What this connector costs, from the operator's tariff. nil for demo connectors (their price
+    /// is the station's) and for connectors whose tariff is unknown.
+    var tariff: ConnectorTariff? = nil
+    /// When the charger last changed state, from the feed (local time converted). nil when unknown.
+    var changedAt: Date? = nil
 }
 
 struct ChargeOperator: Identifiable, Hashable {
@@ -79,6 +84,9 @@ struct Station: Identifiable, Hashable {
 
     var latLng: LatLng { LatLng(lat: lat, lng: lng) }
     var coordinate: CLLocationCoordinate2D { latLng.coordinate }
+
+    /// False when no tariff gave this station a price: show "price unknown", not 0.
+    var priceKnown: Bool { priceProvenance.timestamp != .distantPast }
 }
 
 /// An electric car model and what it can do. Loaded from the bundled Open EV

@@ -86,7 +86,7 @@ final class PricingSessionTests: XCTestCase {
         let keys = ["unplugged.state.v1", "unplugged.state.v2", "unplugged.lang"]
         let saved = keys.map { defaults.object(forKey: $0) }
         keys.forEach { defaults.removeObject(forKey: $0) }
-        let model = AppModel()
+        let model = AppModel(stationSource: .demo)
         model.setLockScreen(false)
         defer {
             model.resetDemo()

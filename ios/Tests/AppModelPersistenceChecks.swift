@@ -56,7 +56,7 @@ struct AppModelPersistenceChecks {
         }
         keys.forEach { defaults.removeObject(forKey: $0) }
         let baseline = CommandLine.arguments.contains("--legacy-baseline")
-        let initial = AppModel()
+        let initial = AppModel(stationSource: .demo)
         let oldSession = initial.sessionHistory[0]
         let queue = QueueEntry(stationId: "europa", joinedAt: Date(timeIntervalSince1970: 100), position: 3)
         let fixture = LegacyState(
@@ -67,7 +67,7 @@ struct AppModelPersistenceChecks {
         )
         let legacyData = try JSONEncoder().encode(fixture)
         defaults.set(legacyData, forKey: "unplugged.state.v1")
-        let migrated = AppModel()
+        let migrated = AppModel(stationSource: .demo)
         precondition(migrated.vehicleId == "leaf" && migrated.soc == 57)
         precondition(migrated.points == 321 && migrated.lifetimePoints == 654)
         precondition(migrated.history == fixture.history && migrated.reports == fixture.reports)
@@ -83,7 +83,7 @@ struct AppModelPersistenceChecks {
             oldObject.removeValue(forKey: key)
         }
         defaults.set(try JSONSerialization.data(withJSONObject: oldObject), forKey: "unplugged.state.v1")
-        let older = AppModel()
+        let older = AppModel(stationSource: .demo)
         precondition(older.sessionHistory == initial.sessionHistory)
         precondition(older.defaultPaymentId == "visa" && older.activePlanIds == ["ignitis"])
         precondition(older.lockScreenEnabled)
@@ -97,7 +97,7 @@ struct AppModelPersistenceChecks {
         migrated.setLockScreen(false)
         migrated.joinQueue(migrated.stations[0])
         let savedQueue = migrated.queue
-        let restored = AppModel()
+        let restored = AppModel(stationSource: .demo)
         precondition(restored.soc == 63 && restored.vehicleId == "ioniq5")
         precondition(restored.defaultPaymentId == "visa" && restored.activePlanIds == ["ignitis", "enefit"])
         precondition(restored.queue == savedQueue && !restored.lockScreenEnabled)
@@ -107,7 +107,7 @@ struct AppModelPersistenceChecks {
             precondition(defaults.data(forKey: "unplugged.state.v2") != nil)
             // Once v2 exists it takes precedence over an older legacy snapshot.
             defaults.set(try JSONSerialization.data(withJSONObject: oldObject), forKey: "unplugged.state.v1")
-            precondition(AppModel().soc == 63)
+            precondition(AppModel(stationSource: .demo).soc == 63)
         }
         print(baseline ? "PASS: original persistence round-trip"
                        : "PASS: feature snapshots round-trip and v2 takes precedence without modifying v1")
@@ -138,19 +138,19 @@ struct AppModelPersistenceChecks {
         restored.submitReport(station: station, kind: .other, connectorId: nil,
                               plate: "", description: "Regression check", hasPhoto: false)
         let reports = restored.reports
-        precondition(AppModel().reports == reports && AppModel().sessionHistory == history)
+        precondition(AppModel(stationSource: .demo).reports == reports && AppModel(stationSource: .demo).sessionHistory == history)
         restored.joinQueue(station)
         restored.leaveQueue()
-        precondition(AppModel().queue == nil)
+        precondition(AppModel(stationSource: .demo).queue == nil)
         restored.setLang(.lt)
         precondition(restored.lang == .lt)
         restored.setLang(.en)
         precondition(restored.lang == .en)
         let beforeRedemption = restored.points
         precondition(restored.redeem(Points.rewards[0]))
-        precondition(AppModel().points == beforeRedemption - Points.rewards[0].cost)
+        precondition(AppModel(stationSource: .demo).points == beforeRedemption - Points.rewards[0].cost)
         restored.resetDemo()
-        let reset = AppModel()
+        let reset = AppModel(stationSource: .demo)
         precondition(reset.session == nil && reset.queue == nil && reset.points == 120)
         precondition(reset.vehicleId == "ioniq5" && reset.soc == 34)
         precondition(reset.reports == initial.reports && reset.history == initial.history)

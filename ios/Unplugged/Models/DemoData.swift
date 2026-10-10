@@ -1,8 +1,9 @@
 import Foundation
 
-// Demo data. Operator names are real Lithuanian networks, but every station,
-// price, connector count and occupancy figure here is made up for the prototype.
-// Replace with operator APIs (OCPI) or a backend when available.
+// Demo data. Operator names are real Lithuanian networks, but every demo station, price,
+// connector count and occupancy figure here is made up. The app shows REAL stations by default
+// (see StationFeed.swift); these demo stations are kept for tests, the persistence harness and the
+// deterministic demo scenario, and appear in the app only behind Profile > "Use demo stations".
 
 /// Small deterministic PRNG (FNV-1a seed + mulberry32) so demo data is stable.
 struct SeededRandom {
@@ -28,12 +29,8 @@ struct SeededRandom {
 }
 
 enum DemoData {
-    static let operators: [ChargeOperator] = [
-        ChargeOperator(id: "ignitis", name: "Ignitis ON", colorHex: "0F766E"),
-        ChargeOperator(id: "eleport", name: "Eleport", colorHex: "7C3AED"),
-        ChargeOperator(id: "enefit", name: "Enefit Volt", colorHex: "EA580C"),
-        ChargeOperator(id: "inbalance", name: "Inbalance grid", colorHex: "2563EB"),
-    ]
+    /// The charging networks of the real feed (also the four the demo stations use).
+    static let operators: [ChargeOperator] = OperatorCatalog.all
 
     static func chargeOperator(_ id: String) -> ChargeOperator {
         if id == HostListing.operatorId { return ChargeOperator(id: id, name: tr("Private host"), colorHex: "DB2777") }
