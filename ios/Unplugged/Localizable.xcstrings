@@ -6682,6 +6682,16 @@
           }
         }
       }
+    },
+    "View station": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peržiūrėti stotelę"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
