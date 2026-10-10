@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// Compact community ranking: a Points / CO₂ switch, the top three and your
-/// own place, with the full list one tap away.
+/// own place, with the full list one tap away. Shown inside the Points
+/// screen's collapsible "Leaderboard" section.
 struct LeaderboardCard: View {
     @Environment(AppModel.self) private var model
     @State private var metric: Leaderboard.Metric = .points
@@ -17,16 +18,12 @@ struct LeaderboardCard: View {
         let all = rows
         let compact = Leaderboard.compact(all)
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Leaderboard").font(.headline).foregroundStyle(Theme.text)
-                Spacer()
-                Picker("Rank by", selection: $metric) {
-                    Text("Points").tag(Leaderboard.Metric.points)
-                    Text("CO₂ saved").tag(Leaderboard.Metric.co2)
-                }
-                .pickerStyle(.segmented)
-                .fixedSize()
+            // The "Leaderboard" title is the collapsible section header on the Points screen.
+            Picker("Rank by", selection: $metric) {
+                Text("Points").tag(Leaderboard.Metric.points)
+                Text("CO₂ saved").tag(Leaderboard.Metric.co2)
             }
+            .pickerStyle(.segmented)
             ListCard {
                 let shown = expanded ? all : compact.top
                 ForEach(Array(shown.enumerated()), id: \.element.id) { item in

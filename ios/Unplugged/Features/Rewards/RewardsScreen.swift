@@ -8,7 +8,7 @@ struct RewardsScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 balance
-                LeaderboardCard()
+                section("Leaderboard") { LeaderboardCard() }
                 section("Spend points") { rewards }
                 section("How to earn") { earning }
                 if !model.history.isEmpty {
@@ -23,11 +23,9 @@ struct RewardsScreen: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func section<Content: View>(_ title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.headline).foregroundStyle(Theme.text)
-            content()
-        }
+    /// A collapsed section; tapping the title shows its content.
+    private func section<Content: View>(_ title: LocalizedStringKey, @ViewBuilder content: @escaping () -> Content) -> some View {
+        CollapsibleSection(title: title, content: content)
     }
 
     // MARK: Balance
@@ -156,5 +154,23 @@ struct RewardsScreen: View {
                 .padding(.vertical, 11)
             }
         }
+    }
+}
+
+/// Section header that hides its content until tapped, styled like
+/// "More information" on the station screen.
+private struct CollapsibleSection<Content: View>: View {
+    let title: LocalizedStringKey
+    @ViewBuilder let content: () -> Content
+
+    @State private var expanded = false
+
+    var body: some View {
+        DisclosureGroup(isExpanded: $expanded.animation(Motion.pick(.spring(duration: 0.3)))) {
+            content().padding(.top, 8)
+        } label: {
+            Text(title).font(.headline).foregroundStyle(Theme.text).frame(minHeight: 44)
+        }
+        .tint(Theme.muted)
     }
 }
