@@ -399,6 +399,7 @@ private struct HoldCard: View {
         TimelineView(.periodic(from: .now, by: 0.5)) { _ in
             let left = max(0, hold.until.timeIntervalSince(model.simNow()))
             CardBox(stroke: Theme.brand) {
+                Text("Demo reservation").font(.caption).foregroundStyle(Theme.muted).padding(.bottom, 8)
                 HStack(spacing: 14) {
                     ProgressRing(progress: left / max(1, hold.duration), color: Theme.brand, lineWidth: 5) {
                         Text(Fmt.mmss(left))

@@ -60,6 +60,7 @@ struct ReservationSummaryCard: View {
 
     var body: some View {
         CardBox(stroke: Theme.brand) {
+            Text("Demo reservation").font(.caption).foregroundStyle(Theme.muted)
             Text("Upcoming reservation").font(.headline)
             Text(reservation.connectorLabel).font(.subheadline).padding(.top, 4)
             Text("Starts \(Fmt.clock(model.realDate(reservation.startedAt))) · expires \(Fmt.clock(model.realDate(reservation.until)))")
