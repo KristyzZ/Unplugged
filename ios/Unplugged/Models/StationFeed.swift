@@ -276,7 +276,15 @@ enum StationBuilder {
     static func cleanName(_ raw: String, fallback: String) -> String {
         let head = raw.components(separatedBy: " | ").first ?? raw
         let trimmed = head.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? fallback : trimmed
+        return trimmed.isEmpty || looksLikeInternalId(trimmed) ? fallback : trimmed
+    }
+
+    /// Some operators use a system id as the station name ("PLTKAUJO60_EDLT-1"): no spaces, all
+    /// capitals, digits and separators. The address is a better name.
+    static func looksLikeInternalId(_ name: String) -> Bool {
+        guard name.count >= 6, !name.contains(" ") else { return false }
+        let allowed = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.")
+        return name.allSatisfy { allowed.contains($0) } && name.contains { $0.isNumber } && name.contains { "_-".contains($0) }
     }
 
     /// Stations for the app. `observedAt` is when this data was fetched (or the snapshot made):
@@ -397,7 +405,12 @@ protocol StationFeeding {
 }
 
 struct OCPIStationFeed: StationFeeding {
-    static let base = URL(string: "https://ev.vialietuva.lt/ocpi/2.3.0")!
+    /// The open feed. For testing, `-unplugged.feedBase <url>` on the launch arguments points the app
+    /// elsewhere (an unreachable address behaves exactly like being offline).
+    static var base: URL {
+        UserDefaults.standard.string(forKey: "unplugged.feedBase").flatMap(URL.init(string:))
+            ?? URL(string: "https://ev.vialietuva.lt/ocpi/2.3.0")!
+    }
     static let pageSize = 1000
     /// Safety net against a feed that never ends.
     static let maxPages = 12

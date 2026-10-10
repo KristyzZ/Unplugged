@@ -242,7 +242,7 @@ struct MapScreen: View {
 
             if listOpen {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(items.count) stations nearby")
+                    Text("\(items.count) stations")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Theme.text)
                     Text(dataStatusLine).font(.caption).foregroundStyle(Theme.muted)

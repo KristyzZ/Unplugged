@@ -176,6 +176,14 @@ final class StationMappingTests: XCTestCase {
         XCTAssertEqual(list[0].connectors.count, 1)
     }
 
+    func testSystemIdsAreNotUsedAsStationNames() {
+        XCTAssertEqual(StationBuilder.cleanName("PLTKAUJO60_EDLT-1", fallback: "Jonavos g. 2"), "Jonavos g. 2")
+        XCTAssertEqual(StationBuilder.cleanName("L3 | Inbalance grid", fallback: "x"), "L3")
+        XCTAssertEqual(StationBuilder.cleanName("Moxy Kaunas Center", fallback: "x"), "Moxy Kaunas Center")
+        XCTAssertEqual(StationBuilder.cleanName("IKEA", fallback: "x"), "IKEA", "a short plain name stays")
+        XCTAssertEqual(StationBuilder.cleanName("   ", fallback: "Gedimino pr. 1"), "Gedimino pr. 1")
+    }
+
     func testStationFieldsAndOperatorMapping() throws {
         let s = try stations([F.location(id: 258, party: "IGN", name: "Akropolis | Ignitis", evses: [F.evse("A")])])[0]
         XCTAssertEqual(s.id, "ocpi-258")

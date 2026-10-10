@@ -66,7 +66,7 @@ final class StationQueryTests: XCTestCase {
     func testOnlyStationsInTheVisibleRegionGetPins() {
         let items = grid(400)
         let region = StationQuery.Region(center: LatLng(lat: 54.5, lng: 24.2), latSpan: 0.2, lngSpan: 0.1)
-        let pins = StationQuery.pins(items, region: region, selectedId: nil, limit: 1000)
+        let pins = StationQuery.pins(items, region: region, selectedId: nil, limit: 1000, thin: false, now: Fixtures.t0)
         XCTAssertFalse(pins.truncated)
         XCTAssertTrue(pins.shown.allSatisfy { region.contains($0.station.latLng) })
         XCTAssertLessThan(pins.shown.count, items.count)
@@ -75,7 +75,7 @@ final class StationQueryTests: XCTestCase {
     func testPinsAreCappedAndKeepTheMiddleOfTheScreen() {
         let items = grid(2000)
         let region = StationQuery.Region(center: LatLng(lat: 54.5, lng: 25), latSpan: 2, lngSpan: 2)
-        let pins = StationQuery.pins(items, region: region, selectedId: nil, limit: 150)
+        let pins = StationQuery.pins(items, region: region, selectedId: nil, limit: 150, thin: false, now: Fixtures.t0)
         XCTAssertEqual(pins.shown.count, 150)
         XCTAssertTrue(pins.truncated)
         let farthestShown = pins.shown.map { Geo.haversineKm(region.center, $0.station.latLng) }.max() ?? 0
@@ -88,7 +88,28 @@ final class StationQueryTests: XCTestCase {
         let items = grid(2000)
         let region = StationQuery.Region(center: LatLng(lat: 54.5, lng: 24), latSpan: 0.05, lngSpan: 0.05)
         let far = items.last!.id
-        XCTAssertTrue(StationQuery.pins(items, region: region, selectedId: far).shown.contains { $0.id == far })
+        XCTAssertTrue(StationQuery.pins(items, region: region, selectedId: far, now: Fixtures.t0).shown.contains { $0.id == far })
+    }
+
+    func testCrowdedPinsAreThinnedToOnePerCellKeepingTheMostUsefulStation() {
+        // Twenty stations within a few metres of each other, one of them fast and free.
+        let spot = at(km: 1)
+        var list = (0..<20).map { i in station("s\(i)", LatLng(lat: spot.lat + Double(i) * 1e-6, lng: spot.lng), connectors: [Fixtures.connector(.type2, kw: 22, status: .charging)]) }
+        list.append(station("fast", LatLng(lat: spot.lat + 5e-6, lng: spot.lng), connectors: [Fixtures.connector(.ccs2, kw: 150)]))
+        let items = StationQuery.items(list, origin: vilnius, vehicle: car, filter: .init(), now: Fixtures.t0)
+        let region = StationQuery.Region(center: vilnius, latSpan: 0.11, lngSpan: 0.11)
+        let pins = StationQuery.pins(items, region: region, selectedId: nil, now: Fixtures.t0)
+        XCTAssertEqual(pins.shown.map(\.id), ["fast"])
+        XCTAssertTrue(pins.truncated)
+    }
+
+    func testZoomingInRevealsTheThinnedStations() {
+        let spot = at(km: 1)
+        let list = (0..<20).map { i in station("s\(i)", LatLng(lat: spot.lat + Double(i) * 0.0004, lng: spot.lng)) }
+        let items = StationQuery.items(list, origin: vilnius, vehicle: car, filter: .init(), now: Fixtures.t0)
+        let far = StationQuery.pins(items, region: .init(center: spot, latSpan: 0.11, lngSpan: 0.11), selectedId: nil, now: Fixtures.t0).shown.count
+        let near = StationQuery.pins(items, region: .init(center: spot, latSpan: 0.01, lngSpan: 0.01), selectedId: nil, now: Fixtures.t0).shown.count
+        XCTAssertLessThan(far, near)
     }
 
     func testWithoutARegionTheNearestAreShown() {

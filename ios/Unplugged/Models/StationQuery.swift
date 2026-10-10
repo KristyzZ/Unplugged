@@ -42,16 +42,35 @@ enum StationQuery {
         }
     }
 
-    /// The pins to draw: only what is in the visible region (a little padded), at most `limit`
-    /// closest to the middle of the screen, plus the selected station. Drawing every station of
-    /// the country would make the map stutter.
-    static func pins(_ items: [Item], region: Region?, selectedId: String?, limit: Int = 150) -> (shown: [Item], truncated: Bool) {
+    /// The pins to draw. Only what is in the visible region (a little padded) gets one, and
+    /// pins that would sit on top of each other are thinned: the screen is divided into a grid and
+    /// each cell shows its most useful station (a free one first, then the most powerful), so
+    /// zooming in reveals the rest. At most `limit` pins; the selected station always has one.
+    static func pins(_ items: [Item], region: Region?, selectedId: String?, limit: Int = 150, thin: Bool = true,
+                     now: Date = .now) -> (shown: [Item], truncated: Bool) {
         guard let region else { return (Array(items.prefix(limit)), items.count > limit) }
-        let inside = items.filter { region.contains($0.station.latLng) }
-        var shown = inside
-        let truncated = inside.count > limit
-        if truncated {
-            shown = inside
+        var shown = items.filter { region.contains($0.station.latLng) }
+        var truncated = false
+
+        if thin, region.latSpan > 0, region.lngSpan > 0 {
+            // About 9 pins across and 14 down a portrait phone screen.
+            let latCell = region.latSpan / 14, lngCell = region.lngSpan / 9
+            var best: [Int64: Item] = [:]
+            for item in shown {
+                let row = Int64(((item.station.lat - region.center.lat) / latCell).rounded(.down))
+                let col = Int64(((item.station.lng - region.center.lng) / lngCell).rounded(.down))
+                let key = row &* 100_003 &+ col
+                if let current = best[key], rank(current.station, now: now) >= rank(item.station, now: now) { continue }
+                best[key] = item
+            }
+            let kept = Set(best.values.map(\.id))
+            truncated = kept.count < shown.count
+            shown = shown.filter { kept.contains($0.id) }
+        }
+
+        if shown.count > limit {
+            truncated = true
+            shown = shown
                 .sorted { Geo.haversineKm(region.center, $0.station.latLng) < Geo.haversineKm(region.center, $1.station.latLng) }
                 .prefix(limit)
                 .map { $0 }
@@ -60,5 +79,10 @@ enum StationQuery {
             shown.append(item)
         }
         return (shown, truncated)
+    }
+
+    /// Which station wins a crowded spot on the map: one with a free connector, then the faster one.
+    private static func rank(_ station: Station, now: Date) -> Double {
+        (station.freeCount(at: now) > 0 ? 1000 : 0) + station.maxPower
     }
 }
