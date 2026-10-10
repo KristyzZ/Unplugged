@@ -381,7 +381,7 @@ struct StationDetailView: View {
         let socBinding = Binding(get: { model.soc }, set: { model.setSoc($0) })
         return CardBox {
           if !optionsOpen {
-            Button(listing != nil ? "Reserve" : "See charging cost") {
+            Button(listing != nil ? "Reserve" : "Charge here") {
                 withMotion(.spring(duration: 0.3)) { optionsOpen = true }
             }
             .buttonStyle(PrimaryButtonStyle())
@@ -476,6 +476,13 @@ struct StationDetailView: View {
                 .foregroundStyle(Theme.muted)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 12)
+                // No payment here: the session is tracked in Unplugged, paid to the operator.
+                Button("Start charging") {
+                    model.startCharging(at: station, connector: connector, targetSoc: target)
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .accessibilityIdentifier("station-start-charge")
+                .padding(.top, 10)
             }
           }
         }
