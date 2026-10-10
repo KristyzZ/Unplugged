@@ -1,0 +1,3 @@
+# Merge String Catalogs by key instead of by line (see scripts/merge_xcstrings.py).
+# Needs a one-time `scripts/setup-git-merge-driver.sh` per clone.
+*.xcstrings merge=xcstrings
