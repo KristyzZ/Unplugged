@@ -40,6 +40,9 @@ jobs:
       - name: Unit tests
         run: scripts/ios.sh test
 
+      - name: AppModel persistence regression checks
+        run: ios/Tests/run-appmodel-persistence-checks.sh
+
       - name: Upload logs and test results
         if: always()
         uses: actions/upload-artifact@v4

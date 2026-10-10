@@ -36,14 +36,25 @@ extension AppModel {
 
     // MARK: Charging
 
-    func startCharging(at station: Station, connector: Connector, targetSoc: Double) {
+    func startCharging(at station: Station, connector: Connector, targetSoc: Double, now suppliedNow: Date? = nil) {
+        let now = suppliedNow ?? simNow()
+        expireReservations(at: now)
+        // Validate reservation ownership/deadline independently of the caller's
+        // connector snapshot, which may still say available after another hold.
+        let mine = holds.first { $0.forMe && $0.releasedAt == nil && $0.until > now }
+        if let mine, !(mine.stationId == station.id && mine.connectorId == connector.id && mine.isActive(at: now)) {
+            showBanner(tr("Reservation not ready"), tr("Wait for its start time, or cancel it before charging elsewhere."))
+            return
+        }
+        guard !holds.contains(where: { !$0.forMe && $0.stationId == station.id && $0.connectorId == connector.id
+            && $0.releasedAt == nil && $0.until > now }) else { return }
         // The spot held for you is marked reserved for everyone else, but it is yours to start.
-        let heldForMe = myHold.map { $0.stationId == station.id && $0.connectorId == connector.id } ?? false
+        let heldForMe = mine?.isActive(at: now) == true
         guard !hasActiveSession, targetSoc > soc, targetSoc <= 100,
               station.capabilities.simulated, station.capabilities.supportsSessionControl,
               station.connectors.contains(where: { $0.id == connector.id }),
               Charging.isCompatible(vehicle, connector),
-              connector.effectiveStatus() == .available || heldForMe else { return }
+              connector.effectiveStatus() == .available || (heldForMe && connector.effectiveStatus() == .reserved) else { return }
         if session?.endedAt != nil { finishSession() }
         let terms = pricingTerms(at: station, connector: connector)
         let estimate = Charging.chargeTime(vehicle, connector, from: soc, to: targetSoc)
@@ -51,7 +62,7 @@ extension AppModel {
         let s = ChargingSession(
             stationId: station.id, stationName: station.name,
             connectorLabel: "\(connector.type.rawValue) · \(Int(connector.powerKw)) kW",
-            startedAt: simNow(), startSoc: soc, targetSoc: targetSoc,
+            startedAt: now, startSoc: soc, targetSoc: targetSoc,
             minutesToTarget: Double(max(1, estimate.minutes)),
             graceMinutes: IdleFee.graceMinutes(demand: station.demandLevel(hour: hour)),
             pricePerKwh: terms.energyEurPerKwh, batteryKwh: vehicle.batteryKwh,
@@ -60,7 +71,7 @@ extension AppModel {
         session = s
         recordSessionEvent(s, kind: .started, at: s.startedAt)
         // Charging at the spot held for you uses up the hold.
-        if myHold?.stationId == station.id {
+        if heldForMe {
             holds.removeAll { $0.forMe }
         }
         queue = nil
@@ -115,7 +126,7 @@ extension AppModel {
         if handOverBonus {
             addPoints(.handedOver, note: s.stationName)
         }
-        applySessionStatus()
+        applySessionStatus(reservationNow: now)
         rescheduleNotifications()
         // The receipt shows the points, so no banner here.
         moment = .finished
@@ -154,8 +165,8 @@ extension AppModel {
         publishNearby()
     }
 
-    func applySessionStatus(at observedNow: Date = .now) {
-        defer { applyHolds() }
+    func applySessionStatus(at observedNow: Date = .now, reservationNow: Date? = nil) {
+        defer { applyHolds(at: reservationNow) }
         // A released demo bay stays visibly free for five real minutes. Thereafter
         // background simulation may change it. An active session always wins.
         for event in sessionEvents where event.kind == .released && observedNow.timeIntervalSince(event.recordedAt) < 300 {

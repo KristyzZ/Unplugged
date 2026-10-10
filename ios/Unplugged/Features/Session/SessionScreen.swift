@@ -13,13 +13,31 @@ struct SessionScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
+                    if let reservation = model.myReservation {
+                        ReservationSummaryCard(reservation: reservation)
+                        Button("View station") { model.openStation(reservation.stationId) }
+                            .buttonStyle(PrimaryButtonStyle())
+                    }
+                    if let queue = model.queue {
+                        CardBox {
+                            Text("You're in the queue").font(.headline)
+                            Text(model.stations.first(where: { $0.id == queue.stationId })?.name ?? queue.stationId)
+                                .font(.subheadline).padding(.top, 4)
+                            Text("Demo queue position: \(queue.position). We'll hold a compatible connector for 10 min when a spot is confirmed free.")
+                                .font(.caption).foregroundStyle(Theme.muted).padding(.top, 8)
+                            Button("View station") { model.openStation(queue.stationId) }
+                                .buttonStyle(PrimaryButtonStyle()).padding(.top, 12)
+                            Button("Leave queue") { model.leaveQueue() }
+                                .buttonStyle(SecondaryButtonStyle()).padding(.top, 8)
+                        }
+                    }
                     if let session = model.session {
                         TimelineView(.periodic(from: .now, by: 0.25)) { _ in
                             let snap = SessionSnapshot(session, now: model.simNow())
                             activeCard(session, snap)
                         }
                         demoControls
-                    } else {
+                    } else if model.myReservation == nil && model.queue == nil {
                         idleCard
                     }
                     history

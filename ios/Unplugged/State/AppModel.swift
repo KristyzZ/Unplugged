@@ -106,6 +106,7 @@ final class AppModel {
         if let feed { self.feed = feed }
         load()
         loadBundledStations()
+        expireReservations(at: simNow())
         refreshStations()
         checkSession()
         if runLoops { startLoops() }

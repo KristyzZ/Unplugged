@@ -46,6 +46,8 @@ extension AppModel {
     func becameActive() {
         endBackgroundTime()
         takePendingAction()
+        checkQueueAndHolds()
+        refreshStations()
         // Back while the car is due to move: show the session first.
         if let s = session, s.endedAt == nil, s.doneAt != nil {
             tab = .charging
