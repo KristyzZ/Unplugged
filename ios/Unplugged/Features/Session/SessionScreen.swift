@@ -1,13 +1,12 @@
 import SwiftUI
 
 /// The current charging session in one glance (ring, one sentence, one
-/// action), plus recent sessions.
+/// action). Price details and past sessions open on their own pages; the demo
+/// clock lives in Profile.
 struct SessionScreen: View {
     var onFindStation: () -> Void = {}
 
     @Environment(AppModel.self) private var model
-    @State private var showDemo = false
-    private let speeds: [Double] = [1, 10, 60, 300]
 
     var body: some View {
         NavigationStack {
@@ -36,11 +35,19 @@ struct SessionScreen: View {
                             let snap = SessionSnapshot(session, now: model.simNow())
                             activeCard(session, snap)
                         }
-                        demoControls
                     } else if model.myReservation == nil && model.queue == nil {
                         idleCard
                     }
-                    history
+                    if !model.sessionHistory.isEmpty {
+                        ListCard {
+                            NavigationLink { ChargingHistoryScreen() } label: {
+                                ListRow(systemImage: "clock.arrow.circlepath", title: "Charging history",
+                                        value: "\(model.sessionHistory.count)")
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(.top, 8)
+                    }
                 }
                 .padding(16)
             }
@@ -131,12 +138,20 @@ struct SessionScreen: View {
 
                 // The frozen contract and its lines (energy, start fee, time), one tap away.
                 if let terms = s.pricingTerms, let charges = snap.pricingCharges {
-                    DisclosureGroup {
-                        PricingBreakdownView(terms: terms, charges: charges).padding(.top, 8)
+                    NavigationLink {
+                        ScrollView {
+                            CardBox { PricingBreakdownView(terms: terms, charges: charges) }.padding(16)
+                        }
+                        .screenBackdrop()
+                        .navigationTitle("Price details")
                     } label: {
-                        Text("Price details").font(.subheadline.weight(.medium)).foregroundStyle(Theme.text)
+                        HStack {
+                            Text("Price details").font(.subheadline.weight(.medium))
+                            Image(systemName: "chevron.right").font(.caption.weight(.semibold))
+                        }
+                        .foregroundStyle(Theme.muted)
+                        .frame(minHeight: 44)
                     }
-                    .tint(Theme.muted)
                 }
 
                 action(snap.phase)
@@ -155,67 +170,6 @@ struct SessionScreen: View {
         case .ended:
             Button("Done") { model.finishSession() }.buttonStyle(PrimaryButtonStyle())
         }
-    }
-
-    private var demoControls: some View {
-        CardBox {
-            DisclosureGroup(isExpanded: $showDemo) {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 8) {
-                        ForEach(speeds, id: \.self) { s in
-                            Chip(title: "\(Int(s))×", active: model.speed == s) { model.setSpeed(s) }
-                        }
-                    }
-                    Text("Speeds up time so you can see the finished notice, the free minutes and the idle fee.")
-                        .font(.caption)
-                        .foregroundStyle(Theme.muted)
-                }
-                .padding(.top, 10)
-            } label: {
-                Text("Demo: speed up time").font(.subheadline.weight(.medium)).foregroundStyle(Theme.text)
-            }
-            .tint(Theme.muted)
-        }
-    }
-
-    // MARK: History
-
-    @ViewBuilder
-    private var history: some View {
-        if !model.sessionHistory.isEmpty {
-            Text("Recent").font(.headline).foregroundStyle(Theme.text).padding(.top, 12)
-            ListCard {
-                ForEach(Array(model.sessionHistory.prefix(10).enumerated()), id: \.offset) { item in
-                    if item.offset > 0 { RowDivider() }
-                    historyRow(item.element)
-                }
-            }
-        }
-    }
-
-    private func historyRow(_ s: ChargingSession) -> some View {
-        let snap = SessionSnapshot(s, now: s.endedAt ?? s.startedAt)
-        let day = s.startedAt.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(L10n.locale))
-        // Name the plan when one priced the session.
-        let date = s.pricingTerms?.plan.map { "\(day) · \($0.name)" } ?? day
-        return HStack(spacing: 12) {
-            IconBadge(systemImage: "bolt.fill", color: snap.idleFee > 0 ? Theme.warn : Theme.ok)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(s.stationName).font(.body.weight(.medium)).foregroundStyle(Theme.text)
-                Text(snap.idleFee > 0 ? tr("\(date) · idle fee \(Fmt.eur(snap.idleFee))") : date)
-                    .font(.caption)
-                    .foregroundStyle(snap.idleFee > 0 ? Theme.warn : Theme.muted)
-            }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(Fmt.eur(snap.chargingCost + snap.idleFee)).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.text)
-                if let pts = s.pointsEarned, pts > 0 {
-                    Text("+\(pts) pts").font(.caption).foregroundStyle(Theme.ok)
-                }
-            }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 11)
     }
 }
 
@@ -256,5 +210,50 @@ private struct PhaseLook {
             color = Theme.ok
             progress = 1
         }
+    }
+}
+
+/// Every past session, newest first.
+struct ChargingHistoryScreen: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        ScrollView {
+            ListCard {
+                ForEach(Array(model.sessionHistory.enumerated()), id: \.offset) { item in
+                    if item.offset > 0 { RowDivider() }
+                    historyRow(item.element)
+                }
+            }
+            .padding(16)
+        }
+        .tabBarClearance()
+        .screenBackdrop()
+        .navigationTitle("Charging history")
+    }
+
+    private func historyRow(_ s: ChargingSession) -> some View {
+        let snap = SessionSnapshot(s, now: s.endedAt ?? s.startedAt)
+        let day = s.startedAt.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(L10n.locale))
+        // Name the plan when one priced the session.
+        let date = s.pricingTerms?.plan.map { "\(day) · \($0.name)" } ?? day
+        return HStack(spacing: 12) {
+            IconBadge(systemImage: "bolt.fill", color: snap.idleFee > 0 ? Theme.warn : Theme.ok)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(s.stationName).font(.body.weight(.medium)).foregroundStyle(Theme.text)
+                Text(snap.idleFee > 0 ? tr("\(date) · idle fee \(Fmt.eur(snap.idleFee))") : date)
+                    .font(.caption)
+                    .foregroundStyle(snap.idleFee > 0 ? Theme.warn : Theme.muted)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(Fmt.eur(snap.chargingCost + snap.idleFee)).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.text)
+                if let pts = s.pointsEarned, pts > 0 {
+                    Text("+\(pts) pts").font(.caption).foregroundStyle(Theme.ok)
+                }
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
     }
 }

@@ -57,19 +57,13 @@ struct ProfileScreen: View {
 
     private var accountList: some View {
         let payment = DemoData.paymentMethods.first { $0.id == model.defaultPaymentId }
-        let plans = model.activePlanIds.count
-        let tier = Points.tier(for: model.lifetimePoints).current.name
         return ListCard {
-            NavigationLink { RewardsScreen() } label: {
-                ListRow(systemImage: "star.fill", title: "Points", value: "\(model.points) · \(tier)", color: Theme.warn)
-            }
-            RowDivider()
             NavigationLink { PaymentScreen() } label: {
                 ListRow(systemImage: "creditcard.fill", title: "Payment", value: payment?.title)
             }
             RowDivider()
-            NavigationLink { PlansScreen() } label: {
-                ListRow(systemImage: "ticket.fill", title: "Operator plans", value: plans == 0 ? tr("None") : tr("\(plans) active"))
+            NavigationLink { ChargingHistoryScreen() } label: {
+                ListRow(systemImage: "clock.arrow.circlepath", title: "Charging history", value: "\(model.sessionHistory.count)")
             }
         }
         .buttonStyle(.plain)
@@ -131,6 +125,26 @@ struct ProfileScreen: View {
                 .padding(.horizontal, 14)
                 .padding(.bottom, 4)
             RowDivider()
+            ListRow(systemImage: "speedometer", title: "Demo: speed up time") {
+                Menu {
+                    Picker("Demo: speed up time", selection: Binding(get: { model.speed }, set: { model.setSpeed($0) })) {
+                        ForEach([1.0, 10, 60, 300], id: \.self) { Text("\(Int($0))×").tag($0) }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text("\(Int(model.speed))×")
+                        Image(systemName: "chevron.up.chevron.down").font(.caption2.weight(.semibold))
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.muted)
+                }
+            }
+            Text("Speeds up time so you can see the finished notice, the free minutes and the idle fee.")
+                .font(.caption)
+                .foregroundStyle(Theme.muted)
+                .padding(.horizontal, 14)
+                .padding(.bottom, 4)
+            RowDivider()
             Text("Contains data from Via Lietuva (ev.vialietuva.lt), CC BY 4.0.")
                 .font(.caption)
                 .foregroundStyle(Theme.muted)
@@ -140,7 +154,21 @@ struct ProfileScreen: View {
     }
 
     private var moreList: some View {
-        ListCard {
+        let plans = model.activePlanIds.count
+        let tier = Points.tier(for: model.lifetimePoints).current.name
+        return VStack(alignment: .leading, spacing: 8) {
+          Text("More").font(.headline).foregroundStyle(Theme.muted)
+          ListCard {
+            NavigationLink { RewardsScreen() } label: {
+                ListRow(systemImage: "star.fill", title: "Points and leaderboard", value: "\(model.points) · \(tier)", color: Theme.warn)
+            }
+            .buttonStyle(.plain)
+            RowDivider()
+            NavigationLink { PlansScreen() } label: {
+                ListRow(systemImage: "ticket.fill", title: "Operator plans", value: plans == 0 ? tr("None") : tr("\(plans) active"))
+            }
+            .buttonStyle(.plain)
+            RowDivider()
             NavigationLink { OperatorScreen() } label: {
                 ListRow(systemImage: "chart.bar.xaxis", title: "City and operator analytics", color: Theme.ok)
             }
@@ -155,6 +183,7 @@ struct ProfileScreen: View {
                 ListRow(systemImage: "arrow.counterclockwise", title: "Reset demo data", color: Theme.bad) { EmptyView() }
             }
             .buttonStyle(.plain)
+          }
         }
     }
 }

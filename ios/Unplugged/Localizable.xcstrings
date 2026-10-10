@@ -6892,6 +6892,116 @@
           }
         }
       }
+    },
+    "Filters": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtrai"
+          }
+        }
+      }
+    },
+    "Only plugs that fit your car are shown.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodomos tik jūsų automobiliui tinkamos jungtys."
+          }
+        }
+      }
+    },
+    "%lld on": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įjungta: %lld"
+          }
+        }
+      }
+    },
+    "More information": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daugiau informacijos"
+          }
+        }
+      }
+    },
+    "Estimated pattern, not measured.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apytikslis užimtumas, ne išmatuotas."
+          }
+        }
+      }
+    },
+    "Reserve": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervuoti"
+          }
+        }
+      }
+    },
+    "See charging cost": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodyti įkrovimo kainą"
+          }
+        }
+      }
+    },
+    "Charging history": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimų istorija"
+          }
+        }
+      }
+    },
+    "More": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daugiau"
+          }
+        }
+      }
+    },
+    "Points and leaderboard": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taškai ir lyderių lentelė"
+          }
+        }
+      }
+    },
+    "%lld×": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld×"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

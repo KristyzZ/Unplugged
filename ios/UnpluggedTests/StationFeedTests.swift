@@ -207,10 +207,10 @@ final class StationMappingTests: XCTestCase {
         XCTAssertTrue(s.capabilities.supportsSessionControl)
     }
 
-    func testNoBusyHourHistoryMeansNoData() throws {
+    func testStationsWithoutHistoryGetAnEstimatedPattern() throws {
         let s = try stations([F.location(id: 1, evses: [F.evse("A")])])[0]
-        XCTAssertTrue(s.hourlyOccupancy.isEmpty)
-        XCTAssertNil(s.probabilityFree(atHour: 12, at: now), "no history is 'no data', not 'no chance'")
+        XCTAssertTrue(s.hasValidOccupancyHistory, "an estimated 24-hour pattern")
+        XCTAssertNotNil(s.probabilityFree(atHour: 12, at: now))
     }
 
     // MARK: Provenance uses the fetch time
