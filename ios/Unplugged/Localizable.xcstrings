@@ -6123,6 +6123,26 @@
         }
       }
     },
+    "Spot held for you: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta jums rezervuota: %@"
+          }
+        }
+      }
+    },
+    "Opens the station": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atidaro stotelę"
+          }
+        }
+      }
+    },
     "Connector selected. Charging options expanded.": {
       "localizations": {
         "lt": {
@@ -6209,26 +6229,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pradėti ir mokėti"
-          }
-        }
-      }
-    },
-    "Spot held for you: %@": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vieta jums rezervuota: %@"
-          }
-        }
-      }
-    },
-    "Opens the station": {
-      "localizations": {
-        "lt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Atidaro stotelę"
           }
         }
       }
