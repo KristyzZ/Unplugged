@@ -2790,6 +2790,106 @@
           }
         }
       }
+    },
+    "Public tariff": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viešasis tarifas"
+          }
+        }
+      }
+    },
+    "Demo contract: %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė sutartis: %@"
+          }
+        }
+      }
+    },
+    "Demo billing: %@. No real payment is collected.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinis atsiskaitymas: %@. Tikras mokėjimas neatliekamas."
+          }
+        }
+      }
+    },
+    "Public tariff used. Account pricing is not supported for this station.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taikomas viešasis tarifas. Ši stotelė nepalaiko asmeninės kainodaros."
+          }
+        }
+      }
+    },
+    "Public tariff used. Your plan does not apply to this connector.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taikomas viešasis tarifas. Jūsų planas šiai jungčiai netaikomas."
+          }
+        }
+      }
+    },
+    "Energy charge": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mokestis už energiją"
+          }
+        }
+      }
+    },
+    "Session start fee": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sesijos pradžios mokestis"
+          }
+        }
+      }
+    },
+    "Charging time fee": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mokestis už įkrovimo laiką"
+          }
+        }
+      }
+    },
+    "Plan saving (already included)": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plano sutaupymas (jau įskaičiuotas)"
+          }
+        }
+      }
+    },
+    "Charging terms are fixed when the session starts. Idle fees are separate and are not discounted.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimo sąlygos užfiksuojamos sesijos pradžioje. Prastovos mokesčiai skaičiuojami atskirai, jiems nuolaidos netaikomos."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
