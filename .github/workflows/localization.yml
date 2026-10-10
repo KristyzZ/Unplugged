@@ -1,0 +1,23 @@
+name: Localization
+
+# Cheap Linux job: validates the String Catalogs and tests the merge driver / checker.
+on:
+  pull_request:
+    paths:
+      - "**/*.xcstrings"
+      - "scripts/*xcstrings*"
+      - "scripts/tests/**"
+      - ".gitattributes"
+      - ".github/workflows/localization.yml"
+  workflow_dispatch:
+
+jobs:
+  catalogs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate String Catalogs
+        run: python3 scripts/check_xcstrings.py
+      - name: Test merge driver and checker
+        run: python3 -m unittest discover -s scripts/tests -v
