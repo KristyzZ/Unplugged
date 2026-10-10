@@ -13,7 +13,7 @@ final class StationPageRenderingTests: XCTestCase {
         let previous = keys.map { defaults.object(forKey: $0) }
         let language = L10n.current
         keys.forEach { defaults.removeObject(forKey: $0) }
-        let model = AppModel(runLoops: false)
+        let model = AppModel(runLoops: false, stationSource: .demo)
         model.lockScreenEnabled = false
         defer {
             model.resetDemo()
