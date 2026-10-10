@@ -9,7 +9,8 @@ struct MapScreen: View {
     @State private var query = ""
     @State private var onlyFree = false
     @State private var fastOnly = false
-    @State private var myCarOnly = true
+    /// Always on: only connectors your car can use are shown.
+    private let myCarOnly = true
     @State private var privateOnly = false
     @State private var selectedId: String?
     @State private var listOpen = false
@@ -157,9 +158,9 @@ struct MapScreen: View {
     private var topBar: some View {
         HStack(alignment: .top, spacing: 10) {
             ChargingTile(style: .square)
-            VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
                 searchField
-                filters
+                filtersButton
             }
         }
         .padding(.top, 4)
@@ -195,17 +196,33 @@ struct MapScreen: View {
         .glass(in: Capsule())
     }
 
-    private var filters: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                Chip(title: "Available only", active: onlyFree) { onlyFree.toggle() }
-                Chip(title: "Fast ≥ 50 kW", active: fastOnly) { fastOnly.toggle() }
-                Chip(title: "Fits my car", active: myCarOnly) { myCarOnly.toggle() }
-                Chip(title: "Private", active: privateOnly) { privateOnly.toggle() }
-            }
-            .padding(.vertical, 2)
+    private var activeFilterCount: Int { [onlyFree, fastOnly, privateOnly].filter { $0 }.count }
+
+    /// One "Filters" button instead of a row of chips. Your car's plugs are always applied.
+    private var filtersButton: some View {
+        Menu {
+            Toggle("Available only", isOn: $onlyFree)
+            Toggle("Fast ≥ 50 kW", isOn: $fastOnly)
+            Toggle("Private", isOn: $privateOnly)
+            Section("Only plugs that fit your car are shown.") {}
+        } label: {
+            Image(systemName: "line.3.horizontal.decrease")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(activeFilterCount > 0 ? Theme.brand : Theme.text)
+                .frame(width: 50, height: 50)
+                .glass(in: Circle())
+                .overlay(alignment: .topTrailing) {
+                    if activeFilterCount > 0 {
+                        Text("\(activeFilterCount)")
+                            .font(.caption2.bold())
+                            .foregroundStyle(Theme.ink)
+                            .frame(width: 18, height: 18)
+                            .background(Theme.brand, in: Circle())
+                    }
+                }
         }
-        .scrollClipDisabled()
+        .accessibilityLabel(Text("Filters"))
+        .accessibilityValue(Text(activeFilterCount > 0 ? tr("\(activeFilterCount) on") : tr("None")))
     }
 
     private var locateButton: some View {

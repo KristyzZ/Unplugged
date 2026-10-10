@@ -326,8 +326,8 @@ enum StationBuilder {
                 operatorId: OperatorCatalog.operatorId(partyId: feed.party),
                 pricePerKwh: headline ?? 0,
                 connectors: connectors,
-                // No busy-hour history exists yet (issue #37); empty means "no data", not "never busy".
-                hourlyOccupancy: [],
+                // No busy-hour history exists yet (issue #37): an estimated pattern, labelled as such.
+                hourlyOccupancy: EstimatedOccupancy.hourly(id: "ocpi-\(feed.id)", name: feed.name, address: feed.address),
                 amenities: [],
                 priceProvenance: headline == nil
                     ? .unspecified

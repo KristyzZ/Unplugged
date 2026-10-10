@@ -39,3 +39,20 @@ final class StationPageTests: XCTestCase {
         XCTAssertEqual(StationDetailView.subtitle(s, operatorName: "Ignitis"), "Ignitis · Ozo g. 25 · Vilnius")
     }
 }
+
+/// Made-up busy hours for stations without history.
+final class EstimatedOccupancyTests: XCTestCase {
+    func testTwentyFourValidHoursAndStable() {
+        let a = EstimatedOccupancy.hourly(id: "ocpi-1", name: "Norfa XL", address: "Mokyklos g. 2C")
+        XCTAssertEqual(a.count, 24)
+        XCTAssertTrue(a.allSatisfy { (0...1).contains($0) })
+        XCTAssertEqual(a, EstimatedOccupancy.hourly(id: "ocpi-1", name: "Norfa XL", address: "Mokyklos g. 2C"))
+        XCTAssertNotEqual(a, EstimatedOccupancy.hourly(id: "ocpi-2", name: "Norfa XL", address: "Mokyklos g. 2C"))
+    }
+
+    func testProfileFromPlace() {
+        XCTAssertEqual(EstimatedOccupancy.profile(for: "norfa xl, mokyklos g."), .mall)
+        XCTAssertEqual(EstimatedOccupancy.profile(for: "circle k, a1 kelias"), .highway)
+        XCTAssertEqual(EstimatedOccupancy.profile(for: "žvėryno g. 14"), .residential)
+    }
+}

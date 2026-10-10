@@ -14,6 +14,9 @@ struct StationDetailView: View {
     @State private var startLater = false
     @State private var startsAt = Date().addingTimeInterval(1800)
     @State private var bookingFailed = false
+    /// The charge options (battery, time, price) open only after the main button.
+    @State private var optionsOpen = false
+    @State private var showMore = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
@@ -104,29 +107,40 @@ struct StationDetailView: View {
                         viewSessionButton.padding(.top, 10)
                     }
 
-                    SectionHeader(title: "Occupancy by hour")
-                    CardBox {
-                        OccupancyChart(values: station.hourlyOccupancy, currentHour: hour, highlight: best != hour ? best : nil)
-                        Divider().padding(.vertical, 12)
-                        StatRow {
-                            StatView(label: "Usual chance of a free spot now", value: station.probabilityFree(atHour: hour).map(Fmt.estimatePct) ?? "–")
-                            StatView(
-                                label: "Best time in the next 6 h",
-                                value: Fmt.hour(best),
-                                sub: station.probabilityFree(atHour: best).map { tr("chance \(Fmt.estimatePct($0))") }
-                            )
-                        }
-                    }
+                    DisclosureGroup(isExpanded: $showMore) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            statusBreakdown(station).padding(.top, 8)
+                            SectionHeader(title: "Occupancy by hour")
+                            CardBox {
+                                OccupancyChart(values: station.hourlyOccupancy, currentHour: hour, highlight: best != hour ? best : nil)
+                        Text("Estimated pattern, not measured.")
+                            .font(.caption).foregroundStyle(Theme.muted).padding(.top, 6)
+                                Divider().padding(.vertical, 12)
+                                StatRow {
+                                    StatView(label: "Usual chance of a free spot now", value: station.probabilityFree(atHour: hour).map(Fmt.estimatePct) ?? "–")
+                                    StatView(
+                                        label: "Best time in the next 6 h",
+                                        value: Fmt.hour(best),
+                                        sub: station.probabilityFree(atHour: best).map { tr("chance \(Fmt.estimatePct($0))") }
+                                    )
+                                }
+                            }
 
-                    if !station.amenities.isEmpty {
-                        SectionHeader(title: "Nearby")
-                        HStack {
-                            ForEach(station.amenities, id: \.self) { Pill(text: $0) }
-                        }
-                    }
+                            if !station.amenities.isEmpty {
+                                SectionHeader(title: "Nearby")
+                                HStack {
+                                    ForEach(station.amenities, id: \.self) { Pill(text: $0) }
+                                }
+                            }
 
-                    SectionHeader(title: "Idle fee")
-                    idleFeeCard(grace: grace)
+                            SectionHeader(title: "Idle fee")
+                            idleFeeCard(grace: grace)
+                        }
+                    } label: {
+                        Text("More information").font(.headline).foregroundStyle(Theme.text).frame(minHeight: 44)
+                    }
+                    .tint(Theme.muted)
+                    .padding(.top, 20)
 
                     actions(station).padding(.top, 20)
 
@@ -201,7 +215,11 @@ struct StationDetailView: View {
                     Text("per kWh").font(.caption).foregroundStyle(Theme.muted)
                 }
             }
-            Divider().padding(.vertical, 12)
+        }
+    }
+
+    private func statusBreakdown(_ station: Station) -> some View {
+        CardBox {
             StatRow {
                 StatView(label: "Charging now", value: "\(station.count(.charging))")
                 StatView(label: "Finished, parked", value: "\(station.count(.idle))")
@@ -289,6 +307,7 @@ struct StationDetailView: View {
             ? StationConnectorSelection.tapping(id, currentID: pickedConnectorId, selectableIDs: selectableIDs)
             : StationConnectorSelection.visibleID(id, selectableIDs: selectableIDs, busy: false)
         bookingFailed = false
+        optionsOpen = false
         // Default to the time it takes to reach the charge limit, in 5-minute steps.
         if let id = pickedConnectorId,
            let c = model.stations.first(where: { $0.id == stationId })?.connectors.first(where: { $0.id == id }) {
@@ -359,8 +378,25 @@ struct StationDetailView: View {
         let target = Charging.targetSoc(vehicle, connector, from: model.soc, minutes: chosen)
         let energy = Charging.chargeTime(vehicle, connector, from: model.soc, to: target).kwh
         let price = model.chargingEstimate(at: station, connector: connector, targetSoc: target)
+        let socBinding = Binding(get: { model.soc }, set: { model.setSoc($0) })
         return CardBox {
+          if !optionsOpen {
+            Button(listing != nil ? "Reserve" : "See charging cost") {
+                withMotion(.spring(duration: 0.3)) { optionsOpen = true }
+            }
+            .buttonStyle(PrimaryButtonStyle())
+            .accessibilityIdentifier("station-open-options")
+          } else {
+            Text("Battery now").font(.headline)
+            HStack {
+                Slider(value: socBinding, in: 0...99, step: 1)
+                    .frame(minHeight: 44)
+                    .accessibilityLabel(Text("Battery now"))
+                    .accessibilityValue(Text("\(Int(model.soc)) %"))
+                Text("\(Int(model.soc)) %").font(.subheadline.weight(.semibold)).monospacedDigit().frame(minWidth: 48, alignment: .trailing)
+            }
             Text("How long do you want to charge?").font(.headline).fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 10)
             HStack(alignment: .firstTextBaseline) {
                 Text(Fmt.minutes(Double(chosen)))
                     .scaledFont(28, weight: .bold, design: .rounded, relativeTo: .title)
@@ -441,6 +477,7 @@ struct StationDetailView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 12)
             }
+          }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("station-charge-card")
