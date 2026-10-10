@@ -190,12 +190,12 @@ struct PlanScreen: View {
                             .foregroundStyle(Theme.muted)
                     }
                     Spacer()
-                    Pill(text: tr("free \(Fmt.pct(stop.freeProbability))"), color: pColor)
+                    Pill(text: tr("free \(Fmt.estimatePct(stop.freeProbability))"), color: pColor)
                 }
                 StatRow {
                     StatView(label: "Arrival", value: Fmt.clock(stop.arriveAt), sub: "\(stop.arriveSoc) %")
                     StatView(label: "Charge for", value: Fmt.minutes(Double(stop.chargeMinutes)), sub: tr("to \(stop.departSoc) %"))
-                    StatView(label: "Cost", value: Fmt.eur(stop.costEur), sub: String(format: "%.1f kWh", stop.energyKwh))
+                    StatView(label: "Cost", value: Fmt.eur(stop.costEur), sub: Fmt.kwh(stop.energyKwh))
                 }
                 .padding(.top, 12)
             }

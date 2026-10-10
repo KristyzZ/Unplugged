@@ -53,7 +53,7 @@ struct ProfileScreen: View {
                 StatView(label: "Max AC", value: "\(Int(vehicle.maxAcKw)) kW")
             }
             StatRow {
-                StatView(label: "Consumption", value: String(format: "%.0f kWh/100 km", vehicle.consumptionKwhPer100))
+                StatView(label: "Consumption", value: "\(Fmt.number(vehicle.consumptionKwhPer100, decimals: 0)) kWh/100 km")
                 StatView(label: "Connectors", value: vehicle.connectors.map(\.rawValue).joined(separator: ", "))
             }
             .padding(.top, 10)
