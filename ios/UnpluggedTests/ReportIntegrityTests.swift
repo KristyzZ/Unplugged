@@ -149,4 +149,17 @@ final class ReportIntegrityTests: XCTestCase {
             XCTAssertEqual(model.points, 120)
         }
     }
+    @MainActor
+    func testSeededReportsRoundTripWithoutInventingReviewOrRewardMetadata() {
+        withModel { model in
+            let seeded = model.reports
+            model.save()
+            model.load()
+            XCTAssertEqual(model.reports, seeded)
+            model.resetDemo()
+            model.load()
+            XCTAssertEqual(model.reports, seeded)
+        }
+    }
+
 }

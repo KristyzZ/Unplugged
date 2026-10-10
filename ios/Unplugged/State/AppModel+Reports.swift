@@ -73,13 +73,9 @@ extension AppModel {
         guard let state: ReportsState = snapshot.value(for: "reports") else { return }
         reports = state.reports.map {
             var report = $0
-            if report.reviewState == nil {
-                // Old submissions could already award a high-confidence report.
-                // Preserve that fact without inventing an actual reviewed outcome.
-                if report.reportRewardGranted == nil {
-                    report.reportRewardGranted = report.byMe && report.category == .wrongUsage
-                        && report.confidence >= Reports.confirmThreshold
-                }
+            if report.reviewState == nil, report.reportRewardGranted == nil, report.byMe,
+               report.category == .wrongUsage, report.confidence >= Reports.confirmThreshold {
+                report.reportRewardGranted = true
             }
             return report
         }
