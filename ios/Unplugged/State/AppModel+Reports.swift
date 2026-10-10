@@ -7,10 +7,10 @@ extension AppModel {
         let telemetry: Bool
         switch kind {
         case .wrongUsage:
-            telemetry = station.connectors.contains { $0.status == .blocked }
+            telemetry = station.connectors.contains { $0.effectiveStatus() == .blocked }
         case .chargerProblem:
             let scope = station.connectors.filter { connectorId == nil || $0.id == connectorId }
-            telemetry = scope.contains { $0.status == .offline }
+            telemetry = scope.contains { $0.effectiveStatus() == .offline }
         case .other:
             telemetry = false
         }

@@ -33,10 +33,10 @@ struct MapScreen: View {
         let vehicle = model.vehicle
         let q = query.trimmingCharacters(in: .whitespaces).lowercased()
         return model.stations
-            .filter { !onlyFree || $0.freeCount > 0 }
-            .filter { !fastOnly || $0.maxPower >= 50 }
             .filter { operatorId == nil || $0.operatorId == operatorId }
-            .filter { s in !myCarOnly || s.connectors.contains { Charging.isCompatible(vehicle, $0) } }
+            // One connector must satisfy all active filters (available + fast + fits my car).
+            .filter { $0.hasConnector(matching: ConnectorFilter(
+                onlyAvailable: onlyFree, minPowerKw: fastOnly ? 50 : nil, vehicle: myCarOnly ? vehicle : nil)) }
             .filter { s in q.isEmpty || "\(s.name) \(s.address) \(s.city)".lowercased().contains(q) }
             .map { Item(station: $0, distance: Geo.haversineKm(origin, $0.latLng)) }
             .sorted { $0.distance < $1.distance }

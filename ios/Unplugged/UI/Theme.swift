@@ -90,6 +90,7 @@ extension Color {
 extension ConnectorStatus {
     var label: String {
         switch self {
+        case .unknown: tr("Status unknown")
         case .available: tr("Available")
         case .charging: tr("Charging now")
         case .idle: tr("Finished, still parked")
@@ -100,6 +101,7 @@ extension ConnectorStatus {
 
     var color: Color {
         switch self {
+        case .unknown: .gray
         case .available: Theme.ok
         case .charging: Theme.info
         case .idle: Theme.warn
@@ -116,11 +118,13 @@ extension AvailabilityLevel {
         case .limited: tr("Nearly full")
         case .full: tr("Full")
         case .offline: tr("Out of service")
+        case .unknown: tr("Status unknown")
         }
     }
 
     var color: Color {
         switch self {
+        case .unknown: .gray
         case .free: Theme.ok
         case .limited: Theme.warn
         case .full: Theme.bad

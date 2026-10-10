@@ -13,6 +13,7 @@ enum ConnectorType: String, Codable, CaseIterable, Hashable {
 }
 
 enum ConnectorStatus: String, Codable, Hashable {
+    case unknown     // no trustworthy status (never reported, or too old). Not the same as available.
     case available   // free and ready
     case charging    // car plugged in and drawing power
     case idle        // charging finished, car still occupying the spot
@@ -29,6 +30,9 @@ struct Connector: Identifiable, Hashable {
     var idleMinutes: Int?
     /// Estimated minutes until free (only when status == .charging).
     var etaMinutes: Int?
+    /// Source, time and kind of data behind `status`. Defaults to "unspecified" (stale), so a
+    /// status without provenance is never counted as confirmed.
+    var provenance: Provenance = .unspecified
 }
 
 struct ChargeOperator: Identifiable, Hashable {
@@ -58,6 +62,10 @@ struct Station: Identifiable, Hashable {
     /// Typical occupancy share (0–1) for each hour of the day, index 0 = 00:00.
     let hourlyOccupancy: [Double]
     let amenities: [String]
+    /// Source, time and kind of data behind `pricePerKwh`.
+    var priceProvenance: Provenance = .unspecified
+    /// What the app may do with this station. Defaults to discovery only.
+    var capabilities: StationCapabilities = .discoveryOnly
 
     var latLng: LatLng { LatLng(lat: lat, lng: lng) }
     var coordinate: CLLocationCoordinate2D { latLng.coordinate }
