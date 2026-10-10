@@ -288,7 +288,9 @@ struct MapScreen: View {
 
 // MARK: - Pins & rows
 
-/// Teardrop map pin with the station's max power, colored by availability.
+/// Teardrop map pin with the number of confirmed free connectors, colored by
+/// availability. "?" when no connector's status is known, so an unknown
+/// station never reads as full.
 struct StationPin: View {
     let station: Station
     var emphasized = false
@@ -296,7 +298,7 @@ struct StationPin: View {
     var body: some View {
         let color = station.availability.color
         VStack(spacing: -1) {
-            Text("\(Int(station.maxPower))")
+            Text(Self.label(free: station.freeCount, availability: station.availability))
                 .scaledFont(13, weight: .bold, design: .rounded, relativeTo: .footnote)
                 .foregroundStyle(Theme.ink)
                 .lineLimit(1)
@@ -315,8 +317,13 @@ struct StationPin: View {
         .shadow(color: .black.opacity(0.35), radius: 3, y: 2)
         .animation(Motion.pick(.spring(duration: 0.3)), value: emphasized)
         .accessibilityElement()
-        .accessibilityLabel(Text("\(station.name), \(Int(station.maxPower)) kW, \(station.availability.label)"))
+        .accessibilityLabel(Text("\(station.name), \(station.freeCount) of \(station.workingCount) free, \(Int(station.maxPower)) kW, \(station.availability.label)"))
         .accessibilityAddTraits(.isButton)
+    }
+
+    /// What the pin shows: free connectors, or "?" when availability is unknown.
+    static func label(free: Int, availability: AvailabilityLevel) -> String {
+        availability == .unknown && free == 0 ? "?" : "\(free)"
     }
 }
 

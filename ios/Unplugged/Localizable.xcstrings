@@ -6692,6 +6692,16 @@
           }
         }
       }
+    },
+    "%@, %lld of %lld free, %lld kW, %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, laisva %lld iš %lld, %lld kW, %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
