@@ -48,7 +48,7 @@ enum PlateReader {
                 // Lithuanian formats win; then recognition confidence; then size
                 // (the plate is usually the biggest text in a plate photo).
                 let box = observation.boundingBox
-                let score = (match.lithuanian ? 2 : 0) + Double(candidate.confidence) + box.height * 2
+                let score: Double = (match.lithuanian ? 2 : 0) + Double(candidate.confidence) + Double(box.height) * 2
                 if best == nil || score > best!.score {
                     let topLeft = CGRect(x: box.minX, y: 1 - box.maxY, width: box.width, height: box.height)
                     best = (PlateReading(plate: match.plate, box: topLeft, lithuanian: match.lithuanian), score)
