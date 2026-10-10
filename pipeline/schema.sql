@@ -15,16 +15,20 @@ CREATE TABLE IF NOT EXISTS evses (
 CREATE INDEX IF NOT EXISTS idx_evses_evse_id ON evses(evse_id);
 -- The feed contains duplicate records for the same charger (same evse_id, different uid, sometimes
 -- with conflicting status). Statistics use the freshest record per evse_id.
-CREATE VIEW IF NOT EXISTS evses_current AS
+-- A record dated more than a day ahead has a bogus date (the feed has some in 2031); it ranks last.
+DROP VIEW IF EXISTS evses_current;
+CREATE VIEW evses_current AS
   SELECT * FROM evses e WHERE e.uid = (
-    SELECT x.uid FROM evses x WHERE x.evse_id = e.evse_id ORDER BY x.last_updated DESC, x.uid DESC LIMIT 1);
+    SELECT x.uid FROM evses x WHERE x.evse_id = e.evse_id
+    ORDER BY CASE WHEN x.last_updated > datetime('now', '+27 hours') THEN '' ELSE x.last_updated END DESC, x.uid DESC LIMIT 1);
 CREATE TABLE IF NOT EXISTS connectors (
   id INTEGER PRIMARY KEY, evse_uid INTEGER REFERENCES evses(uid), standard TEXT, power_type TEXT,
   max_power_w INTEGER, tariff_ids TEXT       -- JSON array of tariff ids
 );
 CREATE TABLE IF NOT EXISTS tariffs (
   id TEXT PRIMARY KEY, party_id TEXT, currency TEXT, energy_eur_kwh REAL, time_eur_min REAL,
-  flat_eur REAL, description TEXT, last_updated TEXT
+  flat_eur REAL, description TEXT, last_updated TEXT,
+  elements TEXT                              -- trimmed OCPI elements (JSON), see ocpi.trim_tariff
 );
 -- Workbook rows, joined to OCPI on evse_id (100% of OCPI EVSEs match).
 CREATE TABLE IF NOT EXISTS registry (

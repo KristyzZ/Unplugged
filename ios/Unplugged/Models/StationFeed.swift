@@ -216,21 +216,20 @@ enum StationBuilder {
     /// One record per charger id: the one that changed most recently. A record with an impossible
     /// date ranks last. Stations left without chargers are dropped.
     static func dedupe(_ stations: [FeedStation], now: Date) -> [FeedStation] {
-        var best: [String: (station: Int, rank: Date)] = [:]
+        // The winning record of each charger id: its station index, its position there and its rank.
+        var best: [String: (station: Int, evse: Int, rank: Date)] = [:]
         for (si, s) in stations.enumerated() {
-            for e in s.evses {
+            for (ei, e) in s.evses.enumerated() {
                 let rank = changeDate(e.updated, now: now) ?? .distantPast
-                if let current = best[e.id], current.rank >= rank { continue }
-                best[e.id] = (si, rank)
+                if let current = best[e.id], current.rank >= rank { continue }   // ties keep the earlier record
+                best[e.id] = (si, ei, rank)
             }
         }
-        var seenInStation: [Set<String>] = Array(repeating: [], count: stations.count)
         return stations.enumerated().compactMap { si, s in
             var copy = s
-            copy.evses = s.evses.filter { e in
-                guard best[e.id]?.station == si, !seenInStation[si].contains(e.id) else { return false }
-                seenInStation[si].insert(e.id)
-                return true
+            copy.evses = s.evses.enumerated().compactMap { ei, e in
+                guard let winner = best[e.id], winner.station == si, winner.evse == ei else { return nil }
+                return e
             }
             return copy.evses.isEmpty ? nil : copy
         }
