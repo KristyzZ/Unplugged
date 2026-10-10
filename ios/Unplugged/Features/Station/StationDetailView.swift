@@ -8,6 +8,8 @@ struct StationDetailView: View {
     @State private var pickedConnectorId: String?
     @State private var target: Double = 80
     @State private var showReport = false
+    @State private var showBooking = false
+    @State private var bookingConnectorId: String?
     @State private var initialized = false
     @State private var showPriceDetails = false
     @State private var showIdleDetails = false
@@ -79,6 +81,8 @@ struct StationDetailView: View {
                             model.releaseHold()
                         }
                         .padding(.top, 12)
+                    } else if let reservation = model.myReservation, reservation.stationId == station.id {
+                        ReservationSummaryCard(reservation: reservation).padding(.top, 12)
                     } else if station.freeCount == 0 || model.queue?.stationId == station.id {
                         queueCard(station).padding(.top, 12)
                     }
@@ -156,6 +160,11 @@ struct StationDetailView: View {
                 if let id, !busy { selectConnector(id, selectableIDs: selectableIds, toggle: false) }
             }
         } // ScrollViewReader
+        .sheet(isPresented: $showBooking) {
+            if let connector = station.connectors.first(where: { $0.id == bookingConnectorId }) {
+                ReservationBookingView(station: station, connector: connector)
+            }
+        }
         .sheet(isPresented: $showReport) {
             NavigationStack {
                 ReportContent(stationId: station.id)
@@ -218,28 +227,20 @@ struct StationDetailView: View {
             if let entry {
                 Text("You're in the queue").font(.headline)
                 TimelineView(.periodic(from: .now, by: 1)) { _ in
-                    let wait = Fmt.minutes(max(1, (entry.nextEventAt ?? .now).timeIntervalSince(model.simNow()) / 60))
-                    Group {
-                        if entry.position == 1 {
-                            Text("You're next. When a car leaves, its charger is held for you for \(Int(SpotHold.minutes)) min. Expected in about \(wait).")
-                        } else {
-                            Text("\(entry.position) in line. The next car is expected to leave in about \(wait).")
-                        }
-                    }
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.muted)
-                    .padding(.top, 4)
+                    Text("Demo queue position: \(entry.position). We'll hold a compatible connector for 10 min when a spot is confirmed free.")
+                        .font(.subheadline).foregroundStyle(Theme.muted).padding(.top, 4)
                 }
                 Button("Leave queue") { model.leaveQueue() }
                     .buttonStyle(SecondaryButtonStyle())
                     .padding(.top, 12)
             } else {
                 Text("All spots are taken").font(.headline)
-                Text("Join the queue. When a car leaves, its charger is held for the next driver for \(Int(SpotHold.minutes)) min, so nobody can grab it first.")
+                Text("Join the demo queue. A compatible free connector is reserved for 10 min when it is your turn.")
                     .font(.subheadline)
                     .foregroundStyle(Theme.muted)
                     .padding(.top, 4)
                 Button("Join queue") { model.joinQueue(station) }
+                    .disabled(model.hasActiveSession || model.myReservation != nil || (model.queue != nil && model.queue?.stationId != station.id))
                     .buttonStyle(PrimaryButtonStyle())
                     .padding(.top, 12)
             }
@@ -371,6 +372,13 @@ struct StationDetailView: View {
             .buttonStyle(PrimaryButtonStyle())
             .accessibilityIdentifier("station-start-charge")
             .padding(.top, 10)
+            if model.myReservation == nil && model.queue == nil {
+                Button("Reserve connector") {
+                    bookingConnectorId = connector.id
+                    showBooking = true
+                }
+                .buttonStyle(SecondaryButtonStyle()).padding(.top, 8)
+            }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("station-charge-card")
@@ -406,7 +414,9 @@ private struct HoldCard: View {
                             .foregroundStyle(Theme.muted)
                     }
                 }
-                Text("A driver just left and you were next in line. Plug in before the time runs out, or it goes to the next person.")
+                Text(hold.bookedAt != nil
+                     ? "Begin charging within 10 min of the reserved start, or the spot is released."
+                     : "A driver just left and you were next in line. Plug in before the time runs out, or it goes to the next person.")
                     .font(.caption)
                     .foregroundStyle(Theme.muted)
                     .padding(.top, 10)

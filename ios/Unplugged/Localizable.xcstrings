@@ -6232,6 +6232,226 @@
           }
         }
       }
+    },
+    "Demo reservation": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė rezervacija"
+          }
+        }
+      }
+    },
+    "Demo reservation saved": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė rezervacija išsaugota"
+          }
+        }
+      }
+    },
+    "Begin charging within 10 min of the reserved start, or the spot is released.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradėkite įkrovimą per 10 min. nuo rezervuoto pradžios laiko, kitaip vieta atlaisvinama."
+          }
+        }
+      }
+    },
+    "Demo queue: a compatible free connector will be held for 10 min when it is your turn.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė eilė: atėjus jūsų eilei tinkama laisva jungtis bus laikoma 10 min."
+          }
+        }
+      }
+    },
+    "Reservation cancelled": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervacija atšaukta"
+          }
+        }
+      }
+    },
+    "The spot is available to the next driver when free.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atlaisvinta vieta gali naudotis kitas vairuotojas."
+          }
+        }
+      }
+    },
+    "Reservation expired": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervacija baigėsi"
+          }
+        }
+      }
+    },
+    "Charging did not start before the deadline. The spot was released.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimas nepradėtas iki termino. Vieta atlaisvinta."
+          }
+        }
+      }
+    },
+    "Your reservation has started": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prasidėjo jūsų rezervacija"
+          }
+        }
+      }
+    },
+    "Reservation not ready": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervacija dar neprasidėjo"
+          }
+        }
+      }
+    },
+    "Wait for its start time, or cancel it before charging elsewhere.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palaukite pradžios laiko arba atšaukite rezervaciją prieš kraudamiesi kitur."
+          }
+        }
+      }
+    },
+    "Demo queue position: %lld. We'll hold a compatible connector for 10 min when a spot is confirmed free.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieta demonstracinėje eilėje: %lld. Patvirtinus, kad vieta laisva, tinkamą jungtį laikysime 10 min."
+          }
+        }
+      }
+    },
+    "Join the demo queue. A compatible free connector is reserved for 10 min when it is your turn.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stokite į demonstracinę eilę. Atėjus jūsų eilei tinkama laisva jungtis rezervuojama 10 min."
+          }
+        }
+      }
+    },
+    "Reserve connector": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervuoti jungtį"
+          }
+        }
+      }
+    },
+    "Start now": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradėti dabar"
+          }
+        }
+      }
+    },
+    "Charging start": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Įkrovimo pradžia"
+          }
+        }
+      }
+    },
+    "Demo reservation. No real charger is guaranteed. Times follow the demo clock speed.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demonstracinė rezervacija. Tikra įkrovimo vieta negarantuojama. Laikas priklauso nuo demonstracinio laikrodžio greičio."
+          }
+        }
+      }
+    },
+    "Reservation unavailable. Refresh the station or cancel your existing queue or reservation.": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rezervuoti nepavyko. Atnaujinkite stotelę arba atšaukite esamą eilę ar rezervaciją."
+          }
+        }
+      }
+    },
+    "Confirm reservation": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patvirtinti rezervaciją"
+          }
+        }
+      }
+    },
+    "Upcoming reservation": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Būsima rezervacija"
+          }
+        }
+      }
+    },
+    "Starts %@ · expires %@": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pradžia %@ · galioja iki %@"
+          }
+        }
+      }
+    },
+    "Cancel reservation": {
+      "localizations": {
+        "lt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atšaukti rezervaciją"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

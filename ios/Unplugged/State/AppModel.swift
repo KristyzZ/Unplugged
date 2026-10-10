@@ -91,6 +91,7 @@ final class AppModel {
 
     init(runLoops: Bool = true) {
         load()
+        expireReservations(at: simNow())
         refreshStations()
         checkSession()
         if runLoops { startLoops() }
